@@ -1,0 +1,22 @@
+{
+  "name": "controllerptz",
+  "version": "1.0.0",
+  "main": "main.js",
+  "scripts": {
+    "build": "./scripts/build.all.sh"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "@babel/cli": "^7.16.7",
+    "@babel/core": "^7.16.7",
+    "@babel/preset-env": "^7.18.9",
+    "dotenv": "^16.4.5"
+  },
+  "dependencies": {
+    "gamecontroller": "^0.0.2",
+    "node-osc": "^9.1.4"
+  }
+}

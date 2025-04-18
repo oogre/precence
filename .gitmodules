@@ -1,0 +1,3 @@
+[submodule "PTZ/Panasonic-IP-setup"]
+	path = PTZ/Panasonic-IP-setup
+	url = git@github.com:dPro-Software/Panasonic-IP-setup.git
