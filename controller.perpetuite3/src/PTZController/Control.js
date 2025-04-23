@@ -34,7 +34,7 @@ export default class Control{
 		if(this.withParams){
 			param = Object.values(this.params).map(({stringValue}) => stringValue).join("")
 		}
-		return `${this.cmd}${param}`.toUpperCase();
+		return `#${this.cmd}${param}`.toUpperCase();
 	}
 	onChange(handler){
 		if(typeof variable !== 'function')

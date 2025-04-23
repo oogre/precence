@@ -53,6 +53,13 @@ export default class UI_HELPER extends UI_TOOL{
 			[x, y-5, this.ctx.measureText(label).width + 30, 20]
 		);
 	}
+	line(x1, y1, x2, y2){
+		this.ctx.strokeStyle = 'white'
+		this.ctx.beginPath(); // Start a new path
+		this.ctx.moveTo(x1, y1); // Move the pen to (30, 50)
+		this.ctx.lineTo(x2, y2); // Draw a line to (150, 100)
+		this.ctx.stroke(); // Render the path
+	}
 	button([x, y, w, h]){
 		const isInside = this.mouse.x > x && this.mouse.x < x + w && this.mouse.y > y && this.mouse.y < y + h;
 		if(isInside && this.mouse.isDown){

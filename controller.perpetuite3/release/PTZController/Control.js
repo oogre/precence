@@ -40,7 +40,7 @@ class Control {
         stringValue
       }) => stringValue).join("");
     }
-    return `${this.cmd}${param}`.toUpperCase();
+    return `#${this.cmd}${param}`.toUpperCase();
   }
   onChange(handler) {
     if (typeof variable !== 'function') throw new Error(`Control class onChange wait for Function as first paramater. You give "${handler}".`);

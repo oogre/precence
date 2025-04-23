@@ -1,4 +1,4 @@
-import { lerp, inverseLerp } from '../common/Math.js';
+import { lerp, invlerp } from '../common/Math.js';
 import {isNumber, isString} from '../common/Validators.js';
 
 
@@ -34,7 +34,7 @@ export default class Param{
 		let tempValue = v;
 		if(isString(tempValue)){
 			tempValue = parseInt(tempValue, this.base);
-			tempValue = inverseLerp(this.min, this.max, tempValue);
+			tempValue = invlerp(this.min, this.max, tempValue);
 			tempValue = Math.min(1, Math.max(0, tempValue));
 		}
 		if(isNaN(tempValue))

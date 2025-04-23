@@ -9,9 +9,13 @@ var _FestoController = _interopRequireDefault(require("../FestoController"));
 var _PTZController = _interopRequireDefault(require("../PTZController"));
 function _interopRequireDefault(e) { return e && e.__esModule ? e : { default: e }; }
 class UI extends _UI_HELPER.default {
-  constructor(window, config) {
+  constructor(window, gamepad, robots, camera) {
     super(window);
-    this.config = config;
+    this.config = {
+      gamepad,
+      robots,
+      camera
+    };
     this.handlers = [];
   }
   onButtonEvent(handler) {
@@ -19,83 +23,113 @@ class UI extends _UI_HELPER.default {
   }
   draw() {
     //CONTROLLER STUFF
-    {
-      const columnWidth = (this.width - 20) / this.config.controller.axes.length;
-      const y = 0;
-      const x = columnWidth * (this.config.controller.axes.length / 2) - 50;
-      this.text(x, y + 20, "CONTROLLER");
-      this.text(x, y + 35, this.config.controller.name);
-      this.config.controller.axes.map((axis, k) => {
-        const x = 10 + columnWidth * k;
-        this.text(x, y + 50, axis.name);
-        if (axis.values) {
-          axis.values.map((value, n) => {
-            this.text(x, y + 65 + (n + 1) * 15 + n * 30 + n * 15, value.name);
-            this.slider(x, y + 65 + (n + 1) * 15 + (n + 1) * 30, false, value.position);
-          });
-        } else {
-          this.text(x, y + 50, axis.name);
-          this.slider(x, y + 80, false, axis.position);
-        }
-      });
-    }
-    const columnWidth = (this.width - 20) / (this.config.robots.length + this.config.camera.axes.length);
-    const y = this.height / 2;
-    // ROBOT STUFF
-    {
-      const x = columnWidth * (this.config.robots.length / 2) - 50;
-      this.text(x, y + 20, "ROBOTS");
-      this.config.robots.map((robot, k) => {
-        const x = 10 + columnWidth * k;
-        this.text(x, y + 35, robot.name);
-        this.text(x, y + 50, `${robot.host}:${robot.port}`);
-        if (robot.status == _FestoController.default.RobotStatus.NOT_CONNECTED) {
-          this.checkBox(x, y + 80, "Connection", false).ifMouseRelease(() => {
-            this.handlers.map(handler => handler({
-              eventName: "connection",
-              target: "robot",
-              id: k
-            }));
-          });
-        } else if (robot.status == _FestoController.default.RobotStatus.NOT_HOMED) {
-          this.checkBox(x, y + 80, "Homing", false).ifMouseRelease(() => {
-            // LAUNCH HOME PROCESS
-            this.handlers.map(handler => handler({
-              eventName: "homing",
-              target: "robot",
-              id: k
-            }));
-          });
-        } else if (robot.status == _FestoController.default.RobotStatus.RUNNING) {
-          this.slider(x, y + 80, "position", robot.position);
-          this.slider(x, y + 110, "speed", robot.speed);
-        }
-      });
-    }
+    this.text(10, 25, this.config.gamepad.device._device.name.toUpperCase().split("").join("   "));
+    this.config.gamepad.in.controls.filter(({
+      visible
+    }) => visible).map((ctrl, n) => {
+      return this.slider(10, 50 + n * 27, ctrl.name, ctrl.getValue());
+    });
+    this.line(300, 10, 300, 580);
 
-    // CAMERA STUFF
-    {
-      const x = columnWidth * (this.config.robots.length + this.config.camera.axes.length / 2) - 50;
-      this.text(x, y + 20, "CAMERA");
-      this.text(x, y + 35, this.config.camera.name);
-      this.text(x, y + 50, `${this.config.camera.host}:${this.config.camera.port}`);
-      if (this.config.camera.status == _PTZController.default.CameraStatus.NOT_CONNECTED) {
-        this.checkBox(x, y + 80, "Connection", false).ifMouseRelease(() => {
-          // LAUNCH CONNECTION PROCESS
+    //ROBOTS STUFF
+    this.ctx.save();
+    this.config.robots.map((robot, k) => {
+      this.ctx.translate(300, 0);
+      this.text(10, 25, `Robot ${robot.conf.name}`.toUpperCase().split("").join("   "));
+      this.line(300, 10, 300, 580);
+    });
+    this.ctx.restore();
+    this.config.robots.map((robot, k) => {
+      const x = 10 + 300 * (k + 1);
+      const y = 50;
+      const lineHeight = 27;
+      if (robot.isError()) {} else if (!robot.isConnected()) {
+        this.checkBox(x, y, "Connection", false).ifMouseRelease(() => {
           this.handlers.map(handler => handler({
             eventName: "connection",
-            target: "camera",
-            id: 0
+            target: "robot",
+            id: k
           }));
         });
-      } else if (this.config.camera.status == _PTZController.default.CameraStatus.RUNNING) {
-        this.config.camera.axes.map((axis, k) => {
-          const x = 10 + columnWidth * (k + this.config.robots.length);
-          this.text(x, y + 80, axis.name);
-          this.slider(x, y + 95, "position", axis.position);
-          this.slider(x, y + 125, "speed", axis.speed);
+      } else if (!robot.isReferenced()) {
+        this.checkBox(x, y, "Homing", false).ifMouseRelease(() => {
+          this.handlers.map(handler => handler({
+            eventName: "homing",
+            target: "robot",
+            id: k
+          }));
+        });
+      } else {
+        this.text(x, y, `OUTPUT`.toUpperCase());
+        const outItem = robot.out.controls.filter(({
+          visible
+        }) => visible).map((ctrl, n) => {
+          const yOffset = (n + 1) * lineHeight;
+          return [robot, this.checkBox(x, y + yOffset, ctrl.name, ctrl.getValue())];
+        }).map(([robot, checkbox]) => {
+          return checkbox.ifMouseRelease(name => {
+            this.handlers.map(handler => handler({
+              eventName: name,
+              target: robot
+            }));
+          });
+        });
+        let offset = outItem.length + 1;
+        const yOffset = (offset + 1) * lineHeight;
+        this.text(x, y + yOffset, `INPUT`.toUpperCase());
+        robot.in.controls.filter(({
+          visible
+        }) => visible).map((ctrl, n) => {
+          const yOffset = (offset + n + 2) * lineHeight;
+          switch (ctrl.type) {
+            case "checkBox":
+              this.checkBox(x, y + yOffset, ctrl.name, ctrl.getValue());
+              break;
+            case "slider":
+              this.slider(x, y + yOffset, ctrl.name, ctrl.getValue());
+              break;
+          }
         });
       }
+    });
+
+    //CAMERA STUFF
+    const camera = this.config.camera;
+    this.text(910, 25, `CAMERA ${camera.conf.name}`.toUpperCase().split("").join("   "));
+    const x = 910;
+    const y = 50;
+    const lineHeight = 27;
+    if (camera.isError()) {} else if (!camera.isConnected()) {
+      this.checkBox(x, y, "Connection", false).ifMouseRelease(() => {
+        this.handlers.map(handler => handler({
+          eventName: "connection",
+          target: "camera",
+          id: 0
+        }));
+      });
+    } else {
+      let counter = 0;
+      this.text(x, y, `INPUT`.toUpperCase());
+      camera.out.controls.filter(({
+        data
+      }) => data.withParams).map((ctrl, n) => {
+        Object.values(ctrl.data.params).map((param, l) => {
+          counter++;
+          const yOffset = counter * lineHeight;
+          this.slider(x, y + yOffset, param.name, param.value);
+        });
+      });
+      counter += 2;
+      this.text(x, y + counter * lineHeight, `OUTPUT`.toUpperCase());
+      camera.in.controls.filter(({
+        data
+      }) => !data.withParams).map((ctrl, n) => {
+        Object.values(ctrl.data.params).map((param, l) => {
+          counter++;
+          const yOffset = counter * lineHeight;
+          this.slider(x, y + yOffset, param.name, param.value);
+        });
+      });
     }
   }
 }

@@ -32,7 +32,7 @@ class Param {
     let tempValue = v;
     if ((0, _Validators.isString)(tempValue)) {
       tempValue = parseInt(tempValue, this.base);
-      tempValue = (0, _Math.inverseLerp)(this.min, this.max, tempValue);
+      tempValue = (0, _Math.invlerp)(this.min, this.max, tempValue);
       tempValue = Math.min(1, Math.max(0, tempValue));
     }
     if (isNaN(tempValue)) throw new Error(`Param class convert wait for Number of "String form of Number" as paramater. You give "${v}".`);

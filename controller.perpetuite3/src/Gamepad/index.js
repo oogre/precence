@@ -1,231 +1,181 @@
 // import { Server } from 'node-osc';
 import sdl from '@kmamal/sdl'
 import {wait} from '../common/Tools.js';
-import Enum from 'enum';
+import {Axes_IN} from './Axes.js';
 
 export default class Gamepad {
-	static EVENT_DESC = new Enum([
-		'CENTER', 
-		'UP', 
-		'UP_LEFT', 
-		'LEFT',
-		'DOWN_LEFT',
-		'DOWN',
-		'DOWN_RIGHT',
-		'RIGHT',
-		'UP_RIGHT',
-		'A_PRESS',
-		'A_RELEASE',
-		'B_PRESS',
-		'B_RELEASE',
-		'X_PRESS',
-		'X_RELEASE',
-		'Y_PRESS',
-		'Y_RELEASE',
-		'UP_LEFT_PRESS',
-		'UP_LEFT_RELEASE',
-		'UP_RIGHT_PRESS',
-		'UP_RIGHT_RELEASE',
-		'LEFT_TRIGGER',
-		'RIGHT_TRIGGER',
-		'HOME_PRESS',
-		'HOME_RELEASE',
-		'SELECT_PRESS',
-		'SELECT_RELEASE',
-		'JOYSTICK_LEFT',
-		'JOYSTICK_LEFT_PRESS',
-		'JOYSTICK_LEFT_RELEASE',
-		'JOYSTICK_RIGHT',
-		'JOYSTICK_RIGHT_PRESS',
-		'JOYSTICK_RIGHT_RELEASE'
-	])
-	
 	constructor(devices, conf){
-		this.handlers = {};
+
+		this.log = conf.log ? (...data)=>console.log(`GAMEPAD ${conf.name} : `, ...data) : ()=>{};
+
+		this.in = new Axes_IN();
+		this.handlers = this.in.controls.map(({name})=>name).reduce((o, key) => ({ ...o, [key]: []}), {});
+
+		this.log(this.handlers);
 		this.device = devices.find(({name})=>name==conf.name)
 		if(!!this.device){
 			this.device = sdl.joystick.openDevice(this.device)
 		}
 
+		const eventProcess = (name, value) => {
+			
+			const target = this.in.get(name);
+			target.setValue(value);
+			this.trigger(target.name, { target });
+			this.log(target.name, target.getValue());
+		}
+
 		this.device && this.device.on('*', (eventType, event) => {
 			if(eventType == "axisMotion"){
-				if(event.axis == 0 || event.axis == 1){
-					this.trigger(Gamepad.EVENT_DESC.JOYSTICK_LEFT, {
-						dir : `${event.axis == 0 ? 'horizontal' : 'vertical'}`,
-						...event
-					});
-				}
-				else if(event.axis == 2 || event.axis == 3){
-					this.trigger(Gamepad.EVENT_DESC.JOYSTICK_RIGHT, {
-						dir : `${event.axis == 2 ? 'horizontal' : 'vertical'}`,
-						...event
-					});
-				}
-				else if(event.axis == 4){
-					this.trigger(Gamepad.EVENT_DESC.LEFT_TRIGGER, {
-						...event
-					});
-				}
-				else if(event.axis == 5){
-					this.trigger(Gamepad.EVENT_DESC.RIGHT_TRIGGER, {
-						...event
-					});
+				switch(event.axis){
+					case 0 : 
+						eventProcess("JOYSTICK_LEFT_HORIZONTAL", event.value * 0.5 + 0.5);
+					break;
+					case 1 :
+						eventProcess("JOYSTICK_LEFT_VERTICAL", event.value * 0.5 + 0.5);
+					break;
+					case 2 :
+						eventProcess("JOYSTICK_RIGHT_HORIZONTAL", event.value * 0.5 + 0.5);
+					break;
+					case 3 :
+						eventProcess("JOYSTICK_RIGHT_VERTICAL", event.value * 0.5 + 0.5);
+					break;
+					case 4 :
+						eventProcess("TRIGGER_LEFT", event.value);
+					break;
+					case 5 :
+						eventProcess("TRIGGER_RIGHT", event.value);
+					break;
 				}
 			}
 			else if (eventType == "buttonDown") {
-				if(event.button == 0){
-					this.trigger(Gamepad.EVENT_DESC.A_PRESS, {
-						...event
-					});
-				}
-				else if(event.button == 1){
-					this.trigger(Gamepad.EVENT_DESC.B_PRESS, {
-						...event
-					});
-				}
-				else if(event.button == 2){
-					this.trigger(Gamepad.EVENT_DESC.X_PRESS, {
-						...event
-					});
-				}
-				else if(event.button == 3){
-					this.trigger(Gamepad.EVENT_DESC.Y_PRESS, {
-						...event
-					});
-				}
-				else if(event.button == 4){
-					this.trigger(Gamepad.EVENT_DESC.UP_LEFT_PRESS, {
-						...event
-					});
-				}
-				else if(event.button == 5){
-					this.trigger(Gamepad.EVENT_DESC.UP_RIGHT_PRESS, {
-						...event
-					});
-				}	
-				else if(event.button == 6){
-					this.trigger(Gamepad.EVENT_DESC.HOME_PRESS, {
-						...event
-					});
-				}
-				else if(event.button == 7){
-					this.trigger(Gamepad.EVENT_DESC.SELECT_PRESS, {
-						...event
-					});
-				}	
-				else if(event.button == 8){
-					this.trigger(Gamepad.EVENT_DESC.JOYSTICK_LEFT_PRESS, {
-						...event
-					});
-				}
-				else if(event.button == 9){
-					this.trigger(Gamepad.EVENT_DESC.JOYSTICK_RIGHT_PRESS, {
-						...event
-					});
+				switch(event.button){
+					case 0 :
+						eventProcess("BUTTON_A", 1);
+					break;
+					case 1 :
+						eventProcess("BUTTON_B", 1);
+					break;
+					case 2 :
+						eventProcess("BUTTON_X", 1);
+					break;
+					case 3 :
+						eventProcess("BUTTON_Y", 1);
+					break;
+					case 4 :
+						eventProcess("BUTTON_TRIGGER_LEFT", 1);
+					break;
+					case 5 :
+						eventProcess("BUTTON_TRIGGER_RIGHT", 1);
+					break;
+					case 6 :
+						eventProcess("BUTTON_HOME", 1);
+					break;
+					case 7 :
+						eventProcess("BUTTON_SELECT", 1);
+					break;
+					case 8 :
+						eventProcess("BUTTON_JOYSTICK_LEFT", 1);
+					break;
+					case 9 :
+						eventProcess("BUTTON_JOYSTICK_RIGHT", 1);
+					break;
 				}
 			}
-
 			else if (eventType == "buttonUp") {
-				if(event.button == 0){
-					this.trigger(Gamepad.EVENT_DESC.A_RELEASE, {
-						...event
-					});
-				}
-				else if(event.button == 1){
-					this.trigger(Gamepad.EVENT_DESC.B_RELEASE, {
-						...event
-					});
-				}
-				else if(event.button == 2){
-					this.trigger(Gamepad.EVENT_DESC.X_RELEASE, {
-						...event
-					});
-				}
-				else if(event.button == 3){
-					this.trigger(Gamepad.EVENT_DESC.Y_RELEASE, {
-						...event
-					});
-				}
-				else if(event.button == 4){
-					this.trigger(Gamepad.EVENT_DESC.UP_LEFT_RELEASE, {
-						...event
-					});
-				}
-				else if(event.button == 5){
-					this.trigger(Gamepad.EVENT_DESC.UP_RIGHT_RELEASE, {
-						...event
-					});
-				}
-				else if(event.button == 6){
-					this.trigger(Gamepad.EVENT_DESC.HOME_RELEASE, {
-						...event
-					});
-				}
-				else if(event.button == 7){
-					this.trigger(Gamepad.EVENT_DESC.SELECT_RELEASE, {
-						...event
-					});
-				}	
-				else if(event.button == 8){
-					this.trigger(Gamepad.EVENT_DESC.JOYSTICK_LEFT_RELEASED, {
-						...event
-					});
-				}
-				else if(event.button == 9){
-					this.trigger(Gamepad.EVENT_DESC.JOYSTICK_RIGHT_RELEASED, {
-						...event
-					});
+				switch(event.button){
+					case 0 :
+						eventProcess("BUTTON_A", 0);
+					break;
+					case 1 :
+						eventProcess("BUTTON_B", 0);
+					break;
+					case 2 :
+						eventProcess("BUTTON_X", 0);
+					break;
+					case 3 :
+						eventProcess("BUTTON_Y", 0);
+					break;
+					case 4 :
+						eventProcess("BUTTON_TRIGGER_LEFT", 0);
+					break;
+					case 5 :
+						eventProcess("BUTTON_TRIGGER_RIGHT", 0);
+					break;
+					case 6 :
+						eventProcess("BUTTON_HOME", 0);
+					break;
+					case 7 :
+						eventProcess("BUTTON_SELECT", 0);
+					break;
+					case 8 :
+						eventProcess("BUTTON_JOYSTICK_LEFT", 0);
+					break;
+					case 9 :
+						eventProcess("BUTTON_JOYSTICK_RIGHT", 0);
+					break;
 				}
 			}
 			else if (eventType == "hatMotion"){
-				if(event.value == "up"){
-					this.trigger(Gamepad.EVENT_DESC.UP, {
-						...event
-					});
-				}
-				else if(event.value == "leftup"){
-					this.trigger(Gamepad.EVENT_DESC.UP_LEFT, {
-						...event
-					});
-				}
-				else if(event.value == "left"){
-					this.trigger(Gamepad.EVENT_DESC.LEFT, {
-						...event
-					});
-				}
-				else if(event.value == "leftdown"){
-					this.trigger(Gamepad.EVENT_DESC.DOWN_LEFT, {
-						...event
-					});
-				}
-				else if(event.value == "down"){
-					this.trigger(Gamepad.EVENT_DESC.DOWN, {
-						...event
-					});
-				}
-				else if(event.value == "rightdown"){
-					this.trigger(Gamepad.EVENT_DESC.DOWN_RIGHT, {
-						...event
-					});
-				}
-				else if(event.value == "right"){
-					this.trigger(Gamepad.EVENT_DESC.RIGHT, {
-						...event
-					});
-				}
-
-				else if(event.value == "rightup"){
-					this.trigger(Gamepad.EVENT_DESC.UP_RIGHT, {
-						...event
-					});
-				}
-				else if(event.value == "centered"){
-					this.trigger(Gamepad.EVENT_DESC.CENTER, {
-						...event
-					});
+				switch(event.value){
+					case "up" :
+						eventProcess("CROSS_UP", 1);
+						eventProcess("CROSS_LEFT", 0);
+						eventProcess("CROSS_DOWN", 0);
+						eventProcess("CROSS_RIGHT", 0);
+					break;
+					case "leftup" :
+						eventProcess("CROSS_UP", 1);
+						eventProcess("CROSS_LEFT", 1);
+						eventProcess("CROSS_DOWN", 0);
+						eventProcess("CROSS_RIGHT", 0);
+					break;
+					case "left" :
+						eventProcess("CROSS_UP", 0);
+						eventProcess("CROSS_LEFT", 1);
+						eventProcess("CROSS_DOWN", 0);
+						eventProcess("CROSS_RIGHT", 0);
+					break;
+					case "leftdown" :
+						eventProcess("CROSS_UP", 0);
+						eventProcess("CROSS_LEFT", 1);
+						eventProcess("CROSS_DOWN", 1);
+						eventProcess("CROSS_RIGHT", 0);
+					break;
+					case "down" :
+						eventProcess("CROSS_UP", 0);
+						eventProcess("CROSS_LEFT", 0);
+						eventProcess("CROSS_DOWN", 1);
+						eventProcess("CROSS_RIGHT", 0);
+					break;
+					case "rightdown" :
+						eventProcess("CROSS_UP", 0);
+						eventProcess("CROSS_LEFT", 0);
+						eventProcess("CROSS_DOWN", 1);
+						eventProcess("CROSS_RIGHT", 1);
+					break;
+					case "right" :
+						
+						eventProcess("CROSS_UP", 0);
+						eventProcess("CROSS_LEFT", 0);
+						eventProcess("CROSS_DOWN", 0);
+						eventProcess("CROSS_RIGHT", 1);
+					break;
+					case "rightup" :
+						eventProcess("CROSS_UP", 1);
+						eventProcess("CROSS_LEFT", 0);
+						eventProcess("CROSS_DOWN", 0);
+						eventProcess("CROSS_RIGHT", 1);
+					break;
+					case "centered" :
+						eventProcess("CROSS_UP", 0);
+						eventProcess("CROSS_LEFT", 0);
+						eventProcess("CROSS_DOWN", 0);
+						eventProcess("CROSS_RIGHT", 0);
+					break;
 				}
 			}
-		})
+		});
 	}
 
 	trigger(eventDesc, event){
@@ -234,21 +184,20 @@ export default class Gamepad {
 				handler({
 					...event,
 					type : eventDesc,
-					desc : `Gamepad.EVENT_DESC.${Gamepad.EVENT_DESC.getKey(eventDesc)}`,
 					time : new Date().getTime(),
 					device : this.device?._device
 				})
 			});
 	}
 	on(description, callback){
-		if(!Object.values(Gamepad.EVENT_DESC).includes(description))
+		if(!Object.keys(this.handlers).includes(description))
 			throw new Error(`onJoystick wait for Gamepad.EVENT_DESC as first parameter. You give "${description}".`);
 		if(typeof callback !== 'function')
 			throw new Error(`onJoystick wait for function as second parameter. You give "${typeof callback}".`);
-		this.handlers[description] = this.handlers[description] || [];
 		this.handlers[description].push(callback);
 		return this;
 	}
+
 	async close(){
 		this.device.close();
 		return await wait(100);
