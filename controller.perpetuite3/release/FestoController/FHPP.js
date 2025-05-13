@@ -7,8 +7,9 @@ exports.FHPP_OUT = exports.FHPP_IN = void 0;
 var _nodeBuffer = require("node:buffer");
 var _Math = require("../common/Math.js");
 class FHPP {
-  constructor(length) {
+  constructor(length, log) {
     this.data = _nodeBuffer.Buffer.alloc(length);
+    this.log = log;
   }
   getByte(n) {
     return this.data.readUInt8(n);
@@ -33,8 +34,8 @@ class FHPP {
   }
 }
 class FHPP_IN extends FHPP {
-  constructor() {
-    super(8);
+  constructor(log = () => {}) {
+    super(8, log);
     const self = this;
     this.controls = [{
       name: "FAULT",
@@ -54,6 +55,9 @@ class FHPP_IN extends FHPP {
       name: "REF",
       getValue() {
         return self.getBitOfByte(1, 7);
+      },
+      toggle() {
+        return self.flipBitOfByte(1, 7);
       },
       visible: true,
       type: "checkBox"
@@ -80,8 +84,8 @@ class FHPP_IN extends FHPP {
 }
 exports.FHPP_IN = FHPP_IN;
 class FHPP_OUT extends FHPP {
-  constructor() {
-    super(8);
+  constructor(log = () => {}) {
+    super(8, log);
     const self = this;
     this.controls = [{
       name: "OPM2",
@@ -91,7 +95,8 @@ class FHPP_OUT extends FHPP {
       toggle() {
         return self.flipBitOfByte(0, 7);
       },
-      visible: false
+      visible: false,
+      type: "checkBox"
     }, {
       name: "OPM1",
       getValue() {
@@ -100,7 +105,8 @@ class FHPP_OUT extends FHPP {
       toggle() {
         return self.flipBitOfByte(0, 6);
       },
-      visible: false
+      visible: false,
+      type: "checkBox"
     }, {
       name: "LOCK",
       getValue() {
@@ -109,7 +115,8 @@ class FHPP_OUT extends FHPP {
       toggle() {
         return self.flipBitOfByte(0, 5);
       },
-      visible: false
+      visible: false,
+      type: "checkBox"
     }, {
       name: "RESET",
       getValue() {
@@ -118,7 +125,8 @@ class FHPP_OUT extends FHPP {
       toggle() {
         return self.flipBitOfByte(0, 3);
       },
-      visible: true
+      visible: true,
+      type: "checkBox"
     }, {
       name: "BREAK",
       getValue() {
@@ -127,7 +135,8 @@ class FHPP_OUT extends FHPP {
       toggle() {
         return self.flipBitOfByte(0, 2);
       },
-      visible: false
+      visible: false,
+      type: "checkBox"
     }, {
       name: "STOP",
       getValue() {
@@ -136,7 +145,8 @@ class FHPP_OUT extends FHPP {
       toggle() {
         return self.flipBitOfByte(0, 1);
       },
-      visible: true
+      visible: true,
+      type: "checkBox"
     }, {
       name: "ENABLE",
       getValue() {
@@ -145,7 +155,8 @@ class FHPP_OUT extends FHPP {
       toggle() {
         return self.flipBitOfByte(0, 0);
       },
-      visible: true
+      visible: true,
+      type: "checkBox"
     }, {
       name: "CLEAR",
       getValue() {
@@ -154,7 +165,8 @@ class FHPP_OUT extends FHPP {
       toggle() {
         return self.flipBitOfByte(1, 6);
       },
-      visible: false
+      visible: false,
+      type: "checkBox"
     }, {
       name: "TEACH",
       getValue() {
@@ -163,7 +175,8 @@ class FHPP_OUT extends FHPP {
       toggle() {
         return self.flipBitOfByte(1, 5);
       },
-      visible: false
+      visible: false,
+      type: "checkBox"
     }, {
       name: "JOGN",
       getValue() {
@@ -172,7 +185,8 @@ class FHPP_OUT extends FHPP {
       toggle() {
         return self.flipBitOfByte(1, 4);
       },
-      visible: false
+      visible: false,
+      type: "checkBox"
     }, {
       name: "JOGP",
       getValue() {
@@ -181,7 +195,8 @@ class FHPP_OUT extends FHPP {
       toggle() {
         return self.flipBitOfByte(1, 3);
       },
-      visible: false
+      visible: false,
+      type: "checkBox"
     }, {
       name: "HOME",
       getValue() {
@@ -190,7 +205,8 @@ class FHPP_OUT extends FHPP {
       toggle() {
         return self.flipBitOfByte(1, 2);
       },
-      visible: true
+      visible: true,
+      type: "checkBox"
     }, {
       name: "START",
       getValue() {
@@ -199,7 +215,8 @@ class FHPP_OUT extends FHPP {
       toggle() {
         return self.flipBitOfByte(1, 1);
       },
-      visible: true
+      visible: true,
+      type: "checkBox"
     }, {
       name: "HALT",
       getValue() {
@@ -208,28 +225,35 @@ class FHPP_OUT extends FHPP {
       toggle() {
         return self.flipBitOfByte(1, 0);
       },
-      visible: false
+      visible: false,
+      type: "checkBox"
     }, {
       name: "SPEED",
+      minimum: 0,
+      maximum: 0,
       getValue() {
-        return self.getByte(3);
+        return (0, _Math.invlerp)(this.minimum, this.maximum, self.getByte(3));
       },
       setValue(value) {
         self.setByte(value, 3);
       },
-      visible: false
+      visible: true,
+      type: "slider"
     }, {
-      name: "POSITION",
+      name: "DESTINATION",
+      minimum: 0,
+      maximum: 0,
       getValue() {
-        return self.getByte(4, 0) << 24 | self.getByte(5, 0) << 16 | self.getByte(6, 0) << 8 | self.getByte(7, 0);
+        return (0, _Math.invlerp)(this.minimum, this.maximum, self.getByte(4, 0) << 24 | self.getByte(5, 0) << 16 | self.getByte(6, 0) << 8 | self.getByte(7, 0));
       },
       setValue(value) {
-        self.setByte((value & 0x000000FF) >> 0, 4);
-        self.setByte((value & 0x0000FF00) >> 8, 5);
-        self.setByte((value & 0x00FF0000) >> 16, 6);
-        self.setByte((value & 0xFF000000) >> 24, 7);
+        self.setByte((value & 0x000000FF) >> 0, 7);
+        self.setByte((value & 0x0000FF00) >> 8, 6);
+        self.setByte((value & 0x00FF0000) >> 16, 5);
+        self.setByte((value & 0xFF000000) >> 24, 4);
       },
-      visible: false
+      visible: true,
+      type: "slider"
     }];
   }
 }

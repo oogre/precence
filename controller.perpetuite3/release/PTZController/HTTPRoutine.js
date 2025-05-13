@@ -32,6 +32,7 @@ class HTTPRoutine {
       callback(body);
       this.startPolling();
     });
+    this.requestWaitingList.push("#D30"); // set IrisMode to manual
   }
   startPolling() {
     this.log("startPolling");

@@ -12,19 +12,26 @@ export default class UI extends UI_HELPER{
 		super(window);
 		this.config = {gamepad, robots, camera};
 		this.handlers = [];
+		this.links =[];
 	}
 
 	onButtonEvent(handler){
 		this.handlers.push(handler);
 	}
+
+	link({bounds:A}, {bounds:B}){
+		this.links.push([A, B]);
+	}
 	draw(){
 		
+
 		//CONTROLLER STUFF
 		this.text( 10, 25, this.config.gamepad.device._device.name.toUpperCase().split("").join("   "));
 		this.config.gamepad.in.controls
 		.filter(({visible}) => visible)
 		.map((ctrl, n)=>{
-			return this.slider(10, 50 + n * 27, ctrl.name, ctrl.getValue());  
+			ctrl.bounds = this.slider(10, 50 + n * 27, ctrl.name, ctrl.getValue());
+			return ctrl.bounds;
 		});
 
 		this.line(300, 10, 300, 580);
@@ -68,8 +75,19 @@ export default class UI extends UI_HELPER{
 					.filter(({visible}) => visible)
 					.map((ctrl, n)=>{
 						const yOffset = (n+1) * lineHeight;
-						return [robot, this.checkBox(x, y + yOffset, ctrl.name, ctrl.getValue())]
+						switch(ctrl.type){
+							case "checkBox" : 
+								this.checkBox(x, y + yOffset, ctrl.name, ctrl.getValue());
+								return [robot, this.checkBox(x, y + yOffset, ctrl.name, ctrl.getValue())]
+							break;
+						case "slider" : 
+								ctrl.bounds = this.slider(x, y + yOffset, ctrl.name, ctrl.getValue()); 
+							break;
+						}
+
+						
 					})
+					.filter(e => !!e)
 					.map(([robot, checkbox])=>{
 						return checkbox.ifMouseRelease((name)=>{
 							this.handlers.map(handler=>handler({
@@ -79,7 +97,7 @@ export default class UI extends UI_HELPER{
 						})
 					});
 
-				let offset = outItem.length + 1;
+				let offset = outItem.length + 3;
 				const yOffset = (offset+1) * lineHeight;
 				this.text( x, y + yOffset , `INPUT`.toUpperCase());
 				robot.in.controls
@@ -91,7 +109,7 @@ export default class UI extends UI_HELPER{
 								this.checkBox(x, y + yOffset, ctrl.name, ctrl.getValue());
 							break;
 						case "slider" : 
-								this.slider(x, y + yOffset, ctrl.name, ctrl.getValue()); 
+								ctrl.bounds = this.slider(x, y + yOffset, ctrl.name, ctrl.getValue()); 
 							break;
 						}
 					})  
@@ -117,7 +135,7 @@ export default class UI extends UI_HELPER{
 			}) 
 		}else{
 			let counter = 0;
-			this.text( x, y , `INPUT`.toUpperCase());
+			this.text( x, y , `OUTPUT`.toUpperCase());
 
 			camera.out.controls
 			.filter(({data})=>data.withParams)
@@ -125,21 +143,30 @@ export default class UI extends UI_HELPER{
 				Object.values(ctrl.data.params).map((param, l)=>{
 					counter ++;
 					const yOffset = (counter) * lineHeight;
-					this.slider(x, y + yOffset, param.name, param.value); 
+					param.bounds = this.slider(x, y + yOffset, param.name, param.value); 
 				})
 			});
 			counter+=2;
-			this.text( x, y + counter * lineHeight , `OUTPUT`.toUpperCase());
+			this.text( x, y + counter * lineHeight , `INPUT`.toUpperCase());
 			camera.in.controls
 			.filter(({data})=>!data.withParams)
 			.map((ctrl, n) => {
 				Object.values(ctrl.data.params).map((param, l)=>{
 					counter ++;
 					const yOffset = (counter) * lineHeight;
-					this.slider(x, y + yOffset, param.name, param.value); 
+					param.bounds = this.slider(x, y + yOffset, param.name, param.value); 
 				})
 			});
 
 		}
+
+		this.links.map(([[ax, ay, aw, ah], [bx, by, bw, bh]])=>{
+			//this.line(ax + aw, ay+ ah*0.5, ax + aw + 20, ay+ ah*0.5);
+			this.ctx.beginPath();
+			this.ctx.moveTo(ax + aw , ay+ ah*0.5);
+			this.ctx.quadraticCurveTo((ax + bx)*0.5 , (ay + by)*0.5, bx , by + bh * 0.5);
+			this.ctx.stroke();
+			//this.line(bx - 20, by + bh * 0.5, bx, by + bh * 0.5);
+		});
 	}	
 }

@@ -42,13 +42,13 @@ class Gamepad {
             eventProcess("JOYSTICK_LEFT_HORIZONTAL", event.value * 0.5 + 0.5);
             break;
           case 1:
-            eventProcess("JOYSTICK_LEFT_VERTICAL", event.value * 0.5 + 0.5);
+            eventProcess("JOYSTICK_LEFT_VERTICAL", 1 - (event.value * 0.5 + 0.5));
             break;
           case 2:
             eventProcess("JOYSTICK_RIGHT_HORIZONTAL", event.value * 0.5 + 0.5);
             break;
           case 3:
-            eventProcess("JOYSTICK_RIGHT_VERTICAL", event.value * 0.5 + 0.5);
+            eventProcess("JOYSTICK_RIGHT_VERTICAL", 1 - (event.value * 0.5 + 0.5));
             break;
           case 4:
             eventProcess("TRIGGER_LEFT", event.value);

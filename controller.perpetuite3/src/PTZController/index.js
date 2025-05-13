@@ -1,5 +1,6 @@
 import Enum from 'enum';
 import HTTPRoutine from "./HTTPRoutine.js";
+import {lerp, clamp} from "../common/Math.js";
 
 //converter takes value [0->1] and turn it to [0/8 1/8 2/8 3/8 4/8 5/8 6/8 7/8 8/8]		
 const converter = value => Math.round(value * 8) / 8;
@@ -30,6 +31,7 @@ export default class PTZController extends HTTPRoutine {
 		const oPan = this.out.get("PAN_TILT").data.params.pan.value;
 		const oTilt = this.out.get("PAN_TILT").data.params.tilt.value;
 
+		//const speed = lerp(0.1, 1, this.in.get("GET_PAN_TILT_ZOOM_FOCUS_IRIS").data.params.zoom.value);
 		const nPan = converter(pan);
 		const nTilt = converter(tilt);
 
@@ -41,11 +43,10 @@ export default class PTZController extends HTTPRoutine {
 	}
 	setIris(value){
 		const oValue = this.out.get("IRIS").data.params.iris.value;
-		const nValue = converter(value);
-		if(oValue != nValue){
-			this.out.get("IRIS").data.params.iris.value = nValue;
-			this.addRequest(this.out.get("IRIS"));
-		}
+		const nValue = clamp(oValue + value, 0, 1);
+		this.out.get("IRIS").data.params.iris.value = nValue;
+		this.addRequest(this.out.get("IRIS"));
+		
 	}
 	setZoom(value){
 		const oValue = this.out.get("ZOOM").data.params.zoom.value;

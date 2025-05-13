@@ -44,6 +44,11 @@ class UI_TOOL {
       this.mouse.isUp = true;
       this.mouse.justUp = true;
     });
+    this.readyTrigged = false;
+    this.readyHandlers = [];
+  }
+  onReady(handler) {
+    this.readyHandlers.push(handler);
   }
   loop() {
     this.ctx.fillStyle = 'black';
@@ -53,6 +58,10 @@ class UI_TOOL {
     this.mouse.justUp = false;
     const buffer = Buffer.from(this.ctx.getImageData(0, 0, this.width, this.height).data);
     this.window.render(this.width, this.height, this.width * 4, 'rgba32', buffer);
+    if (!this.readyTrigged) {
+      this.readyHandlers.map(handler => handler());
+      this.readyTrigged = true;
+    }
   }
   close() {
     clearInterval(this.looping);

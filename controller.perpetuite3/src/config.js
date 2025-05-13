@@ -28,14 +28,14 @@ export default {
     name : "Horizontal",
     host : ROBT_X_HOST.split(":")[0],
     port : parseInt(ROBT_X_HOST.split(":")[1]),
-    maxPos : 196,
+    maxPos : 600,
     maxSpeed : 0x64,
     log : parseInt(ROBT_X_LOG)
   },{
     name : "Vertical",
     host : ROBT_Y_HOST.split(":")[0],
     port : parseInt(ROBT_Y_HOST.split(":")[1]),
-    maxPos : 196,
+    maxPos : 980,
     maxSpeed : 0x64,
     log : parseInt(ROBT_Y_LOG)
   }],

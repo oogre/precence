@@ -6,6 +6,7 @@ Object.defineProperty(exports, "__esModule", {
 exports.default = void 0;
 var _enum = _interopRequireDefault(require("enum"));
 var _HTTPRoutine = _interopRequireDefault(require("./HTTPRoutine.js"));
+var _Math = require("../common/Math.js");
 function _interopRequireDefault(e) { return e && e.__esModule ? e : { default: e }; }
 //converter takes value [0->1] and turn it to [0/8 1/8 2/8 3/8 4/8 5/8 6/8 7/8 8/8]		
 const converter = value => Math.round(value * 8) / 8;
@@ -32,6 +33,8 @@ class PTZController extends _HTTPRoutine.default {
   setPanTiltSpeed(pan, tilt) {
     const oPan = this.out.get("PAN_TILT").data.params.pan.value;
     const oTilt = this.out.get("PAN_TILT").data.params.tilt.value;
+
+    //const speed = lerp(0.1, 1, this.in.get("GET_PAN_TILT_ZOOM_FOCUS_IRIS").data.params.zoom.value);
     const nPan = converter(pan);
     const nTilt = converter(tilt);
     if (oPan != nPan || oTilt != nTilt) {
@@ -42,11 +45,9 @@ class PTZController extends _HTTPRoutine.default {
   }
   setIris(value) {
     const oValue = this.out.get("IRIS").data.params.iris.value;
-    const nValue = converter(value);
-    if (oValue != nValue) {
-      this.out.get("IRIS").data.params.iris.value = nValue;
-      this.addRequest(this.out.get("IRIS"));
-    }
+    const nValue = (0, _Math.clamp)(oValue + value, 0, 1);
+    this.out.get("IRIS").data.params.iris.value = nValue;
+    this.addRequest(this.out.get("IRIS"));
   }
   setZoom(value) {
     const oValue = this.out.get("ZOOM").data.params.zoom.value;
