@@ -7,14 +7,16 @@ exports.default = void 0;
 var _UI_HELPER = _interopRequireDefault(require("./UI_HELPER.js"));
 var _FestoController = _interopRequireDefault(require("../FestoController"));
 var _PTZController = _interopRequireDefault(require("../PTZController"));
+var _Math = require("../common/Math.js");
 function _interopRequireDefault(e) { return e && e.__esModule ? e : { default: e }; }
 class UI extends _UI_HELPER.default {
-  constructor(window, gamepad, robots, camera) {
+  constructor(window, gamepad, robots, camera, recorder) {
     super(window);
     this.config = {
       gamepad,
       robots,
-      camera
+      camera,
+      recorder
     };
     this.handlers = [];
     this.links = [];
@@ -156,6 +158,45 @@ class UI extends _UI_HELPER.default {
       this.ctx.stroke();
       //this.line(bx - 20, by + bh * 0.5, bx, by + bh * 0.5);
     });
+    this.line(10, 600, 1190, 600);
+    {
+      //RECORDER STUFF
+      const recorder = this.config.recorder;
+      this.text(10, 625, `RECORDER`.toUpperCase().split("").join("   "));
+      this.checkBox(180, 625, recorder.isRecording() ? "STOP" : "REC", !recorder.isRecording()).ifMouseRelease(() => {
+        this.handlers.map(handler => handler({
+          eventName: "rec",
+          target: "recorder",
+          id: 0
+        }));
+      });
+      const x = 10;
+      const y = 650;
+
+      //if(recorder.isPlaying() || recorder.isRecording()){
+
+      const now = new Date().getTime() - recorder.startRecordAt;
+      const present = Math.max(new Date().getTime() - recorder.startRecordAt, recorder.lastRecordAt);
+      const ONE_OVER_PRESENT = 1 / present;
+      this.config.gamepad.in.controls.filter(({
+        visible
+      }) => visible).map((ctrl, n) => {
+        this.text(10, y + n * 12, ctrl.name.toUpperCase());
+        this.line(180, y + n * 12, 1180, y + n * 12);
+      });
+
+      // recorder.data.map(({t, n, v})=>{
+      // 	let _x = lerp( 180, 1180, t * ONE_OVER_PRESENT);
+      // 	let _y = y + n * 12
+      // 	this.line(_x, _y, _x, _y + (6 * v));
+      // })
+
+      // let _x = lerp( 180, 1180, now * ONE_OVER_PRESENT);
+      // let _y = y 
+      // this.line(_x, _y, _x, _y + 240);
+
+      //}
+    }
   }
 }
 exports.default = UI;

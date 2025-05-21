@@ -31,7 +31,12 @@ class HTTPRoutine {
       this.log("<-", body);
       callback(body);
       this.startPolling();
+    }).catch(error => {
+      console.log(error);
     });
+
+    //this.requestWaitingList.push("OSA:87:21"); // set Freq to 24fps
+
     this.requestWaitingList.push("#D30"); // set IrisMode to manual
   }
   startPolling() {
@@ -75,7 +80,8 @@ class HTTPRoutine {
       request = this.requestWaitingList.shift();
       this.getData = false;
     }
-    this.log(`->`, request);
+
+    // this.log(`->`, request);
 
     // prepare the waiter for the response
     this.waitForData = new Promise((resolve, reject) => {
@@ -88,9 +94,14 @@ class HTTPRoutine {
       body
     }) => {
       this.onData(body);
+    }).catch(error => {
+      console.log(error);
     });
+    ;
     const data = await this.waitForData;
-    this.log(`<-`, data);
+
+    // this.log(`<-`, data);	
+
     if (data.toLowerCase().startsWith(this.in.get("GET_PAN_TILT_ZOOM_FOCUS_IRIS").data.cmd.toLowerCase())) {
       this.in.get("GET_PAN_TILT_ZOOM_FOCUS_IRIS").data.values = data.substr(3);
       this.getData = true;

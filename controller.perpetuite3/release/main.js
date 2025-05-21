@@ -6,17 +6,24 @@ var _UI = _interopRequireDefault(require("./UI"));
 var _config = _interopRequireDefault(require("./config.js"));
 var _PTZController = _interopRequireDefault(require("./PTZController"));
 var _FestoController = _interopRequireDefault(require("./FestoController"));
+var _DMX = _interopRequireDefault(require("./DMX"));
 var _Gamepad = _interopRequireDefault(require("./Gamepad"));
+var _Recorder = _interopRequireDefault(require("./Recorder"));
 var _Math = require("./common/Math.js");
 function _interopRequireDefault(e) { return e && e.__esModule ? e : { default: e }; }
 //import Gamepad from "./Gamepad";
 
 process.title = _config.default.window.title;
 const window = _sdl.default.video.createWindow(_config.default.window);
+const dmx = new _DMX.default(_config.default.DMX);
+setInterval(() => {
+  dmx.set(1, Math.floor(Math.random() * 256));
+}, 30);
+const recorder = new _Recorder.default();
 const gamepad = new _Gamepad.default(_sdl.default.joystick.devices, _config.default.controller);
 const robots = [new _FestoController.default(_config.default.robots[0]), new _FestoController.default(_config.default.robots[1])];
 const camera = new _PTZController.default(_config.default.camera);
-const ui = new _UI.default(window, gamepad, robots, camera);
+const ui = new _UI.default(window, gamepad, robots, camera, recorder);
 ui.onButtonEvent(event => {
   if (event.target == "robot") {
     if (event.eventName == "connection") {
@@ -29,6 +36,15 @@ ui.onButtonEvent(event => {
       camera.connect();
     }
   }
+  // else if(event.target == "recorder"){
+  //     if(event.eventName == "recorder"){
+  //         if(recorder.isRecording()){
+  //             recorder.stopRecord()
+  //         }else{
+  //             recorder.startRecord()
+  //         }
+  //     }
+  // } 
 });
 
 // ui.onReady(()=>{
@@ -38,22 +54,30 @@ ui.onButtonEvent(event => {
 //     ui.link(gamepad.in.get("TRIGGER_LEFT"), camera.out.get("ZOOM").data.params.zoom);
 // });
 
+// gamepad.on("*", ({time, target:{getValue, id}}) =>{
+//     recorder.update({
+//         time, 
+//         id,
+//         value : getValue()
+//     });
+// });
+
 gamepad.on("JOYSTICK_LEFT_HORIZONTAL", event => {
-  camera.setPanTiltSpeed(1 - event.target.getValue(), camera.tilt);
-});
-gamepad.on("JOYSTICK_LEFT_VERTICAL", event => {
-  camera.setPanTiltSpeed(camera.pan, event.target.getValue());
-});
-gamepad.on("JOYSTICK_RIGHT_HORIZONTAL", event => {
   robots[0].speed(event.target.getValue() * 2 - 1);
 });
-gamepad.on("JOYSTICK_RIGHT_VERTICAL", event => {
+gamepad.on("JOYSTICK_LEFT_VERTICAL", event => {
   robots[1].speed(-1 * (event.target.getValue() * 2 - 1));
 });
-gamepad.on("TRIGGER_RIGHT", event => {
-  camera.setZoom((0, _Math.lerp)(0.5, 1, event.target.getValue()));
+gamepad.on("JOYSTICK_RIGHT_HORIZONTAL", event => {
+  camera.setPanTiltSpeed(1 - event.target.getValue(), camera.tilt);
+});
+gamepad.on("JOYSTICK_RIGHT_VERTICAL", event => {
+  camera.setPanTiltSpeed(camera.pan, 1 - event.target.getValue());
 });
 gamepad.on("TRIGGER_LEFT", event => {
+  camera.setZoom((0, _Math.lerp)(0.5, 1, event.target.getValue()));
+});
+gamepad.on("TRIGGER_RIGHT", event => {
   camera.setZoom((0, _Math.lerp)(0.5, 0, event.target.getValue()));
 });
 let irisRun;
@@ -78,6 +102,7 @@ const terminate = async () => {
   await robots[1].close();
   await camera.close();
   await ui.close();
+  await recorder.close();
   await gamepad.close();
   process.exit();
 };

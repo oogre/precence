@@ -10,6 +10,7 @@ export default class Gamepad {
 
 		this.in = new Axes_IN();
 		this.handlers = this.in.controls.map(({name})=>name).reduce((o, key) => ({ ...o, [key]: []}), {});
+		this.handlers["*"] = [];
 
 		this.log(this.handlers);
 		this.device = devices.find(({name})=>name==conf.name)
@@ -18,7 +19,6 @@ export default class Gamepad {
 		}
 
 		const eventProcess = (name, value) => {
-			
 			const target = this.in.get(name);
 			target.setValue(value);
 			this.trigger(target.name, { target });
@@ -179,16 +179,16 @@ export default class Gamepad {
 	}
 
 	trigger(eventDesc, event){
-		this.handlers[eventDesc] && this.handlers[eventDesc]
+		let time = new Date().getTime();
+		[...this.handlers[eventDesc], ...this.handlers["*"]]
 			.forEach(handler => {
 				handler({
 					...event,
-					type : eventDesc,
-					time : new Date().getTime(),
-					device : this.device?._device
+					time : time
 				})
 			});
 	}
+	
 	on(description, callback){
 		if(!Object.keys(this.handlers).includes(description))
 			throw new Error(`onJoystick wait for Gamepad.EVENT_DESC as first parameter. You give "${description}".`);

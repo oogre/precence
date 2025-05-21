@@ -14,7 +14,9 @@ class Axes {
 	get(_name){
 		this.dict = this.dict || {};
 		if(!this.dict[_name]){
-			this.dict[_name] = this.controls.find(({name})=>name==_name)
+			const id = this.controls.findIndex(({name})=>name==_name)
+			this.dict[_name] = this.controls[id];
+			this.dict[_name].id = id;
 		}
 		return this.dict[_name];
 	}

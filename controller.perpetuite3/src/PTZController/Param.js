@@ -25,6 +25,7 @@ export default class Param{
 		this.name = name
 		this.min = min;
 		this.max = max;
+		this.amp = 1;
 		this.base = base;
 		this.len = len;
 		this._value = 0;
@@ -52,6 +53,7 @@ export default class Param{
 
 	get stringValue(){
 		this.lastValue = this._value;
-		return Math.round(lerp(this.max, this.min, this._value)).toString(this.base).nf(this.len);
+		const v = (this._value * 2 - 1) * this.amp * 0.5 + 0.5;
+		return Math.round(lerp(this.max, this.min, v)).toString(this.base).nf(this.len);
 	}
 };

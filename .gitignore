@@ -23,3 +23,5 @@ Temporary Items
 node_modules/*
 
 .env
+
+movies/*

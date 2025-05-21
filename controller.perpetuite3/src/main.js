@@ -5,12 +5,25 @@ import UI from "./UI";
 import config from "./config.js";
 import PTZController from "./PTZController";
 import FestoController from "./FestoController";
+import DMX from "./DMX";
+
 import Gamepad from "./Gamepad"
+import Recorder from "./Recorder"
 import {lerp} from "./common/Math.js"
 
 process.title = config.window.title;
 
 const window = sdl.video.createWindow(config.window);
+
+
+const dmx = new DMX(config.DMX);
+
+
+setInterval(()=>{
+    dmx.set(1, Math.floor(Math.random() * 256));
+}, 30);
+
+const recorder = new Recorder();
 
 const gamepad = new Gamepad(sdl.joystick.devices, config.controller)
 
@@ -21,21 +34,30 @@ const robots = [
 
 const camera = new PTZController(config.camera);
 
-const ui = new UI(window, gamepad, robots, camera);
+const ui = new UI(window, gamepad, robots, camera, recorder);
 
 ui.onButtonEvent((event)=>{
-  if(event.target == "robot"){
-    if(event.eventName == "connection"){
-      robots[event.id].connect();
-    }else if(event.eventName == "homing"){
-      robots[event.id].homing();
+    if(event.target == "robot"){
+        if(event.eventName == "connection"){
+            robots[event.id].connect();
+        }else if(event.eventName == "homing"){
+            robots[event.id].homing();
+        }
     }
-  }
-  else if(event.target == "camera"){
-    if(event.eventName == "connection"){
-      camera.connect();
-    }
-  } 
+    else if(event.target == "camera"){
+        if(event.eventName == "connection"){
+            camera.connect();
+        }
+    } 
+    // else if(event.target == "recorder"){
+    //     if(event.eventName == "recorder"){
+    //         if(recorder.isRecording()){
+    //             recorder.stopRecord()
+    //         }else{
+    //             recorder.startRecord()
+    //         }
+    //     }
+    // } 
 });
 
 // ui.onReady(()=>{
@@ -45,27 +67,37 @@ ui.onButtonEvent((event)=>{
 //     ui.link(gamepad.in.get("TRIGGER_LEFT"), camera.out.get("ZOOM").data.params.zoom);
 // });
 
+// gamepad.on("*", ({time, target:{getValue, id}}) =>{
+//     recorder.update({
+//         time, 
+//         id,
+//         value : getValue()
+//     });
+// });
+
+
 gamepad.on("JOYSTICK_LEFT_HORIZONTAL", event => {
-    camera.setPanTiltSpeed(1-event.target.getValue(), camera.tilt);
+    robots[0].speed(event.target.getValue() * 2 - 1);
+
 });
 
 gamepad.on("JOYSTICK_LEFT_VERTICAL", event => {
-    camera.setPanTiltSpeed(camera.pan, event.target.getValue());
-});
-
-gamepad.on("JOYSTICK_RIGHT_HORIZONTAL", event => {
-    robots[0].speed(event.target.getValue() * 2 - 1);
-});
-
-gamepad.on("JOYSTICK_RIGHT_VERTICAL", event => {
     robots[1].speed(-1 *  (event.target.getValue() * 2 - 1));
 });
 
-gamepad.on("TRIGGER_RIGHT", event => {
-    camera.setZoom( lerp(0.5, 1, event.target.getValue()));
+gamepad.on("JOYSTICK_RIGHT_HORIZONTAL", event => {
+    camera.setPanTiltSpeed(1-event.target.getValue(), camera.tilt);
+});
+
+gamepad.on("JOYSTICK_RIGHT_VERTICAL", event => {
+    camera.setPanTiltSpeed(camera.pan, 1-event.target.getValue());
 });
 
 gamepad.on("TRIGGER_LEFT", event => {
+    camera.setZoom( lerp(0.5, 1, event.target.getValue()));
+});
+
+gamepad.on("TRIGGER_RIGHT", event => {
     camera.setZoom( lerp(0.5, 0, event.target.getValue()))
 });
 
@@ -95,9 +127,8 @@ const terminate = async ()=>{
     await robots[1].close();
     await camera.close();
     await ui.close();
+    await recorder.close();
     await gamepad.close();
-    
-    
     process.exit();
 }
 

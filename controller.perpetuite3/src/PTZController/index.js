@@ -28,14 +28,20 @@ export default class PTZController extends HTTPRoutine {
 		});
 	}
 	setPanTiltSpeed(pan, tilt){
+
+
 		const oPan = this.out.get("PAN_TILT").data.params.pan.value;
 		const oTilt = this.out.get("PAN_TILT").data.params.tilt.value;
 
-		//const speed = lerp(0.1, 1, this.in.get("GET_PAN_TILT_ZOOM_FOCUS_IRIS").data.params.zoom.value);
+
+		this.out.get("PAN_TILT").data.params.pan.amp = lerp(0.7, 0.1, this.in.get("GET_PAN_TILT_ZOOM_FOCUS_IRIS").data.params.zoom._value);
+		this.out.get("PAN_TILT").data.params.tilt.amp = lerp(0.7, 0.1, this.in.get("GET_PAN_TILT_ZOOM_FOCUS_IRIS").data.params.zoom._value);
+		
 		const nPan = converter(pan);
 		const nTilt = converter(tilt);
 
 		if(oPan != nPan || oTilt != nTilt){
+			
 			this.out.get("PAN_TILT").data.params.pan.value = nPan;
 			this.out.get("PAN_TILT").data.params.tilt.value = nTilt;
 			this.addRequest(this.out.get("PAN_TILT"));

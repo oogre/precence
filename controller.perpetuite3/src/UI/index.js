@@ -3,14 +3,14 @@ import UI_HELPER from './UI_HELPER.js';
 
 import FestoController from "../FestoController";
 import PTZController from "../PTZController";
-
+import {lerp} from "../common/Math.js";
 
 
 
 export default class UI extends UI_HELPER{
-	constructor(window, gamepad, robots, camera){
+	constructor(window, gamepad, robots, camera, recorder){
 		super(window);
-		this.config = {gamepad, robots, camera};
+		this.config = {gamepad, robots, camera, recorder};
 		this.handlers = [];
 		this.links =[];
 	}
@@ -23,8 +23,6 @@ export default class UI extends UI_HELPER{
 		this.links.push([A, B]);
 	}
 	draw(){
-		
-
 		//CONTROLLER STUFF
 		this.text( 10, 25, this.config.gamepad.device._device.name.toUpperCase().split("").join("   "));
 		this.config.gamepad.in.controls
@@ -157,7 +155,6 @@ export default class UI extends UI_HELPER{
 					param.bounds = this.slider(x, y + yOffset, param.name, param.value); 
 				})
 			});
-
 		}
 
 		this.links.map(([[ax, ay, aw, ah], [bx, by, bw, bh]])=>{
@@ -168,5 +165,52 @@ export default class UI extends UI_HELPER{
 			this.ctx.stroke();
 			//this.line(bx - 20, by + bh * 0.5, bx, by + bh * 0.5);
 		});
+
+
+		this.line(10, 600, 1190, 600);
+		{
+			//RECORDER STUFF
+			const recorder = this.config.recorder;
+			this.text( 10, 625, `RECORDER`.toUpperCase().split("").join("   "));
+			
+			
+			this.checkBox(180, 625, recorder.isRecording() ? "STOP" : "REC" , !recorder.isRecording())
+			.ifMouseRelease(()=>{
+				this.handlers.map(handler=>handler({
+					eventName : "rec",
+					target : "recorder",
+					id : 0
+				}));
+			}) 
+
+			const x = 10;
+			const y = 650;
+
+			//if(recorder.isPlaying() || recorder.isRecording()){
+
+				const now = new Date().getTime() - recorder.startRecordAt
+				const present = Math.max(new Date().getTime() - recorder.startRecordAt, recorder.lastRecordAt);
+				const ONE_OVER_PRESENT = 1/present;
+
+				this.config.gamepad.in.controls
+				.filter(({visible}) => visible)
+				.map((ctrl, n)=>{
+					this.text( 10, y + n * 12 , ctrl.name.toUpperCase());
+					this.line(180, y + n * 12, 1180, y + n * 12);
+				});
+
+				// recorder.data.map(({t, n, v})=>{
+				// 	let _x = lerp( 180, 1180, t * ONE_OVER_PRESENT);
+				// 	let _y = y + n * 12
+				// 	this.line(_x, _y, _x, _y + (6 * v));
+				// })
+
+				// let _x = lerp( 180, 1180, now * ONE_OVER_PRESENT);
+				// let _y = y 
+				// this.line(_x, _y, _x, _y + 240);
+
+			//}
+		}		
+
 	}	
 }

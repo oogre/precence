@@ -20,6 +20,7 @@ class Gamepad {
       ...o,
       [key]: []
     }), {});
+    this.handlers["*"] = [];
     this.log(this.handlers);
     this.device = devices.find(({
       name
@@ -184,12 +185,11 @@ class Gamepad {
     });
   }
   trigger(eventDesc, event) {
-    this.handlers[eventDesc] && this.handlers[eventDesc].forEach(handler => {
+    let time = new Date().getTime();
+    [...this.handlers[eventDesc], ...this.handlers["*"]].forEach(handler => {
       handler({
         ...event,
-        type: eventDesc,
-        time: new Date().getTime(),
-        device: this.device?._device
+        time: time
       });
     });
   }

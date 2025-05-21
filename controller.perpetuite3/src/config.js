@@ -3,6 +3,8 @@ import dotenv from 'dotenv';
 const {
     CTRL_NAME,
     CTRL_LOG,
+    DMX_HOST,
+    DMX_LOG,
     ROBT_X_HOST,
     ROBT_X_LOG,
     ROBT_Y_HOST,
@@ -44,5 +46,11 @@ export default {
     host : CAME_HOST.split(":")[0],
     port : parseInt(CAME_HOST.split(":")[1]),
     log : parseInt(CAME_LOG)
+  },
+  DMX : {
+    name : "LanBox LCE",
+    host : DMX_HOST.split(":")[0],
+    port : parseInt(DMX_HOST.split(":")[1]),
+    log : parseInt(DMX_LOG)
   }
 };
