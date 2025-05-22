@@ -56,7 +56,9 @@ class FestoController extends _ModBus.default {
     return this.in.get("REF").getValue();
   }
   homing() {
+    this.log(this.out.get("HOME").getValue());
     this.out.get("HOME").toggle();
+    this.log(this.out.get("HOME").getValue());
   }
   speed(input) {
     //converter takes value [-1->1] in multiple of 1/8th 

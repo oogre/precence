@@ -34,9 +34,7 @@ class HTTPRoutine {
     }).catch(error => {
       console.log(error);
     });
-
     //this.requestWaitingList.push("OSA:87:21"); // set Freq to 24fps
-
     this.requestWaitingList.push("#D30"); // set IrisMode to manual
   }
   startPolling() {
@@ -56,7 +54,7 @@ class HTTPRoutine {
       },
       timeout: {
         lookup: 100,
-        connect: 50,
+        connect: 1000,
         socket: 1000,
         send: 1000,
         response: 1000
@@ -108,7 +106,7 @@ class HTTPRoutine {
     }
 
     // it cannot be faster than 40 send per second
-    await (0, _Tools.wait)(40);
+    await (0, _Tools.wait)(50);
     loop && this.isPolling && this.send();
   }
   onData(data) {

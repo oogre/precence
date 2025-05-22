@@ -30,7 +30,7 @@ export default {
     name : "Horizontal",
     host : ROBT_X_HOST.split(":")[0],
     port : parseInt(ROBT_X_HOST.split(":")[1]),
-    maxPos : 600,
+    maxPos : 2775,
     maxSpeed : 0x64,
     log : parseInt(ROBT_X_LOG)
   },{

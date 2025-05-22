@@ -60,7 +60,9 @@ export default class FestoController extends ModBus{
 	}
 
 	homing(){
+		this.log(this.out.get("HOME").getValue());
 		this.out.get("HOME").toggle();
+		this.log(this.out.get("HOME").getValue());
 	}
 
 	speed(input){

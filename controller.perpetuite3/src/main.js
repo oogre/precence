@@ -16,12 +16,12 @@ process.title = config.window.title;
 const window = sdl.video.createWindow(config.window);
 
 
-const dmx = new DMX(config.DMX);
+// const dmx = new DMX(config.DMX);
 
 
-setInterval(()=>{
-    dmx.set(1, Math.floor(Math.random() * 256));
-}, 30);
+// setInterval(()=>{
+//     dmx.set(1, Math.floor(Math.random() * 256));
+// }, 30);
 
 const recorder = new Recorder();
 
@@ -37,10 +37,12 @@ const camera = new PTZController(config.camera);
 const ui = new UI(window, gamepad, robots, camera, recorder);
 
 ui.onButtonEvent((event)=>{
+
     if(event.target == "robot"){
         if(event.eventName == "connection"){
             robots[event.id].connect();
-        }else if(event.eventName == "homing"){
+        }else if(event.eventName == "HOME"){
+            console.log("Homing");
             robots[event.id].homing();
         }
     }
@@ -77,7 +79,7 @@ ui.onButtonEvent((event)=>{
 
 
 gamepad.on("JOYSTICK_LEFT_HORIZONTAL", event => {
-    robots[0].speed(event.target.getValue() * 2 - 1);
+    robots[0].speed(-1 * (event.target.getValue() * 2 - 1));
 
 });
 

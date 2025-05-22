@@ -65,7 +65,7 @@ class UI extends _UI_HELPER.default {
       } else if (!robot.isReferenced()) {
         this.checkBox(x, y, "Homing", false).ifMouseRelease(() => {
           this.handlers.map(handler => handler({
-            eventName: "homing",
+            eventName: "HOME",
             target: "robot",
             id: k
           }));
@@ -78,18 +78,19 @@ class UI extends _UI_HELPER.default {
           const yOffset = (n + 1) * lineHeight;
           switch (ctrl.type) {
             case "checkBox":
-              this.checkBox(x, y + yOffset, ctrl.name, ctrl.getValue());
-              return [robot, this.checkBox(x, y + yOffset, ctrl.name, ctrl.getValue())];
+              //this.checkBox(x, y + yOffset, ctrl.name, ctrl.getValue());
+              return [robot, this.checkBox(x, y + yOffset, ctrl.name, ctrl.getValue()), ctrl];
               break;
             case "slider":
               ctrl.bounds = this.slider(x, y + yOffset, ctrl.name, ctrl.getValue());
               break;
           }
-        }).filter(e => !!e).map(([robot, checkbox]) => {
+        }).filter(e => !!e).map(([robot, checkbox, ctrl]) => {
           return checkbox.ifMouseRelease(name => {
             this.handlers.map(handler => handler({
-              eventName: name,
-              target: robot
+              eventName: ctrl.name,
+              target: "robot",
+              id: k
             }));
           });
         });
@@ -102,7 +103,8 @@ class UI extends _UI_HELPER.default {
           const yOffset = (offset + n + 2) * lineHeight;
           switch (ctrl.type) {
             case "checkBox":
-              this.checkBox(x, y + yOffset, ctrl.name, ctrl.getValue());
+              //this.checkBox(x, y + yOffset, ctrl.name, ctrl.getValue());
+              return [robot, this.checkBox(x, y + yOffset, ctrl.name, ctrl.getValue()), ctrl];
               break;
             case "slider":
               ctrl.bounds = this.slider(x, y + yOffset, ctrl.name, ctrl.getValue());

@@ -44,7 +44,7 @@ export default class ModBus{
 	}
 
 	async send(loop = true){
-		//this.log(`->`, this.out.data);
+		this.log(`->`, this.out.data);
 		
 		//increment values of 2 firsts bytes of header
 		this.outHeader.writeUInt16BE((this.outHeader.readUInt16BE(0)+1) % 0XFFFF);
@@ -63,7 +63,7 @@ export default class ModBus{
 		try{		
 			this.in.data = await this.waitForData;
 			// /* FAKE REFERENCED FOR DEBUG */ this.in.get("REF").toggle();
-			this.log(`<-`, this.in.data);
+			//this.log(`<-`, this.in.data);
 			this.status = ModBus.ModBusStatus.RUNNING;
 			
 			// Start and Home has to be strobed to be applied
@@ -78,7 +78,6 @@ export default class ModBus{
 			let deltaV = Math.abs(this.in.get("SPEED").getValue() - this.out.get("SPEED").getValue());
 			
 			if(!this.readjustSpeedDelay && deltaV > 0.11){
-				console.log(deltaV);
 				this.readjustSpeedDelay = setTimeout(()=>{
 					this.out.get("START").toggle();
 					this.readjustSpeedDelay = null;
@@ -88,7 +87,6 @@ export default class ModBus{
 		}catch(error){
 			this.log(error);
 			this.status = ModBus.ModBusStatus.ERROR;
-
 		}
 
 		// it cannot be faster than 50 send per second
