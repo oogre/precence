@@ -1,0 +1,2341 @@
+{
+  "metaData": {
+    "version": "1.9.24",
+    "versionNumber": 67864
+  },
+  "projectSettings": {
+    "containers": {
+      "dashboardSettings": {
+        "parameters": [
+          {
+            "value": "",
+            "controlAddress": "/showDashboardOnStartup",
+            "enabled": false
+          }
+        ]
+      },
+      "customDefinitions": {
+      }
+    }
+  },
+  "dashboardManager": {
+    "viewOffset": [
+      0,
+      0
+    ],
+    "viewZoom": 1.0
+  },
+  "parrots": {
+    "viewOffset": [
+      0,
+      0
+    ],
+    "viewZoom": 1.0
+  },
+  "layout": {
+    "mainLayout": {
+      "type": 1,
+      "width": 2560,
+      "height": 1576,
+      "direction": 2,
+      "shifters": [
+        {
+          "type": 1,
+          "width": 2560,
+          "height": 1576,
+          "direction": 2,
+          "shifters": [
+            {
+              "type": 1,
+              "width": 2560,
+              "height": 864,
+              "direction": 1,
+              "shifters": [
+                {
+                  "type": 1,
+                  "width": 307,
+                  "height": 864,
+                  "direction": 2,
+                  "shifters": [
+                    {
+                      "type": 0,
+                      "width": 307,
+                      "height": 439,
+                      "currentContent": "Modules",
+                      "tabs": [
+                        {
+                          "name": "Modules"
+                        }
+                      ]
+                    },
+                    {
+                      "type": 0,
+                      "width": 307,
+                      "height": 419,
+                      "currentContent": "Custom Variables",
+                      "tabs": [
+                        {
+                          "name": "Custom Variables"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "type": 0,
+                  "width": 1383,
+                  "height": 864,
+                  "currentContent": "State Machine",
+                  "tabs": [
+                    {
+                      "name": "State Machine"
+                    },
+                    {
+                      "name": "Module Router"
+                    },
+                    {
+                      "name": "Morpher"
+                    }
+                  ]
+                },
+                {
+                  "type": 0,
+                  "width": 858,
+                  "height": 864,
+                  "currentContent": "Inspector",
+                  "tabs": [
+                    {
+                      "name": "Inspector"
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "type": 1,
+              "width": 2560,
+              "height": 706,
+              "direction": 1,
+              "shifters": [
+                {
+                  "type": 0,
+                  "width": 178,
+                  "height": 706,
+                  "currentContent": "Sequences",
+                  "tabs": [
+                    {
+                      "name": "Sequences"
+                    }
+                  ]
+                },
+                {
+                  "type": 0,
+                  "width": 1416,
+                  "height": 706,
+                  "currentContent": "Sequence Editor",
+                  "tabs": [
+                    {
+                      "name": "Sequence Editor"
+                    }
+                  ]
+                },
+                {
+                  "type": 0,
+                  "width": 954,
+                  "height": 706,
+                  "currentContent": "Logger",
+                  "tabs": [
+                    {
+                      "name": "Help"
+                    },
+                    {
+                      "name": "Logger"
+                    },
+                    {
+                      "name": "Warnings"
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    "windows": null
+  },
+  "modules": {
+    "items": [
+      {
+        "parameters": [
+          {
+            "value": true,
+            "controlAddress": "/enabled"
+          },
+          {
+            "value": false,
+            "controlAddress": "/logIncoming"
+          }
+        ],
+        "niceName": "OSC",
+        "type": "OSC",
+        "scripts": {
+          "editorIsCollapsed": true,
+          "viewOffset": [
+            0,
+            0
+          ],
+          "viewZoom": 1.0
+        },
+        "params": {
+          "containers": {
+            "oscInput": {
+            },
+            "oscOutputs": {
+              "items": [
+                {
+                  "parameters": [
+                    {
+                      "value": "127.0.0.1",
+                      "controlAddress": "/remoteHost"
+                    }
+                  ],
+                  "niceName": "OSC Output",
+                  "type": "BaseItem"
+                }
+              ],
+              "viewOffset": [
+                0,
+                0
+              ],
+              "viewZoom": 1.0
+            },
+            "pass_through": {
+            }
+          }
+        },
+        "templates": {
+          "viewOffset": [
+            0,
+            0
+          ],
+          "viewZoom": 1.0
+        },
+        "values": {
+          "parameters": [
+            {
+              "value": true,
+              "minValue": 0,
+              "maxValue": 1,
+              "default": true,
+              "controlAddress": "/_connected",
+              "type": "Boolean",
+              "niceName": "/connected",
+              "customizable": true,
+              "removable": true,
+              "description": "",
+              "hideInEditor": false,
+              "feedbackOnly": false,
+              "shortName": "_connected"
+            },
+            {
+              "value": 0.0,
+              "minValue": 0,
+              "maxValue": 1,
+              "default": 0.2867347002029419,
+              "controlAddress": "/_position",
+              "type": "Float",
+              "niceName": "/position",
+              "customizable": true,
+              "removable": true,
+              "description": "",
+              "hideInEditor": false,
+              "feedbackOnly": false,
+              "shortName": "_position"
+            }
+          ]
+        }
+      },
+      {
+        "niceName": "OS",
+        "type": "OS",
+        "scripts": {
+          "items": [
+            {
+              "niceName": "Script",
+              "type": "BaseItem",
+              "scriptParams": {
+              }
+            }
+          ],
+          "viewOffset": [
+            0,
+            0
+          ],
+          "viewZoom": 1.0
+        },
+        "params": {
+          "containers": {
+            "appControl": {
+            },
+            "pingIPs": {
+            }
+          }
+        },
+        "templates": {
+          "viewOffset": [
+            0,
+            0
+          ],
+          "viewZoom": 1.0
+        },
+        "values": {
+          "containers": {
+            "osInfos": {
+            },
+            "networkInfos": {
+            }
+          }
+        }
+      }
+    ],
+    "viewOffset": [
+      0,
+      0
+    ],
+    "viewZoom": 1.0
+  },
+  "customVariables": {
+    "items": [
+      {
+        "parameters": [
+          {
+            "value": [
+              0.0,
+              0.5882353186607361,
+              0.5882353186607361,
+              1.0
+            ],
+            "controlAddress": "/color"
+          }
+        ],
+        "niceName": "Speed Control",
+        "type": "CVGroup",
+        "params": {
+        },
+        "variables": {
+          "items": [
+            {
+              "parameters": [
+                {
+                  "value": 0.09153403341770172,
+                  "minValue": 0,
+                  "maxValue": 1,
+                  "default": 0.0,
+                  "controlAddress": "/speed___min",
+                  "feedbackOnly": false,
+                  "type": "Float",
+                  "niceName": "SPEED___MIN",
+                  "customizable": true,
+                  "removable": false,
+                  "description": "Custom control of type Float",
+                  "hideInEditor": false
+                }
+              ],
+              "niceName": "SPEED___MIN",
+              "editorIsCollapsed": true,
+              "type": "Float Parameter"
+            },
+            {
+              "parameters": [
+                {
+                  "value": 0.2329668402671814,
+                  "minValue": 0,
+                  "maxValue": 1,
+                  "default": 0.0,
+                  "controlAddress": "/speed___max",
+                  "feedbackOnly": false,
+                  "type": "Float",
+                  "niceName": "SPEED___MAX",
+                  "customizable": true,
+                  "removable": false,
+                  "description": "Custom control of type Float",
+                  "hideInEditor": false
+                }
+              ],
+              "niceName": "SPEED___MAX",
+              "editorIsCollapsed": true,
+              "type": "Float Parameter"
+            }
+          ],
+          "viewOffset": [
+            0,
+            0
+          ],
+          "viewZoom": 1.0
+        },
+        "presets": {
+          "viewOffset": [
+            0,
+            0
+          ],
+          "viewZoom": 1.0
+        }
+      },
+      {
+        "parameters": [
+          {
+            "value": [
+              1.0,
+              0.0,
+              0.0,
+              1.0
+            ],
+            "controlAddress": "/color"
+          }
+        ],
+        "niceName": "Tools DO NOT TOUCH",
+        "type": "CVGroup",
+        "params": {
+        },
+        "variables": {
+          "items": [
+            {
+              "parameters": [
+                {
+                  "value": 1,
+                  "minValue": -1.0,
+                  "maxValue": 1.0,
+                  "default": 0,
+                  "hexMode": false,
+                  "controlAddress": "/direction",
+                  "feedbackOnly": false,
+                  "type": "Integer",
+                  "niceName": "direction",
+                  "customizable": true,
+                  "removable": false,
+                  "description": "Custom control of type Integer",
+                  "hideInEditor": false
+                }
+              ],
+              "niceName": "direction",
+              "editorIsCollapsed": true,
+              "type": "Int Parameter"
+            },
+            {
+              "parameters": [
+                {
+                  "value": 0.013,
+                  "controlAddress": "/speed___min___default",
+                  "feedbackOnly": false,
+                  "type": "Float",
+                  "niceName": "SPEED___MIN___DEFAULT",
+                  "customizable": true,
+                  "removable": false,
+                  "description": "Custom control of type Float",
+                  "hideInEditor": false
+                }
+              ],
+              "niceName": "SPEED___MIN___DEFAULT",
+              "editorIsCollapsed": true,
+              "type": "Float Parameter"
+            },
+            {
+              "parameters": [
+                {
+                  "value": 0.13,
+                  "controlAddress": "/speed___max___default",
+                  "feedbackOnly": false,
+                  "type": "Float",
+                  "niceName": "SPEED___MAX___DEFAULT",
+                  "customizable": true,
+                  "removable": false,
+                  "description": "Custom control of type Float",
+                  "hideInEditor": false
+                }
+              ],
+              "niceName": "SPEED___MAX___DEFAULT",
+              "editorIsCollapsed": true,
+              "type": "Float Parameter"
+            }
+          ],
+          "viewOffset": [
+            0,
+            0
+          ],
+          "viewZoom": 1.0
+        },
+        "presets": {
+          "viewOffset": [
+            0,
+            0
+          ],
+          "viewZoom": 1.0
+        }
+      }
+    ],
+    "viewOffset": [
+      0,
+      0
+    ],
+    "viewZoom": 1.0
+  },
+  "states": {
+    "items": [
+      {
+        "parameters": [
+          {
+            "value": false,
+            "controlAddress": "/miniMode"
+          },
+          {
+            "value": [
+              -173.0,
+              -256.0
+            ],
+            "controlAddress": "/viewUIPosition"
+          },
+          {
+            "value": [
+              287.0,
+              247.0
+            ],
+            "controlAddress": "/viewUISize"
+          },
+          {
+            "value": [
+              0.0,
+              0.5882353186607361,
+              0.5882353186607361,
+              1.0
+            ],
+            "controlAddress": "/color"
+          },
+          {
+            "value": true,
+            "controlAddress": "/active"
+          }
+        ],
+        "niceName": "RobotControl",
+        "type": "State",
+        "processors": {
+          "items": [
+            {
+              "parameters": [
+                {
+                  "value": true,
+                  "controlAddress": "/enabled"
+                }
+              ],
+              "niceName": "S T O P ",
+              "type": "Action",
+              "conditions": {
+                "items": [
+                  {
+                    "parameters": [
+                      {
+                        "value": "",
+                        "controlAddress": "/inputValue"
+                      }
+                    ],
+                    "niceName": "From Input Value",
+                    "type": "From Input Value"
+                  }
+                ],
+                "viewOffset": [
+                  0,
+                  0
+                ],
+                "viewZoom": 1.0
+              },
+              "consequences": {
+                "parameters": [
+                  {
+                    "value": false,
+                    "controlAddress": "/cancelDelaysOnTrigger"
+                  }
+                ],
+                "items": [
+                  {
+                    "niceName": "Consequence",
+                    "type": "Consequence",
+                    "commandModule": "osc",
+                    "commandPath": "",
+                    "commandType": "Custom Message",
+                    "command": {
+                      "parameters": [
+                        {
+                          "value": "/speed",
+                          "controlAddress": "/address"
+                        }
+                      ],
+                      "paramLinks": {
+                      },
+                      "argManager": {
+                        "items": [
+                          {
+                            "parameters": [
+                              {
+                                "value": 0.0,
+                                "controlAddress": "/#1"
+                              }
+                            ],
+                            "niceName": "#1",
+                            "type": "Float",
+                            "param": {
+                              "value": 0.0,
+                              "controlAddress": "/states/robotControl/processors/sTOP/consequencesTRUE/consequence/command/arguments/#1/#1"
+                            }
+                          }
+                        ],
+                        "viewOffset": [
+                          0,
+                          0
+                        ],
+                        "viewZoom": 1.0
+                      }
+                    }
+                  }
+                ],
+                "viewOffset": [
+                  0,
+                  0
+                ],
+                "viewZoom": 1.0
+              },
+              "consequencesOff": {
+                "viewOffset": [
+                  0,
+                  0
+                ],
+                "viewZoom": 1.0
+              }
+            },
+            {
+              "parameters": [
+                {
+                  "value": true,
+                  "controlAddress": "/enabled"
+                }
+              ],
+              "niceName": "go___HOME",
+              "type": "Action",
+              "conditions": {
+                "items": [
+                  {
+                    "parameters": [
+                      {
+                        "value": "",
+                        "controlAddress": "/inputValue"
+                      }
+                    ],
+                    "niceName": "From Input Value",
+                    "type": "From Input Value"
+                  }
+                ],
+                "viewOffset": [
+                  0,
+                  0
+                ],
+                "viewZoom": 1.0
+              },
+              "consequences": {
+                "parameters": [
+                  {
+                    "value": false,
+                    "controlAddress": "/cancelDelaysOnTrigger"
+                  }
+                ],
+                "items": [
+                  {
+                    "niceName": "Consequence 1",
+                    "type": "Consequence",
+                    "commandModule": "customVariables",
+                    "commandPath": "",
+                    "commandType": "Set Value",
+                    "command": {
+                      "parameters": [
+                        {
+                          "value": "/toolsDONOTTOUCH/direction",
+                          "controlAddress": "/target"
+                        },
+                        {
+                          "value": "All",
+                          "controlAddress": "/component"
+                        },
+                        {
+                          "value": "Equals",
+                          "controlAddress": "/operator"
+                        },
+                        {
+                          "value": -1,
+                          "hexMode": false,
+                          "controlAddress": "/value"
+                        }
+                      ],
+                      "paramLinks": {
+                      }
+                    }
+                  },
+                  {
+                    "niceName": "Consequence",
+                    "type": "Consequence",
+                    "commandModule": "osc",
+                    "commandPath": "",
+                    "commandType": "Custom Message",
+                    "command": {
+                      "parameters": [
+                        {
+                          "value": "/go/min",
+                          "controlAddress": "/address"
+                        }
+                      ],
+                      "paramLinks": {
+                      },
+                      "argManager": {
+                        "items": [
+                          {
+                            "parameters": [
+                              {
+                                "value": -0.013,
+                                "controlAddress": "/#1"
+                              }
+                            ],
+                            "niceName": "#1",
+                            "type": "Float",
+                            "param": {
+                              "value": -0.013,
+                              "controlAddress": "/states/robotControl/processors/go___HOME/consequencesTRUE/consequence/command/arguments/#1/#1"
+                            }
+                          }
+                        ],
+                        "viewOffset": [
+                          0,
+                          0
+                        ],
+                        "viewZoom": 1.0
+                      }
+                    }
+                  }
+                ],
+                "viewOffset": [
+                  0,
+                  0
+                ],
+                "viewZoom": 1.0
+              },
+              "consequencesOff": {
+                "viewOffset": [
+                  0,
+                  0
+                ],
+                "viewZoom": 1.0
+              }
+            },
+            {
+              "parameters": [
+                {
+                  "value": true,
+                  "controlAddress": "/enabled"
+                }
+              ],
+              "niceName": "go___FAR",
+              "type": "Action",
+              "conditions": {
+                "items": [
+                  {
+                    "parameters": [
+                      {
+                        "value": "",
+                        "controlAddress": "/inputValue"
+                      }
+                    ],
+                    "niceName": "From Input Value",
+                    "type": "From Input Value"
+                  }
+                ],
+                "viewOffset": [
+                  0,
+                  0
+                ],
+                "viewZoom": 1.0
+              },
+              "consequences": {
+                "parameters": [
+                  {
+                    "value": false,
+                    "controlAddress": "/cancelDelaysOnTrigger"
+                  }
+                ],
+                "items": [
+                  {
+                    "niceName": "Consequence 1",
+                    "type": "Consequence",
+                    "commandModule": "customVariables",
+                    "commandPath": "",
+                    "commandType": "Set Value",
+                    "command": {
+                      "parameters": [
+                        {
+                          "value": "/toolsDONOTTOUCH/direction",
+                          "controlAddress": "/target"
+                        },
+                        {
+                          "value": "All",
+                          "controlAddress": "/component"
+                        },
+                        {
+                          "value": "Equals",
+                          "controlAddress": "/operator"
+                        },
+                        {
+                          "value": 1,
+                          "hexMode": false,
+                          "controlAddress": "/value"
+                        }
+                      ],
+                      "paramLinks": {
+                      }
+                    }
+                  },
+                  {
+                    "niceName": "Consequence",
+                    "type": "Consequence",
+                    "commandModule": "osc",
+                    "commandPath": "",
+                    "commandType": "Custom Message",
+                    "command": {
+                      "parameters": [
+                        {
+                          "value": "/go/max",
+                          "controlAddress": "/address"
+                        }
+                      ],
+                      "paramLinks": {
+                      },
+                      "argManager": {
+                        "items": [
+                          {
+                            "parameters": [
+                              {
+                                "value": 0.013,
+                                "controlAddress": "/#1"
+                              }
+                            ],
+                            "niceName": "#1",
+                            "type": "Float",
+                            "param": {
+                              "value": 0.013,
+                              "controlAddress": "/states/robotControl/processors/go___FAR/consequencesTRUE/consequence/command/arguments/#1/#1"
+                            }
+                          }
+                        ],
+                        "viewOffset": [
+                          0,
+                          0
+                        ],
+                        "viewZoom": 1.0
+                      }
+                    }
+                  }
+                ],
+                "viewOffset": [
+                  0,
+                  0
+                ],
+                "viewZoom": 1.0
+              },
+              "consequencesOff": {
+                "viewOffset": [
+                  0,
+                  0
+                ],
+                "viewZoom": 1.0
+              }
+            },
+            {
+              "niceName": "go___HOME___FAST",
+              "editorIsCollapsed": true,
+              "type": "Action",
+              "conditions": {
+                "items": [
+                  {
+                    "parameters": [
+                      {
+                        "value": "",
+                        "controlAddress": "/inputValue"
+                      }
+                    ],
+                    "niceName": "From Input Value",
+                    "type": "From Input Value"
+                  }
+                ],
+                "viewOffset": [
+                  0,
+                  0
+                ],
+                "viewZoom": 1.0
+              },
+              "consequences": {
+                "parameters": [
+                  {
+                    "value": false,
+                    "controlAddress": "/cancelDelaysOnTrigger"
+                  }
+                ],
+                "items": [
+                  {
+                    "niceName": "Consequence 1",
+                    "type": "Consequence",
+                    "commandModule": "stateMachine",
+                    "commandPath": "Mapping",
+                    "commandType": "Set Mapping Enabled",
+                    "command": {
+                      "parameters": [
+                        {
+                          "value": "/states/tools/processors/speed",
+                          "controlAddress": "/target"
+                        },
+                        {
+                          "value": false,
+                          "controlAddress": "/value"
+                        }
+                      ],
+                      "paramLinks": {
+                      }
+                    }
+                  },
+                  {
+                    "niceName": "Consequence",
+                    "type": "Consequence",
+                    "commandModule": "osc",
+                    "commandPath": "",
+                    "commandType": "Custom Message",
+                    "command": {
+                      "parameters": [
+                        {
+                          "value": "/go/min",
+                          "controlAddress": "/address"
+                        }
+                      ],
+                      "paramLinks": {
+                      },
+                      "argManager": {
+                        "items": [
+                          {
+                            "parameters": [
+                              {
+                                "value": -1.0,
+                                "controlAddress": "/#1"
+                              }
+                            ],
+                            "niceName": "#1",
+                            "type": "Float",
+                            "param": {
+                              "value": -1.0,
+                              "controlAddress": "/states/robotControl/processors/go___HOME___FAST/consequencesTRUE/consequence/command/arguments/#1/#1"
+                            }
+                          }
+                        ],
+                        "viewOffset": [
+                          0,
+                          0
+                        ],
+                        "viewZoom": 1.0
+                      }
+                    }
+                  },
+                  {
+                    "niceName": "Consequence 2",
+                    "type": "Consequence",
+                    "commandModule": "stateMachine",
+                    "commandPath": "Action",
+                    "commandType": "Set Action Enabled",
+                    "command": {
+                      "parameters": [
+                        {
+                          "value": "/states/tools/processors/onExtreme",
+                          "controlAddress": "/target"
+                        }
+                      ],
+                      "paramLinks": {
+                      }
+                    }
+                  }
+                ],
+                "viewOffset": [
+                  0,
+                  0
+                ],
+                "viewZoom": 1.0
+              },
+              "consequencesOff": {
+                "viewOffset": [
+                  0,
+                  0
+                ],
+                "viewZoom": 1.0
+              }
+            },
+            {
+              "niceName": "go___FAR___FAST",
+              "editorIsCollapsed": true,
+              "type": "Action",
+              "conditions": {
+                "items": [
+                  {
+                    "parameters": [
+                      {
+                        "value": "",
+                        "controlAddress": "/inputValue"
+                      }
+                    ],
+                    "niceName": "From Input Value",
+                    "type": "From Input Value"
+                  }
+                ],
+                "viewOffset": [
+                  0,
+                  0
+                ],
+                "viewZoom": 1.0
+              },
+              "consequences": {
+                "parameters": [
+                  {
+                    "value": false,
+                    "controlAddress": "/cancelDelaysOnTrigger"
+                  }
+                ],
+                "items": [
+                  {
+                    "niceName": "Consequence 1",
+                    "type": "Consequence",
+                    "commandModule": "stateMachine",
+                    "commandPath": "Mapping",
+                    "commandType": "Set Mapping Enabled",
+                    "command": {
+                      "parameters": [
+                        {
+                          "value": "/states/tools/processors/speed",
+                          "controlAddress": "/target"
+                        },
+                        {
+                          "value": false,
+                          "controlAddress": "/value"
+                        }
+                      ],
+                      "paramLinks": {
+                      }
+                    }
+                  },
+                  {
+                    "niceName": "Consequence",
+                    "type": "Consequence",
+                    "commandModule": "osc",
+                    "commandPath": "",
+                    "commandType": "Custom Message",
+                    "command": {
+                      "parameters": [
+                        {
+                          "value": "/go/max",
+                          "controlAddress": "/address"
+                        }
+                      ],
+                      "paramLinks": {
+                      },
+                      "argManager": {
+                        "items": [
+                          {
+                            "parameters": [
+                              {
+                                "value": 1.0,
+                                "controlAddress": "/#1"
+                              }
+                            ],
+                            "niceName": "#1",
+                            "type": "Float",
+                            "param": {
+                              "value": 1.0,
+                              "controlAddress": "/states/robotControl/processors/go___FAR___FAST/consequencesTRUE/consequence/command/arguments/#1/#1"
+                            }
+                          }
+                        ],
+                        "viewOffset": [
+                          0,
+                          0
+                        ],
+                        "viewZoom": 1.0
+                      }
+                    }
+                  },
+                  {
+                    "niceName": "Consequence 2",
+                    "type": "Consequence",
+                    "commandModule": "stateMachine",
+                    "commandPath": "Action",
+                    "commandType": "Set Action Enabled",
+                    "command": {
+                      "parameters": [
+                        {
+                          "value": "/states/tools/processors/onExtreme",
+                          "controlAddress": "/target"
+                        }
+                      ],
+                      "paramLinks": {
+                      }
+                    }
+                  }
+                ],
+                "viewOffset": [
+                  0,
+                  0
+                ],
+                "viewZoom": 1.0
+              },
+              "consequencesOff": {
+                "viewOffset": [
+                  0,
+                  0
+                ],
+                "viewZoom": 1.0
+              }
+            },
+            {
+              "niceName": "RESET__MIN__MAX",
+              "editorIsCollapsed": true,
+              "type": "Action",
+              "conditions": {
+                "items": [
+                  {
+                    "parameters": [
+                      {
+                        "value": "",
+                        "controlAddress": "/inputValue"
+                      }
+                    ],
+                    "niceName": "From Input Value",
+                    "type": "From Input Value"
+                  }
+                ],
+                "viewOffset": [
+                  0,
+                  0
+                ],
+                "viewZoom": 1.0
+              },
+              "consequences": {
+                "parameters": [
+                  {
+                    "value": false,
+                    "controlAddress": "/cancelDelaysOnTrigger"
+                  }
+                ],
+                "items": [
+                  {
+                    "niceName": "Consequence",
+                    "type": "Consequence",
+                    "commandModule": "customVariables",
+                    "commandPath": "",
+                    "commandType": "Set Value",
+                    "command": {
+                      "parameters": [
+                        {
+                          "value": "/speedControl/speed___min",
+                          "controlAddress": "/target"
+                        },
+                        {
+                          "value": "All",
+                          "controlAddress": "/component"
+                        },
+                        {
+                          "value": "Equals",
+                          "controlAddress": "/operator"
+                        },
+                        {
+                          "value": 0.013,
+                          "controlMode": 2,
+                          "reference": {
+                            "value": "/customVariables/toolsDONOTTOUCH/variables/speed___min___default/speed___min___default",
+                            "controlAddress": "/reference"
+                          },
+                          "controlAddress": "/value"
+                        }
+                      ],
+                      "paramLinks": {
+                      }
+                    }
+                  },
+                  {
+                    "niceName": "Consequence 1",
+                    "type": "Consequence",
+                    "commandModule": "customVariables",
+                    "commandPath": "",
+                    "commandType": "Set Value",
+                    "command": {
+                      "parameters": [
+                        {
+                          "value": "/speedControl/speed___max",
+                          "controlAddress": "/target"
+                        },
+                        {
+                          "value": "All",
+                          "controlAddress": "/component"
+                        },
+                        {
+                          "value": "Equals",
+                          "controlAddress": "/operator"
+                        },
+                        {
+                          "value": 0.13,
+                          "controlMode": 2,
+                          "reference": {
+                            "value": "/customVariables/toolsDONOTTOUCH/variables/speed___max___default/speed___max___default",
+                            "controlAddress": "/reference"
+                          },
+                          "controlAddress": "/value"
+                        }
+                      ],
+                      "paramLinks": {
+                      }
+                    }
+                  }
+                ],
+                "viewOffset": [
+                  0,
+                  0
+                ],
+                "viewZoom": 1.0
+              },
+              "consequencesOff": {
+                "viewOffset": [
+                  0,
+                  0
+                ],
+                "viewZoom": 1.0
+              }
+            }
+          ],
+          "viewOffset": [
+            0,
+            0
+          ],
+          "viewZoom": 1.0
+        }
+      },
+      {
+        "parameters": [
+          {
+            "value": false,
+            "controlAddress": "/miniMode"
+          },
+          {
+            "value": [
+              124.0,
+              -256.0
+            ],
+            "controlAddress": "/viewUIPosition"
+          },
+          {
+            "value": [
+              343.0,
+              313.0
+            ],
+            "controlAddress": "/viewUISize"
+          },
+          {
+            "value": [
+              1.0,
+              0.0,
+              0.0,
+              1.0
+            ],
+            "controlAddress": "/color"
+          },
+          {
+            "value": true,
+            "controlAddress": "/active"
+          }
+        ],
+        "niceName": "Tools DO NOT TOUCH",
+        "type": "State",
+        "processors": {
+          "items": [
+            {
+              "niceName": "Position",
+              "editorIsCollapsed": true,
+              "type": "Mapping",
+              "im": {
+                "items": [
+                  {
+                    "parameters": [
+                      {
+                        "value": "/modules/osc/values/_position",
+                        "controlAddress": "/inputValue"
+                      }
+                    ],
+                    "niceName": "Input Value",
+                    "type": "Input Value"
+                  }
+                ],
+                "viewOffset": [
+                  0,
+                  0
+                ],
+                "viewZoom": 1.0
+              },
+              "params": {
+                "parameters": [
+                  {
+                    "value": 50,
+                    "hexMode": false,
+                    "controlAddress": "/updateRate"
+                  }
+                ],
+                "editorIsCollapsed": true
+              },
+              "filters": {
+                "items": [
+                  {
+                    "niceName": "Math",
+                    "type": "Math",
+                    "filterParams": {
+                      "parameters": [
+                        {
+                          "value": "Multiply",
+                          "controlAddress": "/operation"
+                        },
+                        {
+                          "value": 100.0,
+                          "controlAddress": "/value"
+                        }
+                      ],
+                      "paramLinks": {
+                      }
+                    },
+                    "operationValue": {
+                      "value": 100.0,
+                      "controlAddress": "/states/toolsDONOTTOUCH/processors/position/filters/math/filterParams/value"
+                    }
+                  }
+                ],
+                "viewOffset": [
+                  0,
+                  0
+                ],
+                "viewZoom": 1.0
+              },
+              "outputs": {
+                "items": [
+                  {
+                    "niceName": "MappingOutput",
+                    "type": "BaseItem",
+                    "commandModule": "sequences",
+                    "commandPath": "Time",
+                    "commandType": "Set Current Time",
+                    "command": {
+                      "parameters": [
+                        {
+                          "value": "/sequences/speed",
+                          "controlAddress": "/target"
+                        }
+                      ],
+                      "paramLinks": {
+                        "time": {
+                          "linkType": 1,
+                          "mappingValueIndex": 0
+                        }
+                      }
+                    }
+                  }
+                ],
+                "viewOffset": [
+                  0,
+                  0
+                ],
+                "viewZoom": 1.0
+              }
+            },
+            {
+              "parameters": [
+                {
+                  "value": true,
+                  "controlAddress": "/enabled"
+                }
+              ],
+              "niceName": "onExtreme",
+              "type": "Action",
+              "conditions": {
+                "parameters": [
+                  {
+                    "value": "OR",
+                    "controlAddress": "/operator"
+                  }
+                ],
+                "items": [
+                  {
+                    "parameters": [
+                      {
+                        "value": "/modules/osc/values/_position",
+                        "controlAddress": "/inputValue"
+                      }
+                    ],
+                    "niceName": "From Input Value",
+                    "type": "From Input Value",
+                    "comparator": {
+                      "parameters": [
+                        {
+                          "value": 0.0,
+                          "controlAddress": "/reference"
+                        }
+                      ],
+                      "hideInEditor": true
+                    }
+                  },
+                  {
+                    "parameters": [
+                      {
+                        "value": "/modules/osc/values/_position",
+                        "controlAddress": "/inputValue"
+                      }
+                    ],
+                    "niceName": "From Input Value 1",
+                    "type": "From Input Value",
+                    "comparator": {
+                      "parameters": [
+                        {
+                          "value": 1.0,
+                          "controlAddress": "/reference"
+                        }
+                      ],
+                      "hideInEditor": true
+                    }
+                  }
+                ],
+                "viewOffset": [
+                  0,
+                  0
+                ],
+                "viewZoom": 1.0
+              },
+              "consequences": {
+                "parameters": [
+                  {
+                    "value": false,
+                    "controlAddress": "/cancelDelaysOnTrigger"
+                  }
+                ],
+                "items": [
+                  {
+                    "niceName": "Consequence",
+                    "type": "Consequence",
+                    "commandModule": "stateMachine",
+                    "commandPath": "Mapping",
+                    "commandType": "Set Mapping Enabled",
+                    "command": {
+                      "parameters": [
+                        {
+                          "value": "/states/tools/processors/speed",
+                          "controlAddress": "/target"
+                        }
+                      ],
+                      "paramLinks": {
+                      }
+                    }
+                  },
+                  {
+                    "niceName": "Consequence 2",
+                    "type": "Consequence",
+                    "commandModule": "stateMachine",
+                    "commandPath": "Action",
+                    "commandType": "Trigger Action",
+                    "command": {
+                      "parameters": [
+                        {
+                          "value": "/states/robotControl/processors/sTOP",
+                          "controlAddress": "/target"
+                        }
+                      ],
+                      "paramLinks": {
+                      }
+                    }
+                  },
+                  {
+                    "niceName": "Consequence 1",
+                    "type": "Consequence",
+                    "commandModule": "stateMachine",
+                    "commandPath": "Action",
+                    "commandType": "Set Action Enabled",
+                    "command": {
+                      "parameters": [
+                        {
+                          "value": "/states/tools/processors/onExtreme",
+                          "controlAddress": "/target"
+                        },
+                        {
+                          "value": false,
+                          "controlAddress": "/value"
+                        }
+                      ],
+                      "paramLinks": {
+                      }
+                    }
+                  }
+                ],
+                "viewOffset": [
+                  0,
+                  0
+                ],
+                "viewZoom": 1.0
+              },
+              "consequencesOff": {
+                "viewOffset": [
+                  0,
+                  0
+                ],
+                "viewZoom": 1.0
+              }
+            },
+            {
+              "parameters": [
+                {
+                  "value": false,
+                  "controlAddress": "/enabled"
+                }
+              ],
+              "niceName": "Speed",
+              "editorIsCollapsed": true,
+              "type": "Mapping",
+              "im": {
+                "items": [
+                  {
+                    "parameters": [
+                      {
+                        "value": "/sequences/speed/layers/mapping/value",
+                        "controlAddress": "/inputValue"
+                      }
+                    ],
+                    "niceName": "Input Value",
+                    "type": "Input Value"
+                  }
+                ],
+                "viewOffset": [
+                  0,
+                  0
+                ],
+                "viewZoom": 1.0
+              },
+              "params": {
+                "parameters": [
+                  {
+                    "value": 50,
+                    "hexMode": false,
+                    "controlAddress": "/updateRate"
+                  }
+                ],
+                "editorIsCollapsed": true
+              },
+              "filters": {
+                "items": [
+                  {
+                    "niceName": "Remap",
+                    "type": "Remap",
+                    "filterParams": {
+                      "parameters": [
+                        {
+                          "value": [
+                            0.0,
+                            1.0
+                          ],
+                          "controlAddress": "/inputMin_Max"
+                        },
+                        {
+                          "value": [
+                            0.09153403341770172,
+                            0.2329668402671814
+                          ],
+                          "controlMode": 2,
+                          "reference": {
+                            "value": "/states/toolsDONOTTOUCH/processors/speed_min_max/outValues/out1",
+                            "controlAddress": "/reference"
+                          },
+                          "controlAddress": "/targetMin_Max"
+                        }
+                      ],
+                      "paramLinks": {
+                      }
+                    }
+                  },
+                  {
+                    "niceName": "Math",
+                    "type": "Math",
+                    "filterParams": {
+                      "parameters": [
+                        {
+                          "value": "Multiply",
+                          "controlAddress": "/operation"
+                        },
+                        {
+                          "value": 1.0,
+                          "controlMode": 2,
+                          "reference": {
+                            "value": "/customVariables/toolsDONOTTOUCH/variables/direction/direction",
+                            "controlAddress": "/reference"
+                          },
+                          "controlAddress": "/value"
+                        }
+                      ],
+                      "paramLinks": {
+                      }
+                    },
+                    "operationValue": {
+                      "value": 1.0,
+                      "controlMode": 2,
+                      "reference": {
+                        "value": "/customVariables/toolsDONOTTOUCH/variables/direction/direction",
+                        "controlAddress": "/reference"
+                      },
+                      "controlAddress": "/states/toolsDONOTTOUCH/processors/speed/filters/math/filterParams/value"
+                    }
+                  }
+                ],
+                "viewOffset": [
+                  0,
+                  0
+                ],
+                "viewZoom": 1.0
+              },
+              "outputs": {
+                "items": [
+                  {
+                    "niceName": "MappingOutput",
+                    "type": "BaseItem",
+                    "commandModule": "osc",
+                    "commandPath": "",
+                    "commandType": "Custom Message",
+                    "command": {
+                      "parameters": [
+                        {
+                          "value": "/speed",
+                          "controlAddress": "/address"
+                        }
+                      ],
+                      "paramLinks": {
+                      },
+                      "argManager": {
+                        "items": [
+                          {
+                            "parameters": [
+                              {
+                                "value": 0.09153403341770172,
+                                "controlAddress": "/#1"
+                              }
+                            ],
+                            "niceName": "#1",
+                            "type": "Float",
+                            "param": {
+                              "value": 0.09153403341770172,
+                              "controlAddress": "/states/toolsDONOTTOUCH/processors/speed/outputs/mappingOutput/command/arguments/#1/#1"
+                            },
+                            "paramLink": {
+                              "linkType": 1,
+                              "mappingValueIndex": 0
+                            }
+                          }
+                        ],
+                        "viewOffset": [
+                          0,
+                          0
+                        ],
+                        "viewZoom": 1.0
+                      }
+                    }
+                  }
+                ],
+                "viewOffset": [
+                  0,
+                  0
+                ],
+                "viewZoom": 1.0
+              }
+            },
+            {
+              "niceName": "SPEED_MIN_MAX",
+              "editorIsCollapsed": true,
+              "type": "Mapping",
+              "im": {
+                "items": [
+                  {
+                    "parameters": [
+                      {
+                        "value": "/customVariables/customVariables/values/speedControl/speed___min",
+                        "controlAddress": "/inputValue"
+                      }
+                    ],
+                    "niceName": "Input Value",
+                    "type": "Input Value"
+                  },
+                  {
+                    "parameters": [
+                      {
+                        "value": "/customVariables/customVariables/values/speedControl/speed___max",
+                        "controlAddress": "/inputValue"
+                      }
+                    ],
+                    "niceName": "Input Value 1",
+                    "type": "Input Value"
+                  }
+                ],
+                "viewOffset": [
+                  0,
+                  0
+                ],
+                "viewZoom": 1.0
+              },
+              "params": {
+                "parameters": [
+                  {
+                    "value": 50,
+                    "hexMode": false,
+                    "controlAddress": "/updateRate"
+                  }
+                ],
+                "editorIsCollapsed": true
+              },
+              "filters": {
+                "items": [
+                  {
+                    "niceName": "Mega Converter",
+                    "type": "Mega Converter",
+                    "filterParams": {
+                      "paramLinks": {
+                      }
+                    },
+                    "convertedParameters": {
+                      "items": [
+                        {
+                          "parameters": [
+                            {
+                              "value": [
+                                0.0,
+                                0.0
+                              ],
+                              "controlAddress": "/defaultValue"
+                            }
+                          ],
+                          "niceName": "Point2D",
+                          "type": "Point2D"
+                        }
+                      ],
+                      "viewOffset": [
+                        0,
+                        0
+                      ],
+                      "viewZoom": 1.0
+                    },
+                    "links": [
+                      {
+                        "sourceIndex": 0,
+                        "sourceValueIndex": 0,
+                        "out": "point2D",
+                        "outValueIndex": 0
+                      },
+                      {
+                        "sourceIndex": 1,
+                        "sourceValueIndex": 0,
+                        "out": "point2D",
+                        "outValueIndex": 1
+                      }
+                    ]
+                  }
+                ],
+                "viewOffset": [
+                  0,
+                  0
+                ],
+                "viewZoom": 1.0
+              },
+              "outputs": {
+                "viewOffset": [
+                  0,
+                  0
+                ],
+                "viewZoom": 1.0
+              }
+            },
+            {
+              "niceName": "C O N N E C T",
+              "editorIsCollapsed": true,
+              "type": "Action",
+              "conditions": {
+                "items": [
+                  {
+                    "parameters": [
+                      {
+                        "value": "",
+                        "controlAddress": "/inputValue"
+                      }
+                    ],
+                    "niceName": "From Input Value",
+                    "type": "From Input Value"
+                  }
+                ],
+                "viewOffset": [
+                  0,
+                  0
+                ],
+                "viewZoom": 1.0
+              },
+              "consequences": {
+                "parameters": [
+                  {
+                    "value": false,
+                    "controlAddress": "/cancelDelaysOnTrigger"
+                  }
+                ],
+                "items": [
+                  {
+                    "niceName": "Consequence",
+                    "type": "Consequence",
+                    "commandModule": "osc",
+                    "commandPath": "",
+                    "commandType": "Custom Message",
+                    "command": {
+                      "parameters": [
+                        {
+                          "value": "/connect",
+                          "controlAddress": "/address"
+                        }
+                      ],
+                      "paramLinks": {
+                      },
+                      "argManager": {
+                        "viewOffset": [
+                          0,
+                          0
+                        ],
+                        "viewZoom": 1.0
+                      }
+                    }
+                  }
+                ],
+                "viewOffset": [
+                  0,
+                  0
+                ],
+                "viewZoom": 1.0
+              },
+              "consequencesOff": {
+                "viewOffset": [
+                  0,
+                  0
+                ],
+                "viewZoom": 1.0
+              }
+            }
+          ],
+          "viewOffset": [
+            0,
+            0
+          ],
+          "viewZoom": 1.0
+        }
+      }
+    ],
+    "viewOffset": [
+      -108,
+      -11
+    ],
+    "viewZoom": 1.0,
+    "transitions": {
+      "hideInEditor": true,
+      "viewOffset": [
+        0,
+        0
+      ],
+      "viewZoom": 1.0
+    },
+    "comments": {
+      "hideInEditor": true,
+      "viewOffset": [
+        -108,
+        -11
+      ],
+      "viewZoom": 1.0
+    }
+  },
+  "sequences": {
+    "items": [
+      {
+        "parameters": [
+          {
+            "value": true,
+            "controlAddress": "/enabled"
+          },
+          {
+            "value": 100.0,
+            "controlAddress": "/totalTime"
+          },
+          {
+            "value": 0.0,
+            "controlAddress": "/viewStartTime"
+          },
+          {
+            "value": 100.0,
+            "controlAddress": "/viewEndTime"
+          },
+          {
+            "value": [
+              0.0,
+              0.5882353186607361,
+              0.5882353186607361,
+              1.0
+            ],
+            "controlAddress": "/color"
+          },
+          {
+            "value": "",
+            "controlAddress": "/ltcSyncModule",
+            "enabled": false
+          }
+        ],
+        "niceName": "SPEED",
+        "type": "Sequence",
+        "layers": {
+          "hideInEditor": true,
+          "items": [
+            {
+              "parameters": [
+                {
+                  "value": 120.0,
+                  "controlAddress": "/listSize"
+                },
+                {
+                  "value": 120,
+                  "hexMode": false,
+                  "controlAddress": "/uiHeight"
+                },
+                {
+                  "value": [
+                    0.0,
+                    0.2576940953731537,
+                    0.2576940953731537,
+                    1.0
+                  ],
+                  "controlAddress": "/color"
+                }
+              ],
+              "niceName": "Mapping",
+              "containers": {
+                "automation": {
+                  "parameters": [
+                    {
+                      "value": 100.0,
+                      "controlAddress": "/length"
+                    },
+                    {
+                      "value": 0.0,
+                      "controlAddress": "/position"
+                    },
+                    {
+                      "value": [
+                        0.0,
+                        1.0
+                      ],
+                      "controlAddress": "/viewValueRange"
+                    },
+                    {
+                      "value": [
+                        0.0,
+                        1.0
+                      ],
+                      "controlAddress": "/range",
+                      "enabled": true
+                    }
+                  ],
+                  "hideInEditor": true,
+                  "hideInRemoteControl": false,
+                  "items": [
+                    {
+                      "parameters": [
+                        {
+                          "value": 0.0,
+                          "controlAddress": "/position"
+                        },
+                        {
+                          "value": 0.0,
+                          "controlAddress": "/value"
+                        },
+                        {
+                          "value": "Bezier",
+                          "controlAddress": "/easingType"
+                        }
+                      ],
+                      "niceName": "Key",
+                      "containers": {
+                        "easing": {
+                          "parameters": [
+                            {
+                              "value": [
+                                17.15637969970703,
+                                0.0
+                              ],
+                              "controlAddress": "/anchor1"
+                            },
+                            {
+                              "value": [
+                                -17.09191131591797,
+                                0.004999995231628418
+                              ],
+                              "controlAddress": "/anchor2"
+                            }
+                          ]
+                        }
+                      },
+                      "type": "Key"
+                    },
+                    {
+                      "parameters": [
+                        {
+                          "value": 49.26315307617188,
+                          "controlAddress": "/position"
+                        },
+                        {
+                          "value": 1.0,
+                          "controlAddress": "/value"
+                        },
+                        {
+                          "value": "Bezier",
+                          "controlAddress": "/easingType"
+                        }
+                      ],
+                      "niceName": "Key 2",
+                      "containers": {
+                        "easing": {
+                          "parameters": [
+                            {
+                              "value": [
+                                17.09191131591797,
+                                -0.004999995231628418
+                              ],
+                              "controlAddress": "/anchor1"
+                            },
+                            {
+                              "value": [
+                                -8.131687164306641,
+                                0.0
+                              ],
+                              "controlAddress": "/anchor2"
+                            }
+                          ]
+                        }
+                      },
+                      "type": "Key"
+                    },
+                    {
+                      "parameters": [
+                        {
+                          "value": 100.0,
+                          "controlAddress": "/position"
+                        },
+                        {
+                          "value": 0.0,
+                          "controlAddress": "/value"
+                        },
+                        {
+                          "value": "Bezier",
+                          "controlAddress": "/easingType"
+                        }
+                      ],
+                      "niceName": "Key 3",
+                      "containers": {
+                        "easing": {
+                        }
+                      },
+                      "type": "Key"
+                    }
+                  ],
+                  "viewOffset": [
+                    0,
+                    0
+                  ],
+                  "viewZoom": 1.0
+                },
+                "recorder": {
+                  "parameters": [
+                    {
+                      "value": "",
+                      "controlAddress": "/inputValue"
+                    }
+                  ],
+                  "editorIsCollapsed": true
+                },
+                "mapping": {
+                  "niceName": "Mapping",
+                  "type": "Mapping",
+                  "im": {
+                    "hideInEditor": true,
+                    "items": [
+                      {
+                        "parameters": [
+                          {
+                            "value": "",
+                            "controlAddress": "/inputValue"
+                          }
+                        ],
+                        "niceName": "Input Value",
+                        "type": "Input Value"
+                      }
+                    ],
+                    "viewOffset": [
+                      0,
+                      0
+                    ],
+                    "viewZoom": 1.0
+                  },
+                  "params": {
+                    "parameters": [
+                      {
+                        "value": 50,
+                        "hexMode": false,
+                        "controlAddress": "/updateRate"
+                      }
+                    ],
+                    "editorIsCollapsed": true
+                  },
+                  "filters": {
+                    "viewOffset": [
+                      0,
+                      0
+                    ],
+                    "viewZoom": 1.0
+                  },
+                  "outputs": {
+                    "viewOffset": [
+                      0,
+                      0
+                    ],
+                    "viewZoom": 1.0
+                  }
+                }
+              },
+              "type": "Mapping"
+            }
+          ],
+          "viewOffset": [
+            0,
+            0
+          ],
+          "viewZoom": 1.0
+        },
+        "cues": {
+          "hideInEditor": true,
+          "viewOffset": [
+            0,
+            0
+          ],
+          "viewZoom": 1.0
+        }
+      },
+      {
+        "parameters": [
+          {
+            "value": true,
+            "controlAddress": "/playAtLoad"
+          },
+          {
+            "value": 1.0,
+            "controlAddress": "/totalTime"
+          },
+          {
+            "value": 1.0,
+            "controlAddress": "/viewEndTime"
+          },
+          {
+            "value": [
+              1.0,
+              0.0,
+              0.0,
+              1.0
+            ],
+            "controlAddress": "/color"
+          },
+          {
+            "value": "",
+            "controlAddress": "/ltcSyncModule",
+            "enabled": false
+          }
+        ],
+        "niceName": "Tools DO NOT TOUCH",
+        "type": "Sequence",
+        "layers": {
+          "hideInEditor": true,
+          "items": [
+            {
+              "parameters": [
+                {
+                  "value": 60.0,
+                  "controlAddress": "/listSize"
+                },
+                {
+                  "value": [
+                    1.0,
+                    0.0,
+                    0.0,
+                    1.0
+                  ],
+                  "controlAddress": "/color"
+                }
+              ],
+              "niceName": "INIT_SEQUENCE",
+              "type": "Trigger",
+              "triggers": {
+                "hideInEditor": true,
+                "items": [
+                  {
+                    "parameters": [
+                      {
+                        "value": 0.1000000014901161,
+                        "controlAddress": "/time"
+                      },
+                      {
+                        "value": 0.3833333253860474,
+                        "controlAddress": "/flagY"
+                      }
+                    ],
+                    "niceName": "Trigger",
+                    "type": "TimeTrigger",
+                    "consequences": {
+                      "parameters": [
+                        {
+                          "value": false,
+                          "controlAddress": "/cancelDelaysOnTrigger"
+                        }
+                      ],
+                      "items": [
+                        {
+                          "niceName": "Consequence",
+                          "type": "Consequence",
+                          "commandModule": "os",
+                          "commandPath": "Process",
+                          "commandType": "Launch Command",
+                          "command": {
+                            "parameters": [
+                              {
+                                "value": "/Users/matierehumaine/Desktop/Perpetuite\u03013/controller.flora/scripts/run.sh",
+                                "controlAddress": "/command"
+                              }
+                            ],
+                            "paramLinks": {
+                            }
+                          }
+                        },
+                        {
+                          "niceName": "Consequence 1",
+                          "type": "Consequence",
+                          "commandModule": "os",
+                          "commandPath": "Process",
+                          "commandType": "Launch Command File",
+                          "command": {
+                            "paramLinks": {
+                            }
+                          }
+                        }
+                      ],
+                      "viewOffset": [
+                        0,
+                        0
+                      ],
+                      "viewZoom": 1.0
+                    }
+                  },
+                  {
+                    "parameters": [
+                      {
+                        "value": true,
+                        "controlAddress": "/locked"
+                      },
+                      {
+                        "value": 1.0,
+                        "controlAddress": "/time"
+                      },
+                      {
+                        "value": 0.6583333015441895,
+                        "controlAddress": "/flagY"
+                      }
+                    ],
+                    "niceName": "CONNECT",
+                    "type": "TimeTrigger",
+                    "consequences": {
+                      "parameters": [
+                        {
+                          "value": false,
+                          "controlAddress": "/cancelDelaysOnTrigger"
+                        }
+                      ],
+                      "items": [
+                        {
+                          "niceName": "Consequence",
+                          "type": "Consequence",
+                          "commandModule": "stateMachine",
+                          "commandPath": "Action",
+                          "commandType": "Trigger Action",
+                          "command": {
+                            "parameters": [
+                              {
+                                "value": "/states/toolsDONOTTOUCH/processors/cONNECT",
+                                "controlAddress": "/target"
+                              }
+                            ],
+                            "paramLinks": {
+                            }
+                          }
+                        }
+                      ],
+                      "viewOffset": [
+                        0,
+                        0
+                      ],
+                      "viewZoom": 1.0
+                    }
+                  }
+                ],
+                "viewOffset": [
+                  0,
+                  0
+                ],
+                "viewZoom": 1.0
+              }
+            }
+          ],
+          "viewOffset": [
+            0,
+            0
+          ],
+          "viewZoom": 1.0
+        },
+        "cues": {
+          "hideInEditor": true,
+          "viewOffset": [
+            0,
+            0
+          ],
+          "viewZoom": 1.0
+        },
+        "editing": true
+      }
+    ],
+    "viewOffset": [
+      0,
+      0
+    ],
+    "viewZoom": 1.0
+  },
+  "routers": {
+    "viewOffset": [
+      0,
+      0
+    ],
+    "viewZoom": 1.0
+  }
+}

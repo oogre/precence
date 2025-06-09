@@ -1,0 +1,118 @@
+"use strict";
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.default = void 0;
+var _net = _interopRequireDefault(require("net"));
+var _FHPP = require("./FHPP.js");
+var _nodeBuffer = require("node:buffer");
+var _Tools = require("../common/Tools.js");
+var _enum = _interopRequireDefault(require("enum"));
+function _interopRequireDefault(e) { return e && e.__esModule ? e : { default: e }; }
+class ModBus {
+  static ModBusStatus = new _enum.default(['STOPED', 'RUNNING', 'ERROR']);
+  constructor(log = () => {}) {
+    this.log = log;
+    this.outHeader = _nodeBuffer.Buffer.from([0x00, 0X00, 0X00, 0X00, 0X00, 0X13, 0X00, 0X17, 0X00, 0X00, 0X00, 0X04, 0X00, 0X00, 0X00, 0X04, 0X08]);
+    this.out = new _FHPP.FHPP_OUT(log);
+    this.in = new _FHPP.FHPP_IN(log);
+    this.isPolling = false;
+    this.status = ModBus.ModBusStatus.STOPED;
+    this.client = new _net.default.Socket();
+    this.dataHandlers = [];
+    this.client.on('data', data => {
+      const d = _nodeBuffer.Buffer.copyBytesFrom(data, 9, 8);
+      if (d.length != 8) {
+        setTimeout(() => this.waitForDataReject("wrong response"), 1);
+      } else {
+        setTimeout(() => this.waitForDataSuccess(d), 1);
+      }
+    });
+    this.client.on('end', () => {
+      this.stopPolling();
+      this.log('disconnected from server');
+    });
+    this.client.on('error', err => {
+      this.stopPolling();
+      this.log('Error : ', err);
+    });
+    this.client.on('close', () => {
+      this.stopPolling();
+      this.log('socket closed');
+    });
+    this.readjustSpeedDelay = null;
+  }
+  connect(host, port, callback = () => {}, error = () => {}) {
+    this.client.connect(port, host, () => {
+      this.log(`connected to ${host} : ${port}`);
+      callback();
+      this.startPolling();
+    });
+    // this.client.on('error', error.bind(this));
+    // this.client.on('close', error.bind(this));
+    // this.client.on('end', error.bind(this));
+  }
+  startPolling() {
+    this.isPolling = true;
+    this.status = ModBus.ModBusStatus.RUNNING;
+    this.send();
+  }
+  stopPolling() {
+    this.isPolling = false;
+  }
+  async send(loop = true) {
+    this.log(`->`, this.out.data);
+
+    //increment values of 2 firsts bytes of header
+    this.outHeader.writeUInt16BE((this.outHeader.readUInt16BE(0) + 1) % 0XFFFF);
+
+    // prepare the waiter for the response
+    this.waitForDataSuccess = null;
+    this.waitForDataReject = null;
+    this.waitForData = new Promise((resolve, reject) => {
+      this.waitForDataSuccess = resolve;
+      this.waitForDataReject = reject;
+    });
+
+    // send and wait for the response
+    this.client.write(_nodeBuffer.Buffer.concat([this.outHeader, this.out.data]));
+    try {
+      this.in.data = await this.waitForData;
+      this.dataHandlers.map(handler => handler(this.in));
+      // /* FAKE REFERENCED FOR DEBUG */ this.in.get("REF").toggle();
+      //this.log(`<-`, this.in.data);
+      this.status = ModBus.ModBusStatus.RUNNING;
+
+      // Start and Home has to be strobed to be applied
+      // So if one is UP this turn it down and send
+      const [isStart, isHome] = [this.out.get("START").getValue(), this.out.get("HOME").getValue()];
+      if (isStart || isHome) {
+        isStart && this.out.get("START").toggle();
+        isHome && this.out.get("HOME").toggle();
+        this.send(false);
+      }
+      let deltaV = Math.abs(this.in.get("SPEED").getValue() - this.out.get("SPEED").getValue());
+      if (!this.readjustSpeedDelay && deltaV > 0.11) {
+        this.readjustSpeedDelay = setTimeout(() => {
+          this.out.get("START").toggle();
+          this.readjustSpeedDelay = null;
+        }, 40);
+      }
+    } catch (error) {
+      this.log(error);
+      this.status = ModBus.ModBusStatus.ERROR;
+    }
+
+    // it cannot be faster than 50 send per second
+    await (0, _Tools.wait)(20);
+    loop && this.isPolling && this.send();
+  }
+  close() {
+    this.client.destroy();
+  }
+  onData(dataHandler) {
+    this.dataHandlers.push(dataHandler);
+  }
+}
+exports.default = ModBus;
