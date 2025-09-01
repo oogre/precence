@@ -6,6 +6,7 @@ import config from "./config.js";
 import PTZController from "./PTZController";
 import FestoController from "./FestoController";
 import DMX from "./DMX";
+import OBS from "./OBS";
 
 import Gamepad from "./Gamepad"
 import Recorder from "./Recorder"
@@ -14,7 +15,6 @@ import {lerp} from "./common/Math.js"
 process.title = config.window.title;
 
 const window = sdl.video.createWindow(config.window);
-
 
 // const dmx = new DMX(config.DMX);
 
@@ -33,6 +33,9 @@ const robots = [
 ];
 
 const camera = new PTZController(config.camera);
+
+const obs = new OBS(config.OBS);
+
 
 const ui = new UI(window, gamepad, robots, camera, recorder);
 
@@ -62,13 +65,6 @@ ui.onButtonEvent((event)=>{
     // } 
 });
 
-// ui.onReady(()=>{
-//     ui.link(gamepad.in.get("JOYSTICK_LEFT_HORIZONTAL"), camera.out.get("PAN_TILT").data.params.tilt);
-//     ui.link(gamepad.in.get("JOYSTICK_LEFT_VERTICAL"), camera.out.get("PAN_TILT").data.params.pan);
-//     ui.link(gamepad.in.get("TRIGGER_RIGHT"), camera.out.get("ZOOM").data.params.zoom);
-//     ui.link(gamepad.in.get("TRIGGER_LEFT"), camera.out.get("ZOOM").data.params.zoom);
-// });
-
 // gamepad.on("*", ({time, target:{getValue, id}}) =>{
 //     recorder.update({
 //         time, 
@@ -79,7 +75,7 @@ ui.onButtonEvent((event)=>{
 
 
 gamepad.on("JOYSTICK_LEFT_HORIZONTAL", event => {
-    robots[0].speed(-1 * (event.target.getValue() * 2 - 1));
+    robots[0].speed(1 * (event.target.getValue() * 2 - 1));
 
 });
 
@@ -123,6 +119,12 @@ gamepad.on("BUTTON_TRIGGER_RIGHT", event => {
 });
 
 
+gamepad.on("BUTTON_B", event=>{
+    console.log(event);
+    if(event.target.getValue() == 1){
+        obs.toggleRecord();
+    }
+})
 
 const terminate = async ()=>{
     await robots[0].close();

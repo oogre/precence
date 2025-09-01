@@ -36,31 +36,31 @@
     "mainLayout": {
       "type": 1,
       "width": 2560,
-      "height": 1576,
+      "height": 1548,
       "direction": 2,
       "shifters": [
         {
           "type": 1,
           "width": 2560,
-          "height": 1576,
+          "height": 1548,
           "direction": 2,
           "shifters": [
             {
               "type": 1,
               "width": 2560,
-              "height": 864,
+              "height": 850,
               "direction": 1,
               "shifters": [
                 {
                   "type": 1,
                   "width": 307,
-                  "height": 864,
+                  "height": 850,
                   "direction": 2,
                   "shifters": [
                     {
                       "type": 0,
                       "width": 307,
-                      "height": 439,
+                      "height": 433,
                       "currentContent": "Modules",
                       "tabs": [
                         {
@@ -71,7 +71,7 @@
                     {
                       "type": 0,
                       "width": 307,
-                      "height": 418,
+                      "height": 411,
                       "currentContent": "Custom Variables",
                       "tabs": [
                         {
@@ -84,7 +84,7 @@
                 {
                   "type": 0,
                   "width": 1657,
-                  "height": 864,
+                  "height": 850,
                   "currentContent": "State Machine",
                   "tabs": [
                     {
@@ -101,7 +101,7 @@
                 {
                   "type": 0,
                   "width": 584,
-                  "height": 864,
+                  "height": 850,
                   "currentContent": "Inspector",
                   "tabs": [
                     {
@@ -114,13 +114,13 @@
             {
               "type": 1,
               "width": 2560,
-              "height": 706,
+              "height": 692,
               "direction": 1,
               "shifters": [
                 {
                   "type": 0,
                   "width": 178,
-                  "height": 706,
+                  "height": 692,
                   "currentContent": "Sequences",
                   "tabs": [
                     {
@@ -131,7 +131,7 @@
                 {
                   "type": 0,
                   "width": 1416,
-                  "height": 706,
+                  "height": 692,
                   "currentContent": "Sequence Editor",
                   "tabs": [
                     {
@@ -142,7 +142,7 @@
                 {
                   "type": 0,
                   "width": 954,
-                  "height": 706,
+                  "height": 692,
                   "currentContent": "Logger",
                   "tabs": [
                     {
@@ -393,7 +393,7 @@
             {
               "parameters": [
                 {
-                  "value": 1,
+                  "value": -1,
                   "minValue": -1.0,
                   "maxValue": 1.0,
                   "default": 0,
@@ -1465,12 +1465,6 @@
               }
             },
             {
-              "parameters": [
-                {
-                  "value": true,
-                  "controlAddress": "/enabled"
-                }
-              ],
               "niceName": "Speed",
               "editorIsCollapsed": true,
               "type": "Mapping",
@@ -1544,7 +1538,7 @@
                           "controlAddress": "/operation"
                         },
                         {
-                          "value": 1.0,
+                          "value": -1.0,
                           "controlMode": 2,
                           "reference": {
                             "value": "/customVariables/toolsDONOTTOUCH/variables/direction/direction",
@@ -1557,7 +1551,7 @@
                       }
                     },
                     "operationValue": {
-                      "value": 1.0,
+                      "value": -1.0,
                       "controlMode": 2,
                       "reference": {
                         "value": "/customVariables/toolsDONOTTOUCH/variables/direction/direction",
@@ -1595,14 +1589,14 @@
                           {
                             "parameters": [
                               {
-                                "value": 0.0130000002682209,
+                                "value": -0.0130000002682209,
                                 "controlAddress": "/#1"
                               }
                             ],
                             "niceName": "#1",
                             "type": "Float",
                             "param": {
-                              "value": 0.0130000002682209,
+                              "value": -0.0130000002682209,
                               "controlAddress": "/states/toolsDONOTTOUCH/processors/speed/outputs/mappingOutput/command/arguments/#1/#1"
                             },
                             "paramLink": {
@@ -1957,10 +1951,6 @@
                       "controlAddress": "/length"
                     },
                     {
-                      "value": 0.0,
-                      "controlAddress": "/position"
-                    },
-                    {
                       "value": [
                         0.0,
                         1.0
@@ -2146,8 +2136,7 @@
             0
           ],
           "viewZoom": 1.0
-        },
-        "editing": true
+        }
       },
       {
         "parameters": [
@@ -2206,6 +2195,10 @@
                 "items": [
                   {
                     "parameters": [
+                      {
+                        "value": true,
+                        "controlAddress": "/locked"
+                      },
                       {
                         "value": 0.03999999910593033,
                         "controlAddress": "/time"
@@ -2273,6 +2266,10 @@
                   },
                   {
                     "parameters": [
+                      {
+                        "value": true,
+                        "controlAddress": "/locked"
+                      },
                       {
                         "value": 2.960000038146973,
                         "controlAddress": "/time"
@@ -2356,7 +2353,8 @@
             0
           ],
           "viewZoom": 1.0
-        }
+        },
+        "editing": true
       }
     ],
     "viewOffset": [

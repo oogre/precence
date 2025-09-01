@@ -15,8 +15,9 @@ export default class Gamepad {
 		this.log(this.handlers);
 		this.device = devices.find(({name})=>name==conf.name)
 		if(!!this.device){
-			this.device = sdl.joystick.openDevice(this.device)
+			this.device = sdl.joystick.openDevice(this.device);
 		}
+
 
 		const eventProcess = (name, value) => {
 			const target = this.in.get(name);

@@ -7,6 +7,7 @@ var _config = _interopRequireDefault(require("./config.js"));
 var _PTZController = _interopRequireDefault(require("./PTZController"));
 var _FestoController = _interopRequireDefault(require("./FestoController"));
 var _DMX = _interopRequireDefault(require("./DMX"));
+var _OBS = _interopRequireDefault(require("./OBS"));
 var _Gamepad = _interopRequireDefault(require("./Gamepad"));
 var _Recorder = _interopRequireDefault(require("./Recorder"));
 var _Math = require("./common/Math.js");
@@ -26,6 +27,7 @@ const recorder = new _Recorder.default();
 const gamepad = new _Gamepad.default(_sdl.default.joystick.devices, _config.default.controller);
 const robots = [new _FestoController.default(_config.default.robots[0]), new _FestoController.default(_config.default.robots[1])];
 const camera = new _PTZController.default(_config.default.camera);
+const obs = new _OBS.default(_config.default.OBS);
 const ui = new _UI.default(window, gamepad, robots, camera, recorder);
 ui.onButtonEvent(event => {
   if (event.target == "robot") {
@@ -67,7 +69,7 @@ ui.onButtonEvent(event => {
 // });
 
 gamepad.on("JOYSTICK_LEFT_HORIZONTAL", event => {
-  robots[0].speed(-1 * (event.target.getValue() * 2 - 1));
+  robots[0].speed(1 * (event.target.getValue() * 2 - 1));
 });
 gamepad.on("JOYSTICK_LEFT_VERTICAL", event => {
   robots[1].speed(-1 * (event.target.getValue() * 2 - 1));
@@ -99,6 +101,12 @@ gamepad.on("BUTTON_TRIGGER_RIGHT", event => {
     irisRun = setInterval(() => {
       camera.setIris(event.target.getValue() * 0.2);
     }, 50);
+  }
+});
+gamepad.on("BUTTON_B", event => {
+  console.log(event);
+  if (event.target.getValue() == 1) {
+    obs.toggleRecord();
   }
 });
 const terminate = async () => {

@@ -31,10 +31,16 @@ export default class FestoController extends ModBus{
 	}
 
 	connect(homeHandler){
+		this.log(`connection ASKED`)
 		super.connect(this.conf.host, this.conf.port, ()=>{
+			this.log(`connected`)
 			this.conf.status = FestoController.RobotStatus.CONNECTED;
 			setTimeout(()=>{
-				this.homing(homeHandler);
+				this.log(`homing ASKED`)
+				this.homing(()=>{
+					this.log(`homed`)
+					homeHandler();
+				});
 			}, 100);
 		}, (error)=>{
 			this.conf.status = FestoController.RobotStatus.ERROR;

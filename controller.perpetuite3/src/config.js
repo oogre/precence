@@ -13,7 +13,9 @@ const {
     UI_WIDTH,
     UI_HEIGHT,
     CAME_HOST,
-    CAME_LOG
+    CAME_LOG,
+    OBS_HOST,
+    OBS_LOG
 } = dotenv.config().parsed;
 
 export default {
@@ -52,5 +54,11 @@ export default {
     host : DMX_HOST.split(":")[0],
     port : parseInt(DMX_HOST.split(":")[1]),
     log : parseInt(DMX_LOG)
+  },
+  OBS : {
+    name : "OBS",
+    host : OBS_HOST.split(":")[0],
+    port : parseInt(OBS_HOST.split(":")[1]),
+    log : parseInt(OBS_LOG)
   }
 };
