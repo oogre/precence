@@ -1,0 +1,74 @@
+import dotenv from 'dotenv';
+
+const {
+    CTRL_NAME,
+    CTRL_LOG,
+    DMX_HOST,
+    DMX_LOG,
+    ROBT_X_HOST,
+    ROBT_X,
+    ROBT_X_LOG,
+    ROBT_Y,
+    ROBT_Y_HOST,
+    ROBT_Y_LOG,
+    TITLE,
+    RECORDER_DURATION,
+    RECORDER_REC_FILE,
+    UI_WIDTH,
+    UI_HEIGHT,
+    CAME_HOST,
+    CAME_LOG,
+    OBS_HOST,
+    OBS_LOG
+} = dotenv.config().parsed;
+
+export default {
+  window : {
+    title: TITLE,
+    width: parseInt(UI_WIDTH),
+    height: parseInt(UI_HEIGHT) 
+  },
+  CONTROLLER : {
+    name : CTRL_NAME,
+    log : parseInt(CTRL_LOG)
+  },
+  ROBOTS : [{
+    name : "Horizontal",
+    enable : parseInt(ROBT_X),
+    host : ROBT_X_HOST.split(":")[0],
+    port : parseInt(ROBT_X_HOST.split(":")[1]),
+    maxPos : 2775,
+    maxSpeed : 0x64,
+    log : parseInt(ROBT_X_LOG)
+  },{
+    name : "Vertical",
+    enable : parseInt(ROBT_Y),
+    host : ROBT_Y_HOST.split(":")[0],
+    port : parseInt(ROBT_Y_HOST.split(":")[1]),
+    maxPos : 980,
+    maxSpeed : 0x64,
+    log : parseInt(ROBT_Y_LOG)
+  }],
+  CAMERA : {
+    name : "AW-UE100",
+    host : CAME_HOST.split(":")[0],
+    port : parseInt(CAME_HOST.split(":")[1]),
+    log : parseInt(CAME_LOG)
+  },
+  DMX : {
+    name : "LanBox LCE",
+    host : DMX_HOST.split(":")[0],
+    port : parseInt(DMX_HOST.split(":")[1]),
+    log : parseInt(DMX_LOG)
+  },
+  OBS : {
+    name : "OBS",
+    host : OBS_HOST.split(":")[0],
+    port : parseInt(OBS_HOST.split(":")[1]),
+    log : parseInt(OBS_LOG)
+  },
+  RECORDER : {
+    duration : parseInt(RECORDER_DURATION),
+    recFile : RECORDER_REC_FILE
+  }
+};
