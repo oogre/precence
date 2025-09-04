@@ -66,7 +66,11 @@ export default class FestoController extends ModBus{
 		this.out.get("HOME").toggle();
 		this.log(this.out.get("HOME").getValue());
 	}
-
+	async reset(){
+		this.speed(-1);
+    	await wait(5000);
+    	this.speed(0);
+	}
 	speed(input){
 		//converter takes value [-1->1] in multiple of 1/8th 
 		const converter = value => Math.round((value) * 8) / 8;

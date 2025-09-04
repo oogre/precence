@@ -88,13 +88,14 @@ export default class UI extends UI_HELPER{
 							}));
 						})
 					});
-
+				let counter = 0;
 				let offset = outItem.length + 3;
 				const yOffset = (offset+1) * lineHeight;
 				this.text( x, y + yOffset , `INPUT`.toUpperCase());
 				robot.in.controls
 					.filter(({visible}) => visible)
 					.map((ctrl, n)=>{
+						counter++
 						const yOffset = (offset+n+2) * lineHeight;
 						switch(ctrl.type){
 							case "checkBox" : 
@@ -106,6 +107,15 @@ export default class UI extends UI_HELPER{
 							break;
 						}
 					});
+
+				this.checkBox(x, y + (counter+2) * lineHeight, "GO ZERO" , false)
+				.ifMouseRelease(()=>{
+					this.handlers.map(handler=>handler({
+						eventName : "ZERO",
+						target : "robot",
+						id : k
+					}));
+				});
 			}
 		});
 		
@@ -150,6 +160,16 @@ export default class UI extends UI_HELPER{
 					param.bounds = this.slider(x, y + yOffset, param.name, param.value); 
 				})
 			});
+
+			this.checkBox(x, y + (counter+2) * lineHeight, "GO ZERO" , false)
+			.ifMouseRelease(()=>{
+				this.handlers.map(handler=>handler({
+					eventName : "ZERO",
+					target : "camera",
+					id : 0
+				}));
+			});
+
 		}
 
 

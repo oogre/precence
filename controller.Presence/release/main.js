@@ -39,6 +39,8 @@ ui.onButtonEvent(async event => {
     } else if (event.eventName == "HOME") {
       console.log("Homing");
       robots[event.id].homing();
+    } else if (event.eventName == "ZERO") {
+      robots[event.id].reset();
     }
   } else if (event.target == "camera") {
     if (event.eventName == "connection") {
@@ -47,6 +49,8 @@ ui.onButtonEvent(async event => {
       camera.reset();
       await (0, _Tools.pWait)(1000);
       await obs.changeScene("Scène");
+    } else if (event.eventName == "ZERO") {
+      camera.reset();
     }
   } else if (event.target == "recorder") {
     if (event.eventName == "REC") {
