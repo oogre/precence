@@ -47,7 +47,7 @@ class Recorder {
         ctx.strokeStyle = `rgba(255, 255, 255, 0.1)`;
         ctx.beginPath(); // Start a new path
         ctx.moveTo(0, 0); // Move the pen to (30, 50)
-        ctx.lineTo(0, canvas.height * v); // Draw a line to (150, 100)
+        ctx.lineTo(0, canvas.height); // Draw a line to (150, 100)
         ctx.stroke(); // Render the path
         ctx.restore();
       });
@@ -165,7 +165,7 @@ class Recorder {
     chan.ctx.strokeStyle = `rgba(255, 255, 255, 0.1)`;
     chan.ctx.beginPath(); // Start a new path
     chan.ctx.moveTo(0, 0); // Move the pen to (30, 50)
-    chan.ctx.lineTo(0, chan.canvas.height * value); // Draw a line to (150, 100)
+    chan.ctx.lineTo(0, chan.canvas.height); // Draw a line to (150, 100)
     chan.ctx.stroke(); // Render the path
     chan.ctx.restore();
   }

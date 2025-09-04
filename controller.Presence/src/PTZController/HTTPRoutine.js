@@ -14,16 +14,31 @@ export default class HTTPRoutine{
 		this.waitForDataReject = ()=>{};
 		this.requestWaitingList = [];
 		this.getData = false;
+		this.handlers = {
+			request : []
+		}
 	}
+	on(description, callback){
+		if(!Object.keys(this.handlers).includes(description))
+			throw new Error(`onRequest wait for HTTPRoutine.EVENT_DESC as first parameter. You give "${description}".`);
+		if(typeof callback !== 'function')
+			throw new Error(`onRequest wait for function as second parameter. You give "${typeof callback}".`);
+		this.handlers[description].push(callback);
+		return this;
+	}
+	trigger(eventDesc, event){
+		[...this.handlers[eventDesc]/*, ...this.handlers["*"]*/]
+			.forEach(handler => {
+				handler(event)
+			});
+	}
+
 
 	connect(host, port, callback=()=>{}, error=()=>{}){
 		this.host = host;
 		this.port = port;
 		this.errorHandler = error.bind(this);
 		this.log("connect")
-
-
-
 		this.httpCall(this.out.get("GET_PAN_TILT_ZOOM_FOCUS_IRIS").data.toRequest())
 			.then( ({body}) => {
 				this.log("<-", body);
@@ -47,7 +62,18 @@ export default class HTTPRoutine{
 		this.isPolling = false;
 	}
 
+	inject(request){
+		this.requestWaitingList.unshift(request);
+	}
 	httpCall(request){
+		if(
+			!request.startsWith(`#${this.out.get("GET_PAN_TILT_ZOOM_FOCUS_IRIS").data.cmd}`) &&
+			!request.startsWith(`#${this.out.get("RESET").data.cmd}`)
+		){
+			this.trigger("request", request);
+		}
+		
+
 		return got(`http://${this.host}:${this.port}/cgi-bin/aw_ptz`,{
 			method: 'GET',
 			searchParams : {

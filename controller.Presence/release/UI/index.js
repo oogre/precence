@@ -107,7 +107,7 @@ class UI extends _UI_HELPER.default {
               break;
           }
         });
-        this.checkBox(x, y + (counter + 2) * lineHeight, "GO ZERO", false).ifMouseRelease(() => {
+        this.checkBox(x, y + yOffset + (counter + 2) * lineHeight, "GO ZERO", false).ifMouseRelease(() => {
           this.handlers.map(handler => handler({
             eventName: "ZERO",
             target: "robot",

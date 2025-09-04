@@ -13,6 +13,9 @@ export default class PTZController extends HTTPRoutine {
 		super(conf.log ? (...data)=>console.log(`CAMERA ${conf.name} : `, ...data) : undefined);
 		this.conf = conf;
 		this.conf.status = PTZController.CameraStatus.NOT_CONNECTED;
+		this.controllable = this.out.controls
+                        .filter(({data, visible}) => data.withParams && visible)
+                        .map(({data}) => `#${data.cmd.toUpperCase()}`)
 	}
 	isError(){
 		return this.conf.status == PTZController.CameraStatus.ERROR;

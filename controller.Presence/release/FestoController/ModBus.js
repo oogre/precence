@@ -24,7 +24,23 @@ class ModBus {
     this.client.on('end', this.onEnd.bind(this));
     this.client.on('error', this.onError.bind(this));
     this.client.on('close', this.onClose.bind(this));
+    this.requestWaitingList = [];
     this.readjustSpeedDelay = null;
+    this.handlers = {
+      request: []
+    };
+    this.NULL_BUFFER = _nodeBuffer.Buffer.from([0x43, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]);
+  }
+  on(description, callback) {
+    if (!Object.keys(this.handlers).includes(description)) throw new Error(`onRequest wait for ModBus.EVENT_DESC as first parameter. You give "${description}".`);
+    if (typeof callback !== 'function') throw new Error(`onRequest wait for function as second parameter. You give "${typeof callback}".`);
+    this.handlers[description].push(callback);
+    return this;
+  }
+  trigger(eventDesc, event) {
+    [...this.handlers[eventDesc] /*, ...this.handlers["*"]*/].forEach(handler => {
+      handler(event);
+    });
   }
   connect(host, port, callback = () => {}, error = () => {}) {
     this.client.connect(port, host, () => {
@@ -44,6 +60,9 @@ class ModBus {
   stopPolling() {
     this.isPolling = false;
   }
+  inject(request) {
+    this.requestWaitingList.push(request);
+  }
   async send(loop = true) {
     this.log(`->`, this.out.data);
 
@@ -57,37 +76,40 @@ class ModBus {
       this.waitForDataSuccess = resolve;
       this.waitForDataReject = reject;
     });
+    if (this.requestWaitingList.length > 0) {
+      this.client.write(_nodeBuffer.Buffer.concat([this.outHeader, this.requestWaitingList.shift()]));
+    } else {
+      // send and wait for the response
+      this.client.write(_nodeBuffer.Buffer.concat([this.outHeader, this.out.data]));
+      this.trigger("request", [...this.out.data]);
+      try {
+        this.in.data = await this.waitForData;
+        // /* FAKE REFERENCED FOR DEBUG */ this.in.get("REF").toggle();
+        //this.log(`<-`, this.in.data);
+        this.status = ModBus.ModBusStatus.RUNNING;
 
-    // send and wait for the response
-    this.client.write(_nodeBuffer.Buffer.concat([this.outHeader, this.out.data]));
-    try {
-      this.in.data = await this.waitForData;
-      // /* FAKE REFERENCED FOR DEBUG */ this.in.get("REF").toggle();
-      //this.log(`<-`, this.in.data);
-      this.status = ModBus.ModBusStatus.RUNNING;
-
-      // Start and Home has to be strobed to be applied
-      // So if one is UP this turn it down and send
-      const [isStart, isHome] = [this.out.get("START").getValue(), this.out.get("HOME").getValue()];
-      if (isStart || isHome) {
-        isStart && this.out.get("START").toggle();
-        isHome && this.out.get("HOME").toggle();
-        this.send(false);
+        // Start and Home has to be strobed to be applied
+        // So if one is UP this turn it down and send
+        const [isStart, isHome] = [this.out.get("START").getValue(), this.out.get("HOME").getValue()];
+        if (isStart || isHome) {
+          isStart && this.out.get("START").toggle();
+          isHome && this.out.get("HOME").toggle();
+          this.send(false);
+        }
+        let deltaV = Math.abs(this.in.get("SPEED").getValue() - this.out.get("SPEED").getValue());
+        if (!this.readjustSpeedDelay && deltaV > 0.11) {
+          this.readjustSpeedDelay = setTimeout(() => {
+            this.out.get("START").toggle();
+            this.readjustSpeedDelay = null;
+          }, 40);
+        }
+      } catch (error) {
+        this.log(error);
+        this.status = ModBus.ModBusStatus.ERROR;
       }
-      let deltaV = Math.abs(this.in.get("SPEED").getValue() - this.out.get("SPEED").getValue());
-      if (!this.readjustSpeedDelay && deltaV > 0.11) {
-        this.readjustSpeedDelay = setTimeout(() => {
-          this.out.get("START").toggle();
-          this.readjustSpeedDelay = null;
-        }, 40);
-      }
-    } catch (error) {
-      this.log(error);
-      this.status = ModBus.ModBusStatus.ERROR;
     }
-
-    // it cannot be faster than 50 send per second
     await (0, _Tools.wait)(20);
+    // it cannot be faster than 50 send per second
     loop && this.isPolling && this.send();
   }
   close() {

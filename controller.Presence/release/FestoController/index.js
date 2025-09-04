@@ -7,6 +7,7 @@ exports.default = void 0;
 var _net = _interopRequireDefault(require("net"));
 var _enum = _interopRequireDefault(require("enum"));
 var _nodeBuffer = require("node:buffer");
+var _Tools = require("../common/Tools.js");
 var _ModBus = _interopRequireDefault(require("./ModBus.js"));
 function _interopRequireDefault(e) { return e && e.__esModule ? e : { default: e }; }
 class FestoController extends _ModBus.default {
@@ -64,7 +65,7 @@ class FestoController extends _ModBus.default {
   }
   async reset() {
     this.speed(-1);
-    await wait(5000);
+    await (0, _Tools.pWait)(5000);
     this.speed(0);
   }
   speed(input) {

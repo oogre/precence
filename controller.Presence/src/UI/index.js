@@ -108,7 +108,7 @@ export default class UI extends UI_HELPER{
 						}
 					});
 
-				this.checkBox(x, y + (counter+2) * lineHeight, "GO ZERO" , false)
+				this.checkBox(x, y + yOffset + (counter+2) * lineHeight, "GO ZERO" , false)
 				.ifMouseRelease(()=>{
 					this.handlers.map(handler=>handler({
 						eventName : "ZERO",

@@ -83,7 +83,7 @@ obs.on("OBS_WEBSOCKET_OUTPUT_STARTED", () => {
   recorder.start();
 });
 obs.on("OBS_WEBSOCKET_OUTPUT_STOPPED", () => {
-  recorder.stop();
+  //recorder.stop();
 });
 obs.on("OBS_WEBSOCKET_OUTPUT_PAUSED", () => {
   recorder.pause();
@@ -91,49 +91,77 @@ obs.on("OBS_WEBSOCKET_OUTPUT_PAUSED", () => {
 obs.on("OBS_WEBSOCKET_OUTPUT_RESUMED", () => {
   recorder.play();
 });
-recorder.channels = gamepad.in.controls.filter(({
-  visible
-}) => visible).map(({
-  name
-}) => {
+recorder.channels = [{
+  name: "ROBOT X"
+}, {
+  name: "ROBOT Y"
+}, ...camera.controllable.map(name => {
   return {
     name
   };
-});
+})];
+
+// recorder.channels = gamepad.in.controls
+//                         .filter(({visible}) => visible)
+//                         .map(({name})=>{
+//                             return {name};
+//                         });
+
 recorder.on("play", ({
   c: eventDesc,
   v: value
 }) => {
-  gamepad.trigger(eventDesc, {
-    target: {
-      getValue: () => value
-    }
-  });
+  if (camera.controllable.includes(eventDesc)) {
+    camera.inject(value);
+  } else if (eventDesc == "ROBOT X") {
+    robots[0].inject(Buffer.from(value));
+  }
 });
 recorder.on("lastFrame", async () => {
   await obs.changeScene("Scène 2");
   await obs.stopRecord();
-  await (0, _Tools.wait)(5000);
+  await (0, _Tools.pWait)(5000);
   await obs.changeScene("Scène");
-  await (0, _Tools.wait)(500);
+  await (0, _Tools.pWait)(500);
   camera.reset();
-  await (0, _Tools.wait)(3000);
-  // robots[0].speed(-1);
+  robots[0].reset();
   // robots[1].speed(-1);
-  await (0, _Tools.wait)(5000);
+  await (0, _Tools.pWait)(10000);
   await obs.startRecord();
+  await (0, _Tools.pWait)(1000);
 });
-gamepad.on("*", ({
-  target: {
-    getValue,
-    name
+camera.on("request", event => {
+  if (obs.status == _OBS.default.OBSStatus.OBS_WEBSOCKET_OUTPUT_RESUMED || obs.status == _OBS.default.OBSStatus.OBS_WEBSOCKET_OUTPUT_STARTED) {
+    const [name] = event.match(/(#[A-Za-z]+)/);
+    recorder.rec({
+      name,
+      value: event
+    });
   }
-}) => {
-  recorder.rec({
-    name,
-    value: getValue()
-  });
 });
+robots[0].on("request", event => {
+  if (obs.status == _OBS.default.OBSStatus.OBS_WEBSOCKET_OUTPUT_RESUMED || obs.status == _OBS.default.OBSStatus.OBS_WEBSOCKET_OUTPUT_STARTED) {
+    recorder.rec({
+      name: "ROBOT X",
+      value: event
+    });
+  }
+});
+
+// robots[1].on("request", event=>{
+//     recorder.rec({
+//         name : "ROBOT Y",
+//         value : event
+//     });
+// });
+
+// gamepad.on("*", ({target:{getValue, name}}) =>{
+//     recorder.rec({
+//         name,
+//         value : getValue()
+//     });
+// });
+
 gamepad.on("JOYSTICK_LEFT_HORIZONTAL", event => {
   //console.log("JLH", event.target.getValue());
   robots[0].speed(1 * (event.target.getValue() * 2 - 1));

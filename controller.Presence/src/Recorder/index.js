@@ -37,7 +37,7 @@ export default class Recorder {
 				ctx.strokeStyle = `rgba(255, 255, 255, 0.1)`;
 				ctx.beginPath(); // Start a new path
 				ctx.moveTo(0, 0); // Move the pen to (30, 50)
-				ctx.lineTo(0, canvas.height * v); // Draw a line to (150, 100)
+				ctx.lineTo(0, canvas.height); // Draw a line to (150, 100)
 				ctx.stroke(); // Render the path
 				ctx.restore();	
 			});
@@ -124,9 +124,10 @@ export default class Recorder {
 	}
 	
 	rec({name, value}){
-		
 		const chan = this._channels.find(({record, name:n})=>record && n==name)
     	if(!chan)return;
+    	
+
     	const time = Number(hrtime.bigint() - this.startRecordAt);
 		chan.data.push({
 			c : this._channels.findIndex(({name:n})=>n == name),
@@ -140,7 +141,7 @@ export default class Recorder {
 		chan.ctx.strokeStyle = `rgba(255, 255, 255, 0.1)`;
 		chan.ctx.beginPath(); // Start a new path
 		chan.ctx.moveTo(0, 0); // Move the pen to (30, 50)
-		chan.ctx.lineTo(0, chan.canvas.height * value); // Draw a line to (150, 100)
+		chan.ctx.lineTo(0, chan.canvas.height); // Draw a line to (150, 100)
 		chan.ctx.stroke(); // Render the path
 		chan.ctx.restore();
 	}

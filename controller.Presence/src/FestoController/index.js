@@ -1,7 +1,7 @@
 import net from 'net';
 import Enum from 'enum';
 import { Buffer } from 'node:buffer';
-
+import {pWait} from "../common/Tools.js";
 import ModBus from './ModBus.js';
 
 export default class FestoController extends ModBus{
@@ -68,7 +68,7 @@ export default class FestoController extends ModBus{
 	}
 	async reset(){
 		this.speed(-1);
-    	await wait(5000);
+    	await pWait(5000);
     	this.speed(0);
 	}
 	speed(input){
