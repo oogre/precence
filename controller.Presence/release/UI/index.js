@@ -8,15 +8,17 @@ var _UI_HELPER = _interopRequireDefault(require("./UI_HELPER.js"));
 var _FestoController = _interopRequireDefault(require("../FestoController"));
 var _PTZController = _interopRequireDefault(require("../PTZController"));
 var _Math = require("../common/Math.js");
+var _OBS = _interopRequireDefault(require("../OBS"));
 function _interopRequireDefault(e) { return e && e.__esModule ? e : { default: e }; }
 class UI extends _UI_HELPER.default {
-  constructor(window, gamepad, robots, camera, recorder) {
+  constructor(window, gamepad, robots, camera, recorder, obs) {
     super(window);
     this.config = {
       gamepad,
       robots,
       camera,
-      recorder
+      recorder,
+      obs
     };
     this.handlers = [];
   }
@@ -25,7 +27,7 @@ class UI extends _UI_HELPER.default {
   }
   draw() {
     //CONTROLLER STUFF
-    this.title(10, 25, this.config.gamepad.device._device.name);
+    this.title(10, 25, this.config.gamepad.device?._device.name || "");
     this.config.gamepad.in.controls.filter(({
       visible
     }) => visible).map((ctrl, n) => {
@@ -124,8 +126,9 @@ class UI extends _UI_HELPER.default {
       let counter = 0;
       this.text(x, y, `OUTPUT`.toUpperCase());
       camera.out.controls.filter(({
-        data
-      }) => data.withParams).map((ctrl, n) => {
+        data,
+        visible
+      }) => data.withParams && visible).map((ctrl, n) => {
         Object.values(ctrl.data.params).map((param, l) => {
           counter++;
           const yOffset = counter * lineHeight;
@@ -156,13 +159,63 @@ class UI extends _UI_HELPER.default {
           id: 0
         }));
       });
-      this.checkBox(280, 625, recorder.isRecording() ? "STOP" : "REC", !recorder.isRecording()).ifMouseRelease(() => {
-        this.handlers.map(handler => handler({
-          eventName: "rec",
-          target: "recorder",
-          id: 0
-        }));
-      });
+      switch (this.config.obs.status) {
+        case _OBS.default.OBSStatus.NOT_CONNECTED:
+        case _OBS.default.OBSStatus.CONNECTED:
+          break;
+        case _OBS.default.OBSStatus.OBS_WEBSOCKET_OUTPUT_PAUSED:
+          {
+            this.checkBox(280, 625, "STOP", false).ifMouseRelease(() => {
+              this.handlers.map(handler => handler({
+                eventName: "STOP",
+                target: "recorder",
+                id: 0
+              }));
+            });
+            const name = recorder.channels.map(({
+              record
+            }) => record).some(t => t) ? 'REC' : "PLAY";
+            this.checkBox(380, 625, name, false).ifMouseRelease(() => {
+              this.handlers.map(handler => handler({
+                eventName: "PLAY",
+                target: "recorder",
+                id: 0
+              }));
+            });
+          }
+          break;
+        case _OBS.default.OBSStatus.OBS_WEBSOCKET_OUTPUT_STOPPED:
+          {
+            const name = recorder.channels.map(({
+              record
+            }) => record).some(t => t) ? 'REC' : "PLAY";
+            this.checkBox(280, 625, name, true).ifMouseRelease(() => {
+              this.handlers.map(handler => handler({
+                eventName: "REC",
+                target: "recorder",
+                id: 0
+              }));
+            });
+          }
+          break;
+        case _OBS.default.OBSStatus.OBS_WEBSOCKET_OUTPUT_RESUMED:
+        case _OBS.default.OBSStatus.OBS_WEBSOCKET_OUTPUT_STARTED:
+          this.checkBox(280, 625, "STOP", false).ifMouseRelease(() => {
+            this.handlers.map(handler => handler({
+              eventName: "STOP",
+              target: "recorder",
+              id: 0
+            }));
+          });
+          this.checkBox(380, 625, "PAUSE", true).ifMouseRelease(() => {
+            this.handlers.map(handler => handler({
+              eventName: "PAUSE",
+              target: "recorder",
+              id: 0
+            }));
+          });
+          break;
+      }
       let offset = 200;
       let width = 1000;
       let x = 10;

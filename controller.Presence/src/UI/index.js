@@ -3,13 +3,13 @@ import UI_HELPER from './UI_HELPER.js';
 import FestoController from "../FestoController";
 import PTZController from "../PTZController";
 import {lerp} from "../common/Math.js";
-
+import OBS from "../OBS";
 
 
 export default class UI extends UI_HELPER{
-	constructor(window, gamepad, robots, camera, recorder){
+	constructor(window, gamepad, robots, camera, recorder, obs){
 		super(window);
-		this.config = {gamepad, robots, camera, recorder};
+		this.config = {gamepad, robots, camera, recorder, obs};
 		this.handlers = [];
 	}
 
@@ -19,7 +19,7 @@ export default class UI extends UI_HELPER{
 
 	draw(){
 		//CONTROLLER STUFF
-		this.title( 10, 25, this.config.gamepad.device._device.name);
+		this.title( 10, 25, this.config.gamepad.device?._device.name || "");
 		this.config.gamepad.in.controls
 		.filter(({visible}) => visible)
 		.map((ctrl, n)=>{
@@ -131,7 +131,7 @@ export default class UI extends UI_HELPER{
 			this.text( x, y , `OUTPUT`.toUpperCase());
 
 			camera.out.controls
-			.filter(({data})=>data.withParams)
+			.filter(({data, visible})=>data.withParams && visible)
 			.map((ctrl, n) => {
 				Object.values(ctrl.data.params).map((param, l)=>{
 					counter ++;
@@ -170,15 +170,65 @@ export default class UI extends UI_HELPER{
 			});
 
 
-			this.checkBox(280, 625, recorder.isRecording() ? "STOP" : "REC" , !recorder.isRecording())
-			.ifMouseRelease(()=>{
-				this.handlers.map(handler=>handler({
-					eventName : "rec",
-					target : "recorder",
-					id : 0
-				}));
-			});
+			switch(this.config.obs.status){
+				case OBS.OBSStatus.NOT_CONNECTED:
+				case OBS.OBSStatus.CONNECTED:
+				break;
+				case OBS.OBSStatus.OBS_WEBSOCKET_OUTPUT_PAUSED:
+				{
+					this.checkBox(280, 625, "STOP" , false)
+						.ifMouseRelease(()=>{
+							this.handlers.map(handler=>handler({
+								eventName : "STOP",
+								target : "recorder",
+								id : 0
+							}));
+						});
+					const name  = recorder.channels.map(({record})=>record).some((t)=>t) ? 'REC' : "PLAY"
+					this.checkBox(380, 625, name , false)
+						.ifMouseRelease(()=>{
+							this.handlers.map(handler=>handler({
+								eventName : "PLAY",
+								target : "recorder",
+								id : 0
+							}));
+						});
+				}
+				break;
+				case OBS.OBSStatus.OBS_WEBSOCKET_OUTPUT_STOPPED:
+				{
+					const name  = recorder.channels.map(({record})=>record).some((t)=>t) ? 'REC' : "PLAY"
+					this.checkBox(280, 625, name , true)
+					.ifMouseRelease(()=>{
+						this.handlers.map(handler=>handler({
+							eventName : "REC",
+							target : "recorder",
+							id : 0
+						}));
+					});
+				}
+				break;
+				case OBS.OBSStatus.OBS_WEBSOCKET_OUTPUT_RESUMED:
+				case OBS.OBSStatus.OBS_WEBSOCKET_OUTPUT_STARTED:
+						this.checkBox(280, 625, "STOP" , false)
+						.ifMouseRelease(()=>{
+							this.handlers.map(handler=>handler({
+								eventName : "STOP",
+								target : "recorder",
+								id : 0
+							}));
+						});
 
+						this.checkBox(380, 625, "PAUSE" , true)
+						.ifMouseRelease(()=>{
+							this.handlers.map(handler=>handler({
+								eventName : "PAUSE",
+								target : "recorder",
+								id : 0
+							}));
+						});
+				break;
+			}
 			
 			
 			let offset = 200;

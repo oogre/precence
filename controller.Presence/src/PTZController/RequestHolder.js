@@ -25,22 +25,26 @@ export default class RequestHolder extends RequesHelper{
 			data : new Control("PTS", 
 				new Param("pan", 3, 97), 
 				new Param("tilt", 3, 97)
-			).setter()
+			).setter(),
+			visible : true
 		},{
 			name : "ZOOM",
 			data : new Control("Z", 
 				new Param("zoom", 1, 99)
-			).setter()
+			).setter(),
+			visible : true
 		},{
 			name : "FOCUS",
 			data : new Control("F", 
 				new Param("focus", 0X555, 0XFFF, 16, 3)
-			).setter()
+			).setter(),
+			visible : true
 		},{
 			name : "IRIS",
 			data : new Control("I", 
 				new Param("iris", 1, 99)
-			).setter()
+			).setter(),
+			visible : true
 		},{
 			name : "GET_PAN_TILT_ZOOM_FOCUS_IRIS",
 			data : new Control("PTD", 
@@ -49,7 +53,15 @@ export default class RequestHolder extends RequesHelper{
 				new Param("zoom", 0x000, 0x3E7, 16, 3),
 				new Param("focus", 0x00, 0x63, 16, 2),
 				new Param("iris", 0x00, 0xFF, 16, 2)
-			).getter()
+			).getter(),
+			visible : true
+		},{
+			name : "RESET",
+			data : new Control("APC", 
+				new Param("pan", 0x0000, 0xFFFF, 16, 4),
+				new Param("tilt", 0x0000, 0xFFFF, 16, 4),
+			).setter(),
+			visible : false
 		}]
 	}
 

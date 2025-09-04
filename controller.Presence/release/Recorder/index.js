@@ -10,6 +10,7 @@ var _nodeProcess = require("node:process");
 var _precisionTimeoutInterval = require("precision-timeout-interval");
 var _canvas = require("@napi-rs/canvas");
 var _Math = require("../common/Math.js");
+var _Tools = require("../common/Tools.js");
 var _nodeFileDialog = _interopRequireDefault(require("node-file-dialog"));
 function _interopRequireDefault(e) { return e && e.__esModule ? e : { default: e }; }
 class Recorder {
@@ -22,6 +23,11 @@ class Recorder {
     this.cursorAt = 0;
     this.loop = null;
     this._channels = [];
+    this.handlers = {
+      play: [],
+      lastFrame: []
+    };
+    this.hasToSaveRecord = false;
     this.DURATION_NORMALIZER = 0.001 / this.conf.duration;
   }
   set channels(channels) {
@@ -37,7 +43,6 @@ class Recorder {
         v
       }) => {
         ctx.save();
-        console.log(canvas.width * t * this.DURATION_NORMALIZER * 0.000001);
         ctx.translate(canvas.width * t * this.DURATION_NORMALIZER * 0.000001, 0);
         ctx.strokeStyle = `rgba(255, 255, 255, 0.1)`;
         ctx.beginPath(); // Start a new path
@@ -59,55 +64,88 @@ class Recorder {
     return this._channels;
   }
   start() {
-    if (this.status == Recorder.RecorderStatus.RECORDING) {
-      return;
-    }
+    this.hasToSaveRecord = false;
+    this.workingOn = this._channels.map(({
+      name,
+      data
+    }) => {
+      return data.map(({
+        t,
+        v
+      }) => {
+        return {
+          c: this._channels[this._channels.findIndex(({
+            name: n
+          }) => n == name)].name,
+          t,
+          v
+        };
+      });
+    }).flat().sort(({
+      t: a
+    }, {
+      t: b
+    }) => a - b);
     this.startRecordAt = _nodeProcess.hrtime.bigint();
-    this.status = Recorder.RecorderStatus.RECORDING;
-    //this.workingOn = this._channels.filter(({record})=>).map(chan=>{
-
-    //});
-
-    this.loop = (0, _precisionTimeoutInterval.prcInterval)(50, () => {
+    this.play();
+  }
+  play() {
+    this.startRecordAt = _nodeProcess.hrtime.bigint() - BigInt(this.cursorAt);
+    this.loop && this.loop.cancel();
+    this.loop = (0, _precisionTimeoutInterval.prcInterval)(50, async () => {
       this.cursorAt = Number(_nodeProcess.hrtime.bigint() - this.startRecordAt);
-      //const index = this.workingOn.findIndex(({t})=> t < this.cursorAt);
-      //if(index == -1){
-      //	return
-      //}
-      //this.workingOn.splice(0, 1+index);
+      if (this.currentTimeNormalized() >= 1) {
+        this.stop();
+        this.trigger("lastFrame");
+        return;
+      }
+      const index = this.workingOn.findLastIndex(({
+        t
+      }) => t < this.cursorAt + 50000000);
+      if (index == -1) {
+        return;
+      }
+      const toDoList = this.workingOn.splice(0, 1 + index).filter(({
+        c
+      }) => !this._channels.find(({
+        name
+      }) => name == c).record);
+      let t = 0;
+      for (const item of toDoList) {
+        this.cursorAt = Number(_nodeProcess.hrtime.bigint() - this.startRecordAt);
+        const dT = (item.t - this.cursorAt) * 0.000001;
+        if (dT >= 4) {
+          await (0, _Tools.pWait)(dT);
+        }
+        this.trigger("play", item);
+      }
     });
   }
-  stop(name = "*") {
-    console.log("stop");
-    if (this.status != Recorder.RecorderStatus.RECORDING) {
-      return;
-    }
-    this.status = Recorder.RecorderStatus.STOP;
-    this.loop.cancel();
+  pause() {
+    this.loop && this.loop.cancel();
+  }
+  stop() {
+    this.pause();
+    this.cursorAt = 0;
+    if (!this.hasToSaveRecord) return;
     (0, _nodeFileDialog.default)({
       type: 'save-file'
     }).then(([dir]) => {
       _nodeFs.default.writeFile(dir, JSON.stringify(this._channels.map(({
         name,
-        data,
-        record
+        data
       }) => {
         return {
           name,
-          data,
-          record
+          data
         };
       })), () => {});
     }).catch(err => console.log(err));
-  }
-  isRecording() {
-    return this.status == Recorder.RecorderStatus.RECORDING;
   }
   rec({
     name,
     value
   }) {
-    if (this.status != Recorder.RecorderStatus.RECORDING) return;
     const chan = this._channels.find(({
       record,
       name: n
@@ -115,9 +153,13 @@ class Recorder {
     if (!chan) return;
     const time = Number(_nodeProcess.hrtime.bigint() - this.startRecordAt);
     chan.data.push({
+      c: this._channels.findIndex(({
+        name: n
+      }) => n == name),
       t: time,
       v: value
     });
+    this.hasToSaveRecord = true;
     chan.ctx.save();
     chan.ctx.translate(chan.canvas.width * time * this.DURATION_NORMALIZER * 0.000001, 0);
     chan.ctx.strokeStyle = `rgba(255, 255, 255, 0.1)`;
@@ -130,12 +172,20 @@ class Recorder {
   currentTimeNormalized() {
     return this.cursorAt * this.DURATION_NORMALIZER * 0.000001;
   }
+  on(description, callback) {
+    if (!Object.keys(this.handlers).includes(description)) throw new Error(`onRecorder wait for Recorder.EVENT_DESC as first parameter. You give "${description}".`);
+    if (typeof callback !== 'function') throw new Error(`onRecorder wait for function as second parameter. You give "${typeof callback}".`);
+    this.handlers[description].push(callback);
+    return this;
+  }
+  trigger(eventDesc, event) {
+    [...this.handlers[eventDesc] /*, ...this.handlers["*"]*/].forEach(handler => {
+      handler(event);
+    });
+  }
   async close() {
     return new Promise(resolve => {
-      const file = JSON.stringify(this.data);
-      _nodeFs.default.writeFile(this.conf.recFile, file, () => {
-        resolve();
-      });
+      resolve();
     });
   }
 }

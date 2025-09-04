@@ -7,6 +7,7 @@ exports.default = void 0;
 var _enum = _interopRequireDefault(require("enum"));
 var _HTTPRoutine = _interopRequireDefault(require("./HTTPRoutine.js"));
 var _Math = require("../common/Math.js");
+var _Tools = require("../common/Tools.js");
 function _interopRequireDefault(e) { return e && e.__esModule ? e : { default: e }; }
 //converter takes value [0->1] and turn it to [0/8 1/8 2/8 3/8 4/8 5/8 6/8 7/8 8/8]		
 const converter = value => Math.round(value * 8) / 8;
@@ -29,6 +30,19 @@ class PTZController extends _HTTPRoutine.default {
     }, error => {
       this.conf.status = PTZController.CameraStatus.ERROR;
     });
+  }
+  async reset() {
+    // REANIMATOR ANIMATION
+    // for(let i = 0 ; i < 5 ; i ++){
+    // 	this.out.get("RESET").data.params.pan.value = lerp(0.3, 0.7, Math.random());
+    // 	//this.out.get("RESET").data.params.tilt.value = 0.5;
+    // 	this.addRequest(this.out.get("RESET"));
+    // 	await wait(500);
+    // }
+    // await wait(500);
+    this.out.get("RESET").data.params.pan.value = 0.5;
+    this.out.get("RESET").data.params.tilt.value = 0.5;
+    this.addRequest(this.out.get("RESET"));
   }
   setPanTiltSpeed(pan, tilt) {
     const oPan = this.out.get("PAN_TILT").data.params.pan.value;

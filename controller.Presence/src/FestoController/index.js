@@ -31,7 +31,7 @@ export default class FestoController extends ModBus{
 	}
 
 	connect(host, port){
-		if(!this.conf.enable) return;
+		//if(!this.conf.enable) return;
 		
 		super.connect(this.conf.host, this.conf.port, ()=>{
 			this.conf.status = FestoController.RobotStatus.CONNECTED;

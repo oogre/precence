@@ -7,10 +7,10 @@ import PTZController from "./PTZController";
 import FestoController from "./FestoController";
 import DMX from "./DMX";
 import OBS from "./OBS";
-
-import Gamepad from "./Gamepad"
-import Recorder from "./Recorder"
-import {lerp} from "./common/Math.js"
+import {pWait, wait} from "./common/Tools.js";
+import Gamepad from "./Gamepad";
+import Recorder from "./Recorder";
+import {lerp} from "./common/Math.js";
 import dialog from 'node-file-dialog';
 import fs from 'node:fs';
 
@@ -31,11 +31,11 @@ const robots = [
   new FestoController(config.ROBOTS[0]),
   new FestoController(config.ROBOTS[1])
 ];
-const camera = new PTZController(config.RECORDER);
+const camera = new PTZController(config.CAMERA);
 const obs = new OBS(config.OBS);
-const ui = new UI(window, gamepad, robots, camera, recorder);
+const ui = new UI(window, gamepad, robots, camera, recorder, obs);
 
-ui.onButtonEvent((event)=>{
+ui.onButtonEvent(async (event)=>{
 
     if(event.target == "robot"){
         if(event.eventName == "connection"){
@@ -48,38 +48,89 @@ ui.onButtonEvent((event)=>{
     else if(event.target == "camera"){
         if(event.eventName == "connection"){
             camera.connect();
+            await pWait(1000);
+            camera.reset();
+            await pWait(1000);
+            await obs.changeScene("Scène");
         }
     } 
     else if(event.target == "recorder"){
-        if(event.eventName == "rec"){
-            console.log(event);
-            if(recorder.isRecording()){
-                recorder.stop()
-            }else{
-                recorder.start()
-            }
+        if(event.eventName == "REC"){
+            await obs.startRecord();
         }
+        else if(event.eventName == "STOP"){
+            recorder.stop();
+            await obs.stopRecord();
+        }
+        else if(event.eventName == "PLAY"){
+            await obs.playRecord();
+        }
+        else if(event.eventName == "PAUSE"){
+            await obs.pauseRecord();
+        }
+
         else if(event.eventName == "load"){
             dialog({type:'open-file'})
                 .then(([dir]) => {
                     recorder.channels = JSON.parse(fs.readFileSync(dir, "utf8"));
                 })
                 .catch(err => console.log(err))
-
         }
         else{
+            if( obs.status == OBS.OBSStatus.OBS_WEBSOCKET_OUTPUT_RESUMED ||
+                obs.status == OBS.OBSStatus.OBS_WEBSOCKET_OUTPUT_STARTED)
+            {
+                return;
+            }
             const chan = recorder.channels.find(({name})=>name == event.eventName);
             chan.record = !chan.record;
         }
     } 
 });
 
+obs.on("OBS_WEBSOCKET_OUTPUT_STARTED", ()=>{
+    recorder.start();
+});
+
+obs.on("OBS_WEBSOCKET_OUTPUT_STOPPED", ()=>{
+    recorder.stop();
+});
+obs.on("OBS_WEBSOCKET_OUTPUT_PAUSED", ()=>{
+    recorder.pause();
+});
+obs.on("OBS_WEBSOCKET_OUTPUT_RESUMED", ()=>{
+    recorder.play();
+    
+});
+
 recorder.channels = gamepad.in.controls
                         .filter(({visible}) => visible)
                         .map(({name})=>{
                             return {name};
-                        })
+                        });
 
+recorder.on("play", ({c:eventDesc, v:value})=>{
+    gamepad.trigger(eventDesc, { 
+        target : {
+            getValue : ()=>value 
+        }
+    });
+});
+
+recorder.on("lastFrame", async ()=>{
+    await obs.changeScene("Scène 2");
+    await obs.stopRecord();
+    await wait(5000);
+    await obs.changeScene("Scène");
+    await wait(500);
+    camera.reset();
+    await wait(3000);
+    // robots[0].speed(-1);
+    // robots[1].speed(-1);
+    await wait(5000);
+
+    await obs.startRecord();
+});
 
 
 gamepad.on("*", ({target:{getValue, name}}) =>{
@@ -91,11 +142,12 @@ gamepad.on("*", ({target:{getValue, name}}) =>{
 
 
 gamepad.on("JOYSTICK_LEFT_HORIZONTAL", event => {
+    //console.log("JLH", event.target.getValue());
     robots[0].speed(1 * (event.target.getValue() * 2 - 1));
-
 });
 
 gamepad.on("JOYSTICK_LEFT_VERTICAL", event => {
+    //console.log("JLV", event.target.getValue());
     robots[1].speed(-1 *  (event.target.getValue() * 2 - 1));
 });
 

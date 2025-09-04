@@ -78,8 +78,7 @@ class HTTPRoutine {
       request = this.requestWaitingList.shift();
       this.getData = false;
     }
-
-    // this.log(`->`, request);
+    this.log(`->`, request);
 
     // prepare the waiter for the response
     this.waitForData = new Promise((resolve, reject) => {
@@ -97,9 +96,7 @@ class HTTPRoutine {
     });
     ;
     const data = await this.waitForData;
-
-    // this.log(`<-`, data);	
-
+    this.log(`<-`, data);
     if (data.toLowerCase().startsWith(this.in.get("GET_PAN_TILT_ZOOM_FOCUS_IRIS").data.cmd.toLowerCase())) {
       this.in.get("GET_PAN_TILT_ZOOM_FOCUS_IRIS").data.values = data.substr(3);
       this.getData = true;

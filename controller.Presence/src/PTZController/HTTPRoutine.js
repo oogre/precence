@@ -86,7 +86,7 @@ export default class HTTPRoutine{
 			this.getData = false;
 		}
 
-		// this.log(`->`, request);
+		this.log(`->`, request);
 		
 		// prepare the waiter for the response
 		this.waitForData = new Promise((resolve, reject)=>{
@@ -104,7 +104,7 @@ export default class HTTPRoutine{
 			});;
 		const data = await this.waitForData;
 
-		// this.log(`<-`, data);	
+		this.log(`<-`, data);	
 
 
 	

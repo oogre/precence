@@ -1,6 +1,7 @@
 import Enum from 'enum';
 import HTTPRoutine from "./HTTPRoutine.js";
 import {lerp, clamp} from "../common/Math.js";
+import {wait} from "../common/Tools.js";
 
 //converter takes value [0->1] and turn it to [0/8 1/8 2/8 3/8 4/8 5/8 6/8 7/8 8/8]		
 const converter = value => Math.round(value * 8) / 8;
@@ -26,6 +27,20 @@ export default class PTZController extends HTTPRoutine {
 		}, (error)=>{
 			this.conf.status = PTZController.CameraStatus.ERROR;
 		});
+	}
+
+	async reset(){
+		// REANIMATOR ANIMATION
+		// for(let i = 0 ; i < 5 ; i ++){
+		// 	this.out.get("RESET").data.params.pan.value = lerp(0.3, 0.7, Math.random());
+		// 	//this.out.get("RESET").data.params.tilt.value = 0.5;
+		// 	this.addRequest(this.out.get("RESET"));
+		// 	await wait(500);
+		// }
+		// await wait(500);
+		this.out.get("RESET").data.params.pan.value = 0.5;
+		this.out.get("RESET").data.params.tilt.value = 0.5;
+		this.addRequest(this.out.get("RESET"));
 	}
 	setPanTiltSpeed(pan, tilt){
 
