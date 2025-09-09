@@ -42,9 +42,9 @@ export default class UI extends UI_HELPER{
 			const x = 10 + 300 * (k+1);
 			const y = 50;
 			const lineHeight = 27;
-			if(robot.isError()){
+			if(robot.isError){
 
-			}else if(!robot.isConnected()){
+			}else if(!robot.isConnected){
 				this.checkBox(x, y, "Connection", false)
 				.ifMouseRelease(()=>{
 					this.handlers.map(handler=>handler({
@@ -53,7 +53,7 @@ export default class UI extends UI_HELPER{
 						id : k
 					}));
 				}) 
-			}else if(!robot.isReferenced()){
+			}else if(!robot.isReferenced){
 				this.checkBox(x, y, "Homing", false)
 				.ifMouseRelease(()=>{
 					this.handlers.map(handler=>handler({
@@ -108,7 +108,7 @@ export default class UI extends UI_HELPER{
 						}
 					});
 
-				this.checkBox(x, y + yOffset + (counter+2) * lineHeight, "GO ZERO" , false)
+				this.checkBox(x, y + yOffset + (counter+2) * lineHeight, "SET ZERO" , false)
 				.ifMouseRelease(()=>{
 					this.handlers.map(handler=>handler({
 						eventName : "ZERO",
@@ -125,9 +125,9 @@ export default class UI extends UI_HELPER{
 		const x = 910;
 		const y = 50;
 		const lineHeight = 27;
-		if(camera.isError()){
+		if(camera.isError){
 
-		}else if(!camera.isConnected()){
+		}else if(!camera.isConnected){
 			this.checkBox(x, y, "Connection", false)
 			.ifMouseRelease(()=>{
 				this.handlers.map(handler=>handler({
@@ -161,7 +161,7 @@ export default class UI extends UI_HELPER{
 				})
 			});
 
-			this.checkBox(x, y + (counter+2) * lineHeight, "GO ZERO" , false)
+			this.checkBox(x, y + (counter+2) * lineHeight, "SET ZERO" , false)
 			.ifMouseRelease(()=>{
 				this.handlers.map(handler=>handler({
 					eventName : "ZERO",
@@ -257,8 +257,19 @@ export default class UI extends UI_HELPER{
 			let y = 650;
 
 			recorder.channels
-				.map(({name, record}, n)=>{
-					this.checkBox(x, y + n * 20, name , !record)
+				.map(({name, record, play}, n)=>{
+					
+					this.checkBox(x, y + n * 20, "play" , !play, "lime")
+					.ifMouseRelease(()=>{
+						this.handlers.map(handler=>handler({
+							eventName : name,
+							target : "recorder",
+							id : 1
+						}));
+					});
+
+
+					this.checkBox(x + 70, y + n * 20, name , !record)
 					.ifMouseRelease(()=>{
 						this.handlers.map(handler=>handler({
 							eventName : name,
@@ -266,6 +277,8 @@ export default class UI extends UI_HELPER{
 							id : 0
 						}));
 					});
+
+
 				});
 
 			this.ctx.save();

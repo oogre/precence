@@ -10,7 +10,7 @@ function _interopRequireDefault(e) { return e && e.__esModule ? e : { default: e
 class OBS {
   static OBSStatus = new _enum.default(['NOT_CONNECTED', 'CONNECTED', 'OBS_WEBSOCKET_OUTPUT_PAUSED', 'OBS_WEBSOCKET_OUTPUT_RESUMED', 'OBS_WEBSOCKET_OUTPUT_STOPPED', 'OBS_WEBSOCKET_OUTPUT_STARTED']);
   constructor(conf) {
-    this.log = conf.log ? (...data) => console.log(`OBS ${conf.name} : `, ...data) : undefined;
+    this.log = conf.log;
     this.conf = conf;
     this.obsController = new _obsWebsocketJs.OBSWebSocket();
     this.obsController.connect(`ws://${conf.host}:${conf.port}`).then((...data) => {

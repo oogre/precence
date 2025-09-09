@@ -12,7 +12,7 @@ export default class OBS {
 		'OBS_WEBSOCKET_OUTPUT_STARTED'
 	]);
 	constructor(conf){
-		this.log = conf.log ? (...data)=>console.log(`OBS ${conf.name} : `, ...data) : undefined;
+		this.log = conf.log;
 
 		this.conf = conf;
 		

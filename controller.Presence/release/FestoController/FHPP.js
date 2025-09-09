@@ -77,6 +77,9 @@ class FHPP_IN extends FHPP {
       getValue() {
         return (0, _Math.invlerp)(this.minimum, this.maximum, self.getByte(6) << 8 | self.getByte(7));
       },
+      getRawValue() {
+        return self.getByte(6) << 8 | self.getByte(7);
+      },
       visible: true,
       type: "slider"
     }];

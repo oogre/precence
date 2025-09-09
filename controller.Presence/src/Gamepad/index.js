@@ -6,7 +6,7 @@ import {Axes_IN} from './Axes.js';
 export default class Gamepad {
 	constructor(devices, conf){
 
-		this.log = conf.log ? (...data)=>console.log(`GAMEPAD ${conf.name} : `, ...data) : ()=>{};
+		this.log = conf.log;
 
 		this.in = new Axes_IN();
 		this.handlers = this.in.controls.map(({name})=>name).reduce((o, key) => ({ ...o, [key]: []}), {});

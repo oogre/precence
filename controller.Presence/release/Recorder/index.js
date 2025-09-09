@@ -16,6 +16,7 @@ function _interopRequireDefault(e) { return e && e.__esModule ? e : { default: e
 class Recorder {
   static RecorderStatus = new _enum.default(['STOP', 'PAUSE', "RECORDING"]);
   constructor(conf) {
+    this.log = conf.log;
     this.conf = conf;
     this.status = Recorder.RecorderStatus.STOP;
     this.log = (...data) => console.log(`RECORDER : `, ...data);
@@ -32,9 +33,12 @@ class Recorder {
   }
   set channels(channels) {
     this._channels = channels.map(({
+      target,
+      zero,
       name,
       data = [],
-      record = false
+      record = false,
+      play = false
     }) => {
       const canvas = (0, _canvas.createCanvas)(this.conf.duration, 16);
       const ctx = canvas.getContext('2d');
@@ -51,12 +55,15 @@ class Recorder {
         ctx.stroke(); // Render the path
         ctx.restore();
       });
+      target.zero = zero;
       return {
+        target,
         name,
         canvas,
         ctx: canvas.getContext('2d'),
         data,
-        record
+        record,
+        play
       };
     });
   }
@@ -92,7 +99,7 @@ class Recorder {
   play() {
     this.startRecordAt = _nodeProcess.hrtime.bigint() - BigInt(this.cursorAt);
     this.loop && this.loop.cancel();
-    this.loop = (0, _precisionTimeoutInterval.prcInterval)(50, async () => {
+    this.loop = (0, _precisionTimeoutInterval.prcInterval)(10, async () => {
       this.cursorAt = Number(_nodeProcess.hrtime.bigint() - this.startRecordAt);
       if (this.currentTimeNormalized() >= 1) {
         this.stop();
@@ -101,7 +108,7 @@ class Recorder {
       }
       const index = this.workingOn.findLastIndex(({
         t
-      }) => t < this.cursorAt + 50000000);
+      }) => t < this.cursorAt + 10000000);
       if (index == -1) {
         return;
       }
@@ -133,10 +140,14 @@ class Recorder {
     }).then(([dir]) => {
       _nodeFs.default.writeFile(dir, JSON.stringify(this._channels.map(({
         name,
+        target: {
+          zero
+        },
         data
       }) => {
         return {
           name,
+          zero,
           data
         };
       })), () => {});

@@ -48,7 +48,7 @@ class UI extends _UI_HELPER.default {
       const x = 10 + 300 * (k + 1);
       const y = 50;
       const lineHeight = 27;
-      if (robot.isError()) {} else if (!robot.isConnected()) {
+      if (robot.isError) {} else if (!robot.isConnected) {
         this.checkBox(x, y, "Connection", false).ifMouseRelease(() => {
           this.handlers.map(handler => handler({
             eventName: "connection",
@@ -56,7 +56,7 @@ class UI extends _UI_HELPER.default {
             id: k
           }));
         });
-      } else if (!robot.isReferenced()) {
+      } else if (!robot.isReferenced) {
         this.checkBox(x, y, "Homing", false).ifMouseRelease(() => {
           this.handlers.map(handler => handler({
             eventName: "HOME",
@@ -107,7 +107,7 @@ class UI extends _UI_HELPER.default {
               break;
           }
         });
-        this.checkBox(x, y + yOffset + (counter + 2) * lineHeight, "GO ZERO", false).ifMouseRelease(() => {
+        this.checkBox(x, y + yOffset + (counter + 2) * lineHeight, "SET ZERO", false).ifMouseRelease(() => {
           this.handlers.map(handler => handler({
             eventName: "ZERO",
             target: "robot",
@@ -123,7 +123,7 @@ class UI extends _UI_HELPER.default {
     const x = 910;
     const y = 50;
     const lineHeight = 27;
-    if (camera.isError()) {} else if (!camera.isConnected()) {
+    if (camera.isError) {} else if (!camera.isConnected) {
       this.checkBox(x, y, "Connection", false).ifMouseRelease(() => {
         this.handlers.map(handler => handler({
           eventName: "connection",
@@ -155,7 +155,7 @@ class UI extends _UI_HELPER.default {
           param.bounds = this.slider(x, y + yOffset, param.name, param.value);
         });
       });
-      this.checkBox(x, y + (counter + 2) * lineHeight, "GO ZERO", false).ifMouseRelease(() => {
+      this.checkBox(x, y + (counter + 2) * lineHeight, "SET ZERO", false).ifMouseRelease(() => {
         this.handlers.map(handler => handler({
           eventName: "ZERO",
           target: "camera",
@@ -238,9 +238,17 @@ class UI extends _UI_HELPER.default {
       let y = 650;
       recorder.channels.map(({
         name,
-        record
+        record,
+        play
       }, n) => {
-        this.checkBox(x, y + n * 20, name, !record).ifMouseRelease(() => {
+        this.checkBox(x, y + n * 20, "play", !play, "lime").ifMouseRelease(() => {
+          this.handlers.map(handler => handler({
+            eventName: name,
+            target: "recorder",
+            id: 1
+          }));
+        });
+        this.checkBox(x + 70, y + n * 20, name, !record).ifMouseRelease(() => {
           this.handlers.map(handler => handler({
             eventName: name,
             target: "recorder",

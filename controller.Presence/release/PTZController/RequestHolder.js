@@ -20,7 +20,7 @@ class RequesHelper {
   }
 }
 class RequestHolder extends RequesHelper {
-  constructor() {
+  constructor(conf) {
     super();
     this.controls = [{
       name: "PAN_TILT",
@@ -32,19 +32,23 @@ class RequestHolder extends RequesHelper {
       visible: true
     }, {
       name: "FOCUS",
-      data: new _Control.default("F", new _Param.default("focus", 0X555, 0XFFF, 16, 3)).setter(),
+      data: new _Control.default("F", new _Param.default("focus", 0x555, 0xFFF, 16, 3)).setter(),
       visible: true
     }, {
       name: "IRIS",
-      data: new _Control.default("I", new _Param.default("iris", 1, 99)).setter(),
+      data: new _Control.default("AXI", new _Param.default("iris", 0x555, 0XFFF, 16, 3)).setter(),
       visible: true
     }, {
       name: "GET_PAN_TILT_ZOOM_FOCUS_IRIS",
       data: new _Control.default("PTD", new _Param.default("pan", 0x0000, 0xFFFF, 16, 4), new _Param.default("tilt", 0x0000, 0xFFFF, 16, 4), new _Param.default("zoom", 0x000, 0x3E7, 16, 3), new _Param.default("focus", 0x00, 0x63, 16, 2), new _Param.default("iris", 0x00, 0xFF, 16, 2)).getter(),
       visible: true
     }, {
-      name: "RESET",
+      name: "POSITION",
       data: new _Control.default("APC", new _Param.default("pan", 0x0000, 0xFFFF, 16, 4), new _Param.default("tilt", 0x0000, 0xFFFF, 16, 4)).setter(),
+      visible: false
+    }, {
+      name: "ZOOM_POS",
+      data: new _Control.default("AXZ", new _Param.default("zoom", 0x555, 0xFFF, 16, 3)).setter(),
       visible: false
     }];
   }

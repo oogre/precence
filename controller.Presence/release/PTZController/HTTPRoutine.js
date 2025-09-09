@@ -9,19 +9,32 @@ var _Tools = require("../common/Tools.js");
 var _got = _interopRequireDefault(require("got"));
 function _interopRequireDefault(e) { return e && e.__esModule ? e : { default: e }; }
 class HTTPRoutine {
-  constructor(log = () => {}) {
-    this.log = log;
-    this.out = new _RequestHolder.default();
-    this.in = new _RequestHolder.default();
+  constructor(conf) {
+    this.log = conf.log;
+    this.out = new _RequestHolder.default(conf);
+    this.in = new _RequestHolder.default(conf);
     this.isPolling = false;
     this.errorHandler = () => {};
     this.waitForDataSuccess = () => {};
     this.waitForDataReject = () => {};
     this.requestWaitingList = [];
-    this.getData = false;
     this.handlers = {
       request: []
     };
+    this._playMode = false;
+    this._recMode = false;
+  }
+  set playMode(value) {
+    this._playMode = value;
+  }
+  get playMode() {
+    return this._playMode;
+  }
+  set recMode(value) {
+    this._recMode = value;
+  }
+  get recMode() {
+    return this._recMode;
   }
   on(description, callback) {
     if (!Object.keys(this.handlers).includes(description)) throw new Error(`onRequest wait for HTTPRoutine.EVENT_DESC as first parameter. You give "${description}".`);
@@ -50,6 +63,7 @@ class HTTPRoutine {
     });
     //this.requestWaitingList.push("OSA:87:21"); // set Freq to 24fps
     this.requestWaitingList.push("#D30"); // set IrisMode to manual
+    this.requestWaitingList.push("#D11"); // set IrisMode to manual
   }
   startPolling() {
     this.log("startPolling");
@@ -63,7 +77,7 @@ class HTTPRoutine {
     this.requestWaitingList.unshift(request);
   }
   httpCall(request) {
-    if (!request.startsWith(`#${this.out.get("GET_PAN_TILT_ZOOM_FOCUS_IRIS").data.cmd}`) && !request.startsWith(`#${this.out.get("RESET").data.cmd}`)) {
+    if (this._recMode && !request.startsWith(`#${this.out.get("GET_PAN_TILT_ZOOM_FOCUS_IRIS").data.cmd}`)) {
       this.trigger("request", request);
     }
     return (0, _got.default)(`http://${this.host}:${this.port}/cgi-bin/aw_ptz`, {
@@ -94,11 +108,15 @@ class HTTPRoutine {
   }
   async send(loop = true) {
     let request = this.out.get("GET_PAN_TILT_ZOOM_FOCUS_IRIS").data.toRequest();
-    if (this.requestWaitingList.length > 0 && this.getData) {
+    let autoRqst = true;
+    if (this.requestWaitingList.length > 0) {
+      autoRqst = false;
       request = this.requestWaitingList.shift();
-      this.getData = false;
     }
-    this.log(`->`, request);
+    if (!autoRqst) {
+      this.log(this._playMode ? `~>` : `->`, request);
+      this._recMode && this.trigger("request", request);
+    }
 
     // prepare the waiter for the response
     this.waitForData = new Promise((resolve, reject) => {
@@ -114,16 +132,15 @@ class HTTPRoutine {
     }).catch(error => {
       console.log(error);
     });
-    ;
     const data = await this.waitForData;
-    this.log(`<-`, data);
-    if (data.toLowerCase().startsWith(this.in.get("GET_PAN_TILT_ZOOM_FOCUS_IRIS").data.cmd.toLowerCase())) {
+    if (autoRqst) {
       this.in.get("GET_PAN_TILT_ZOOM_FOCUS_IRIS").data.values = data.substr(3);
-      this.getData = true;
+    } else {
+      this.log(`<-`, data);
     }
 
     // it cannot be faster than 40 send per second
-    await (0, _Tools.wait)(50);
+    await (0, _Tools.pWait)(50);
     loop && this.isPolling && this.send();
   }
   onData(data) {

@@ -12,7 +12,7 @@ function _interopRequireDefault(e) { return e && e.__esModule ? e : { default: e
 
 class Gamepad {
   constructor(devices, conf) {
-    this.log = conf.log ? (...data) => console.log(`GAMEPAD ${conf.name} : `, ...data) : () => {};
+    this.log = conf.log;
     this.in = new _Axes.Axes_IN();
     this.handlers = this.in.controls.map(({
       name

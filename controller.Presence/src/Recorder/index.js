@@ -12,6 +12,7 @@ import dialog from 'node-file-dialog';
 export default class Recorder {
 	static RecorderStatus = new Enum(['STOP', 'PAUSE', "RECORDING"]);
 	constructor(conf){
+		this.log = conf.log;
 		this.conf = conf;
 		this.status = Recorder.RecorderStatus.STOP;
 		this.log = (...data)=>console.log(`RECORDER : `, ...data);
@@ -28,7 +29,7 @@ export default class Recorder {
 	}
 
 	set channels(channels){
-		this._channels = channels.map(({name, data=[], record=false})=>{
+		this._channels = channels.map(({target, zero, name, data=[], record=false, play=false})=>{
 			const canvas = createCanvas(this.conf.duration, 16);
 			const ctx = canvas.getContext('2d');
 			data.map(({t, v})=>{
@@ -41,13 +42,15 @@ export default class Recorder {
 				ctx.stroke(); // Render the path
 				ctx.restore();	
 			});
-			
+			target.zero = zero;
 			return {
+				target,
 				name,
 				canvas,
 				ctx : canvas.getContext('2d'),
 				data,
-				record
+				record,
+				play
 			}
 		});
 	}
@@ -58,6 +61,7 @@ export default class Recorder {
 
 	start(){
 		this.hasToSaveRecord = false;
+
 		this.workingOn = this._channels
 			.map(({name, data})=>{
 				return data.map(({t, v})=>{
@@ -77,7 +81,7 @@ export default class Recorder {
 
 		this.loop && this.loop.cancel();
 
-		this.loop = prcInterval(50, async ()=>{
+		this.loop = prcInterval(10, async ()=>{
 			this.cursorAt = Number(hrtime.bigint() - this.startRecordAt);
 			if(this.currentTimeNormalized() >= 1){
 				this.stop();
@@ -85,7 +89,7 @@ export default class Recorder {
 				return;
 			}
 
-			const index = this.workingOn.findLastIndex(({t})=> t < this.cursorAt + 50000000);
+			const index = this.workingOn.findLastIndex(({t})=> t < this.cursorAt + 10000000);
 			if(index == -1){
 				return
 			}
@@ -97,7 +101,7 @@ export default class Recorder {
 				this.cursorAt = Number(hrtime.bigint() - this.startRecordAt);
 				const dT = (item.t - this.cursorAt)* 0.000001
 				if(dT >=4 ){
-					await pWait(dT);	
+					await pWait(dT);
 				}
 				this.trigger("play", item);
 			}
@@ -115,8 +119,8 @@ export default class Recorder {
 		dialog({type:'save-file'})
 			.then(([dir]) => {
 				fs.writeFile(dir, JSON.stringify(
-					this._channels.map(({name, data})=>{
-						return {name, data}
+					this._channels.map(({name, target:{zero}, data})=>{
+						return {name, zero, data}
 					})
 				), ()=>{});
 			})
@@ -127,7 +131,6 @@ export default class Recorder {
 		const chan = this._channels.find(({record, name:n})=>record && n==name)
     	if(!chan)return;
     	
-
     	const time = Number(hrtime.bigint() - this.startRecordAt);
 		chan.data.push({
 			c : this._channels.findIndex(({name:n})=>n == name),

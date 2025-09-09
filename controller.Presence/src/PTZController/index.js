@@ -8,20 +8,35 @@ const converter = value => Math.round(value * 8) / 8;
 
 
 export default class PTZController extends HTTPRoutine {
-	static CameraStatus = new Enum(['NOT_CONNECTED', 'RUNNING', 'ERROR']);
+	static CameraStatus = new Enum(['NOT_CONNECTED', "CONNECTED", 'ERROR']);
 	constructor(conf){
-		super(conf.log ? (...data)=>console.log(`CAMERA ${conf.name} : `, ...data) : undefined);
+		super(conf);
 		this.conf = conf;
 		this.conf.status = PTZController.CameraStatus.NOT_CONNECTED;
 		this.controllable = this.out.controls
                         .filter(({data, visible}) => data.withParams && visible)
                         .map(({data}) => `#${data.cmd.toUpperCase()}`)
+
+        this.out.get("PAN_TILT").data.params.pan.value = 0.5;
+		this.out.get("PAN_TILT").data.params.tilt.value = 0.5;
+
+		
 	}
-	isError(){
+	get isError(){
 		return this.conf.status == PTZController.CameraStatus.ERROR;
 	}
-	isConnected(){
+	get isConnected(){
 		return this.conf.status == PTZController.CameraStatus.CONNECTED;
+	}
+
+	get zero (){
+		return this._zero;
+	}
+
+	set zero (value){
+		console.log(value);
+		this._zero = value;
+	
 	}
 
 	connect(){
@@ -30,6 +45,16 @@ export default class PTZController extends HTTPRoutine {
 		}, (error)=>{
 			this.conf.status = PTZController.CameraStatus.ERROR;
 		});
+	}
+
+	setZero(){
+		const {
+			pan : {value : pan}, 
+			tilt : {value : tilt}, 
+			zoom : {value : zoom}, 
+			iris : {value : iris}
+		} = this.in.get("GET_PAN_TILT_ZOOM_FOCUS_IRIS").data.params;
+		this.zero = {pan,tilt,zoom,iris};
 	}
 
 	async reset(){
@@ -41,25 +66,54 @@ export default class PTZController extends HTTPRoutine {
 		// 	await wait(500);
 		// }
 		// await wait(500);
-		this.out.get("RESET").data.params.pan.value = 0.5;
-		this.out.get("RESET").data.params.tilt.value = 0.5;
-		this.addRequest(this.out.get("RESET"));
+
+		if(!this.isConnected) return;
+		
+		return new Promise(async resolve=>{
+			this.out.get("ZOOM_POS").data.params.zoom.value = 1-this._zero.zoom;
+			this.addRequest(this.out.get("ZOOM_POS"));
+
+			this.out.get("POSITION").data.params.pan.value = 1-this._zero.pan;
+			this.out.get("POSITION").data.params.tilt.value = 1-this._zero.tilt;
+			this.addRequest(this.out.get("POSITION"));
+
+			this.out.get("IRIS").data.params.iris.value = this._zero.iris;
+			this.addRequest(this.out.get("IRIS"));
+
+			while(true){
+				const {
+					pan : {value : pan}, 
+					tilt : {value : tilt}, 
+					zoom : {value : zoom}, 
+					iris : {value : iris}
+				} = this.in.get("GET_PAN_TILT_ZOOM_FOCUS_IRIS").data.params;
+				if(
+					Math.abs(this._zero.pan - pan)<0.1 &&
+					Math.abs(this._zero.tilt - tilt)<0.1 &&
+					Math.abs(this._zero.zoom - zoom)<0.1  &&
+					Math.abs(this._zero.iris - iris)<0.1
+				){
+					break;
+				}
+			 	await wait(50);
+			}
+			resolve();
+		});
 	}
 	setPanTiltSpeed(pan, tilt){
-
-
 		const oPan = this.out.get("PAN_TILT").data.params.pan.value;
 		const oTilt = this.out.get("PAN_TILT").data.params.tilt.value;
 
+		const z = this.in.get("GET_PAN_TILT_ZOOM_FOCUS_IRIS").data.params.zoom.value;
+		const amp = lerp(this.conf.panMaxSpeed, 0.2, Math.pow(z, 0.5));
 
-		this.out.get("PAN_TILT").data.params.pan.amp = lerp(0.7, 0.1, this.in.get("GET_PAN_TILT_ZOOM_FOCUS_IRIS").data.params.zoom._value);
-		this.out.get("PAN_TILT").data.params.tilt.amp = lerp(0.7, 0.1, this.in.get("GET_PAN_TILT_ZOOM_FOCUS_IRIS").data.params.zoom._value);
+		this.out.get("PAN_TILT").data.params.pan.amp = amp;
+		this.out.get("PAN_TILT").data.params.tilt.amp = amp;
 		
 		const nPan = converter(pan);
 		const nTilt = converter(tilt);
 
 		if(oPan != nPan || oTilt != nTilt){
-			
 			this.out.get("PAN_TILT").data.params.pan.value = nPan;
 			this.out.get("PAN_TILT").data.params.tilt.value = nTilt;
 			this.addRequest(this.out.get("PAN_TILT"));
@@ -74,6 +128,13 @@ export default class PTZController extends HTTPRoutine {
 	}
 	setZoom(value){
 		const oValue = this.out.get("ZOOM").data.params.zoom.value;
+
+		const z = this.in.get("GET_PAN_TILT_ZOOM_FOCUS_IRIS").data.params.zoom.value;
+		const amp = lerp(this.conf.panMaxSpeed, 0.2, Math.pow(z, 0.5));
+
+		this.out.get("PAN_TILT").data.params.pan.amp = amp;
+		this.out.get("PAN_TILT").data.params.tilt.amp = amp;
+
 		const nValue = converter(value);
 		if(oValue != nValue){
 			this.out.get("ZOOM").data.params.zoom.value = nValue;

@@ -1,13 +1,13 @@
 import net from 'net';
 import Enum from 'enum';
 import { Buffer } from 'node:buffer';
-import {pWait} from "../common/Tools.js";
+import {wait} from "../common/Tools.js";
 import ModBus from './ModBus.js';
 
 export default class FestoController extends ModBus{
 	static RobotStatus = new Enum(['NOT_CONNECTED', 'CONNECTED', 'ERROR']) 
 	constructor(conf){
-		super(conf.log ? (...data)=>console.log(`Robot ${conf.name} : `, ...data) : undefined);
+		super(conf.log);
 
 		this.conf = conf;
 		this.conf.status = FestoController.RobotStatus.NOT_CONNECTED;
@@ -28,11 +28,14 @@ export default class FestoController extends ModBus{
 
 		this.out.get("SPEED").minimum = 0;
 		this.out.get("SPEED").maximum = this.conf.maxSpeed;
+
+
+		this._zero = 0;
+
 	}
 
+
 	connect(host, port){
-		//if(!this.conf.enable) return;
-		
 		super.connect(this.conf.host, this.conf.port, ()=>{
 			this.conf.status = FestoController.RobotStatus.CONNECTED;
 			setTimeout(()=>{
@@ -51,13 +54,13 @@ export default class FestoController extends ModBus{
 		super.close();
 	}
 
-	isError(){
+	get isError(){
 		return this.status == ModBus.ModBusStatus.ERROR || this.conf.status == FestoController.RobotStatus.ERROR;
 	}
-	isConnected(){
+	get isConnected(){
 		return this.conf.status == FestoController.RobotStatus.CONNECTED;
 	}
-	isReferenced(){
+	get isReferenced(){
 		return this.in.get("REF").getValue();
 	}
 
@@ -66,10 +69,31 @@ export default class FestoController extends ModBus{
 		this.out.get("HOME").toggle();
 		this.log(this.out.get("HOME").getValue());
 	}
+
+
+	get zero (){
+		return this._zero;
+	}
+
+	set zero (value){
+		this._zero = value;
+	}
+
+	setZero(){
+		this.zero = this.in.get("POSITION").getRawValue();
+	}
 	async reset(){
-		this.speed(-1);
-    	await pWait(5000);
-    	this.speed(0);
+		if(!this.isConnected) return;
+		this.out.get("DESTINATION").setValue(this._zero);
+		this.out.get("SPEED").setValue(this.conf.maxSpeed);
+		this.out.get("START").toggle();	
+		let dX = Math.sign(this._zero - this.in.get("POSITION").getValue());
+		return new Promise(async resolve=>{
+			while(0 != (this._zero - this.in.get("POSITION").getRawValue())) {
+				await wait(100);
+			}
+			resolve();
+		});
 	}
 	speed(input){
 		//converter takes value [-1->1] in multiple of 1/8th 

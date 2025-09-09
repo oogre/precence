@@ -24,12 +24,26 @@ class ModBus {
     this.client.on('end', this.onEnd.bind(this));
     this.client.on('error', this.onError.bind(this));
     this.client.on('close', this.onClose.bind(this));
-    this.requestWaitingList = [];
     this.readjustSpeedDelay = null;
     this.handlers = {
       request: []
     };
     this.NULL_BUFFER = _nodeBuffer.Buffer.from([0x43, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]);
+    this._playMode = false;
+    this._recMode = false;
+    this.oldRequest = _nodeBuffer.Buffer.from([]);
+  }
+  set playMode(value) {
+    this._playMode = value;
+  }
+  get playMode() {
+    return this._playMode;
+  }
+  set recMode(value) {
+    this._recMode = value;
+  }
+  get recMode() {
+    return this._recMode;
   }
   on(description, callback) {
     if (!Object.keys(this.handlers).includes(description)) throw new Error(`onRequest wait for ModBus.EVENT_DESC as first parameter. You give "${description}".`);
@@ -61,11 +75,9 @@ class ModBus {
     this.isPolling = false;
   }
   inject(request) {
-    this.requestWaitingList.push(request);
+    this.out.data = request;
   }
   async send(loop = true) {
-    this.log(`->`, this.out.data);
-
     //increment values of 2 firsts bytes of header
     this.outHeader.writeUInt16BE((this.outHeader.readUInt16BE(0) + 1) % 0XFFFF);
 
@@ -76,18 +88,19 @@ class ModBus {
       this.waitForDataSuccess = resolve;
       this.waitForDataReject = reject;
     });
-    if (this.requestWaitingList.length > 0) {
-      this.client.write(_nodeBuffer.Buffer.concat([this.outHeader, this.requestWaitingList.shift()]));
-    } else {
-      // send and wait for the response
-      this.client.write(_nodeBuffer.Buffer.concat([this.outHeader, this.out.data]));
-      this.trigger("request", [...this.out.data]);
+    const request = _nodeBuffer.Buffer.from([...this.out.data]);
+    if (0 != _nodeBuffer.Buffer.compare(request, this.oldRequest)) {
+      this.log(this._playMode ? `~>` : `->`, request);
+      this.client.write(_nodeBuffer.Buffer.concat([this.outHeader, request]));
+      this._recMode && this.trigger("request", request);
+      this.oldRequest = _nodeBuffer.Buffer.from([...request]);
       try {
         this.in.data = await this.waitForData;
         // /* FAKE REFERENCED FOR DEBUG */ this.in.get("REF").toggle();
         //this.log(`<-`, this.in.data);
         this.status = ModBus.ModBusStatus.RUNNING;
 
+        // if(!this._playMode){
         // Start and Home has to be strobed to be applied
         // So if one is UP this turn it down and send
         const [isStart, isHome] = [this.out.get("START").getValue(), this.out.get("HOME").getValue()];
@@ -103,12 +116,13 @@ class ModBus {
             this.readjustSpeedDelay = null;
           }, 40);
         }
+        //}
       } catch (error) {
         this.log(error);
         this.status = ModBus.ModBusStatus.ERROR;
       }
     }
-    await (0, _Tools.wait)(20);
+    await (0, _Tools.pWait)(50);
     // it cannot be faster than 50 send per second
     loop && this.isPolling && this.send();
   }

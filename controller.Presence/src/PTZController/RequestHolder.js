@@ -18,7 +18,7 @@ class RequesHelper {
 
 
 export default class RequestHolder extends RequesHelper{
-	constructor(){
+	constructor(conf){
 		super();
 		this.controls = [{
 			name : "PAN_TILT",
@@ -36,13 +36,13 @@ export default class RequestHolder extends RequesHelper{
 		},{
 			name : "FOCUS",
 			data : new Control("F", 
-				new Param("focus", 0X555, 0XFFF, 16, 3)
+				new Param("focus", 0x555, 0xFFF, 16, 3)
 			).setter(),
 			visible : true
 		},{
 			name : "IRIS",
-			data : new Control("I", 
-				new Param("iris", 1, 99)
+			data : new Control("AXI", 
+				new Param("iris", 0x555, 0XFFF, 16, 3)
 			).setter(),
 			visible : true
 		},{
@@ -56,10 +56,16 @@ export default class RequestHolder extends RequesHelper{
 			).getter(),
 			visible : true
 		},{
-			name : "RESET",
+			name : "POSITION",
 			data : new Control("APC", 
 				new Param("pan", 0x0000, 0xFFFF, 16, 4),
 				new Param("tilt", 0x0000, 0xFFFF, 16, 4),
+			).setter(),
+			visible : false
+		},{
+			name : "ZOOM_POS",
+			data : new Control("AXZ", 
+				new Param("zoom", 0x555, 0xFFF, 16, 3),
 			).setter(),
 			visible : false
 		}]

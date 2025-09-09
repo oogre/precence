@@ -38,13 +38,13 @@ export default class UI_HELPER extends UI_TOOL{
 		this.ctx.restore();
 		return [x, y-5, this.ctx.measureText(label).width + 5 + 100, 20];	
 	}
-	checkBox(x, y, name, check){
+	checkBox(x, y, name, check, color="red"){
 		const label = ` : ${name}`;
 		this.ctx.save()
 		this.ctx.translate(x, y);
 		this.ctx.translate(0, -5);
 		this.ctx.strokeStyle = 'white'
-		this.ctx.fillStyle = check ? 'white' : 'red';
+		this.ctx.fillStyle = check ? 'white' : color;
 		this.ctx.strokeRect(0, 0, 20, 20);
 		this.ctx.fillRect(3, 3, 14, 14);
 		this.ctx.translate(23, 6);
