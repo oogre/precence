@@ -10,17 +10,16 @@ var _Axes = require("./Axes.js");
 function _interopRequireDefault(e) { return e && e.__esModule ? e : { default: e }; }
 // import { Server } from 'node-osc';
 
-class Gamepad {
+class Gamepad extends _Tools.EventManager {
   constructor(devices, conf) {
+    super("Gamepad", []);
     this.log = conf.log;
     this.in = new _Axes.Axes_IN();
-    this.handlers = this.in.controls.map(({
+    this.in.controls.map(({
       name
-    }) => name).reduce((o, key) => ({
-      ...o,
-      [key]: []
-    }), {});
-    this.handlers["*"] = [];
+    }) => {
+      this.addHandler(name);
+    });
     this.log(this.handlers);
     this.device = devices.find(({
       name
@@ -183,17 +182,6 @@ class Gamepad {
         }
       }
     });
-  }
-  trigger(eventDesc, event) {
-    [...this.handlers[eventDesc], ...this.handlers["*"]].forEach(handler => {
-      handler(event);
-    });
-  }
-  on(description, callback) {
-    if (!Object.keys(this.handlers).includes(description)) throw new Error(`onJoystick wait for Gamepad.EVENT_DESC as first parameter. You give "${description}".`);
-    if (typeof callback !== 'function') throw new Error(`onJoystick wait for function as second parameter. You give "${typeof callback}".`);
-    this.handlers[description].push(callback);
-    return this;
   }
   async close() {
     this.device.close();

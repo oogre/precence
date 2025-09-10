@@ -9,11 +9,13 @@ var _enum = _interopRequireDefault(require("enum"));
 var _nodeBuffer = require("node:buffer");
 var _Tools = require("../common/Tools.js");
 var _ModBus = _interopRequireDefault(require("./ModBus.js"));
+var _Constants = require("../common/Constants.js");
 function _interopRequireDefault(e) { return e && e.__esModule ? e : { default: e }; }
 class FestoController extends _ModBus.default {
-  static RobotStatus = new _enum.default(['NOT_CONNECTED', 'CONNECTED', 'ERROR']);
+  static RobotStatus = new _enum.default(['NOT_CONNECTED', 'CONNECTING', 'CONNECTED', 'ERROR']);
+  static ChannelStatus = _Constants.ChannelStatus;
   constructor(conf) {
-    super(conf.log);
+    super(conf);
     this.conf = conf;
     this.conf.status = FestoController.RobotStatus.NOT_CONNECTED;
     this.out.get("OPM1").toggle();
@@ -29,24 +31,7 @@ class FestoController extends _ModBus.default {
     this.out.get("SPEED").minimum = 0;
     this.out.get("SPEED").maximum = this.conf.maxSpeed;
     this._zero = 0;
-  }
-  connect(host, port) {
-    super.connect(this.conf.host, this.conf.port, () => {
-      this.conf.status = FestoController.RobotStatus.CONNECTED;
-      setTimeout(() => {
-        this.homing();
-      }, 100);
-    }, error => {
-      this.conf.status = FestoController.RobotStatus.ERROR;
-    });
-  }
-  async close() {
-    if (this.isPolling) {
-      this.stopPolling();
-      this.speed(0);
-      await this.send();
-    }
-    super.close();
+    this._mode = FestoController.ChannelStatus.NONE;
   }
   get isError() {
     return this.status == _ModBus.default.ModBusStatus.ERROR || this.conf.status == FestoController.RobotStatus.ERROR;
@@ -54,13 +39,11 @@ class FestoController extends _ModBus.default {
   get isConnected() {
     return this.conf.status == FestoController.RobotStatus.CONNECTED;
   }
+  get isConnecting() {
+    return this.conf.status == FestoController.RobotStatus.CONNECTING;
+  }
   get isReferenced() {
     return this.in.get("REF").getValue();
-  }
-  homing() {
-    this.log(this.out.get("HOME").getValue());
-    this.out.get("HOME").toggle();
-    this.log(this.out.get("HOME").getValue());
   }
   get zero() {
     return this._zero;
@@ -71,16 +54,77 @@ class FestoController extends _ModBus.default {
   setZero() {
     this.zero = this.in.get("POSITION").getRawValue();
   }
+  nextMode() {
+    this._mode = (0, _Constants.nextChannel)(this._mode);
+    if (this.isPlayMode) {
+      this.stopPolling();
+    } else {
+      this.startPolling();
+    }
+  }
+  get mode() {
+    return this._mode.value;
+  }
+  get isRecordMode() {
+    return this._mode == FestoController.ChannelStatus.RECORD;
+  }
+  get isPlayMode() {
+    return this._mode == FestoController.ChannelStatus.PLAY;
+  }
+  get isNoneMode() {
+    return this._mode == FestoController.ChannelStatus.NONE;
+  }
+  async connect(host, port) {
+    try {
+      this.conf.status = FestoController.RobotStatus.CONNECTING;
+      await super.connect(this.conf.host, this.conf.port, this.conf.timeout, error => {
+        this.conf.status = FestoController.RobotStatus.ERROR;
+      });
+      await (0, _Tools.wait)(100);
+      await this.homing();
+      this.startPolling();
+      this.conf.status = FestoController.RobotStatus.CONNECTED;
+    } catch (error) {
+      console.log(error);
+      this.conf.status = FestoController.RobotStatus.ERROR;
+    }
+  }
+  async close() {
+    if (this.isPolling) {
+      this.stopPolling();
+      this.speed(0);
+      await this.send();
+    }
+    super.close();
+  }
+  async homing(forced = false) {
+    if (forced) {
+      this.out.get("HOME").toggle();
+      this.in.get("REF").toggle();
+    }
+    let homeTrigged = false;
+    return new Promise(async resolve => {
+      while (!this.isReferenced) {
+        this.send(false);
+        await (0, _Tools.wait)(50);
+        if (!homeTrigged && !this.isReferenced) {
+          this.out.get("HOME").toggle();
+          homeTrigged = true;
+        }
+      }
+      resolve();
+    });
+  }
   async reset() {
     if (!this.isConnected) return;
     this.out.get("DESTINATION").setValue(this._zero);
     this.out.get("SPEED").setValue(this.conf.maxSpeed);
     this.out.get("START").toggle();
-    let dX = Math.sign(this._zero - this.in.get("POSITION").getValue());
     return new Promise(async resolve => {
       while (0 != this._zero - this.in.get("POSITION").getRawValue()) {
         await (0, _Tools.wait)(100);
       }
+      this.log("OK");
       resolve();
     });
   }

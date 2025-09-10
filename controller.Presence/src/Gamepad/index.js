@@ -1,16 +1,18 @@
 // import { Server } from 'node-osc';
 import sdl from '@kmamal/sdl'
-import {wait} from '../common/Tools.js';
+import {wait, EventManager} from '../common/Tools.js';
 import {Axes_IN} from './Axes.js';
 
-export default class Gamepad {
+export default class Gamepad extends EventManager{
 	constructor(devices, conf){
-
+		super("Gamepad", [])
 		this.log = conf.log;
-
 		this.in = new Axes_IN();
-		this.handlers = this.in.controls.map(({name})=>name).reduce((o, key) => ({ ...o, [key]: []}), {});
-		this.handlers["*"] = [];
+
+		this.in.controls.map(({name})=>{
+			this.addHandler(name)
+		});
+		
 
 		this.log(this.handlers);
 		this.device = devices.find(({name})=>name==conf.name)
@@ -177,22 +179,6 @@ export default class Gamepad {
 				}
 			}
 		});
-	}
-
-	trigger(eventDesc, event){
-		[...this.handlers[eventDesc], ...this.handlers["*"]]
-			.forEach(handler => {
-				handler(event)
-			});
-	}
-	
-	on(description, callback){
-		if(!Object.keys(this.handlers).includes(description))
-			throw new Error(`onJoystick wait for Gamepad.EVENT_DESC as first parameter. You give "${description}".`);
-		if(typeof callback !== 'function')
-			throw new Error(`onJoystick wait for function as second parameter. You give "${typeof callback}".`);
-		this.handlers[description].push(callback);
-		return this;
 	}
 
 	async close(){

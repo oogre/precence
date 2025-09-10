@@ -11,13 +11,13 @@ var _Math = require("../common/Math.js");
 var _OBS = _interopRequireDefault(require("../OBS"));
 function _interopRequireDefault(e) { return e && e.__esModule ? e : { default: e }; }
 class UI extends _UI_HELPER.default {
-  constructor(window, gamepad, robots, camera, recorder, obs) {
+  constructor(window, gamepad, robots, camera, timeline, obs) {
     super(window);
     this.config = {
       gamepad,
       robots,
       camera,
-      recorder,
+      timeline,
       obs
     };
     this.handlers = [];
@@ -27,13 +27,15 @@ class UI extends _UI_HELPER.default {
   }
   draw() {
     //CONTROLLER STUFF
-    this.title(10, 25, this.config.gamepad.device?._device.name || "");
-    this.config.gamepad.in.controls.filter(({
-      visible
-    }) => visible).map((ctrl, n) => {
-      ctrl.bounds = this.slider(10, 50 + n * 27, ctrl.name, ctrl.getValue());
-      return ctrl.bounds;
-    });
+    this.title(10, 25, `Cntrl ${this.config.gamepad.device?._device.name || ""}`);
+    if (this.config.gamepad.device) {
+      this.config.gamepad.in.controls.filter(({
+        visible
+      }) => visible).map((ctrl, n) => {
+        ctrl.bounds = this.slider(10, 50 + n * 27, ctrl.name, ctrl.getValue());
+        return ctrl.bounds;
+      });
+    }
     this.line(300, 10, 300, 580);
 
     //ROBOTS STUFF
@@ -49,12 +51,14 @@ class UI extends _UI_HELPER.default {
       const y = 50;
       const lineHeight = 27;
       if (robot.isError) {} else if (!robot.isConnected) {
-        this.checkBox(x, y, "Connection", false).ifMouseRelease(() => {
-          this.handlers.map(handler => handler({
-            eventName: "connection",
-            target: "robot",
-            id: k
-          }));
+        this.checkBox(x, y, "Connection", robot.isConnecting).ifMouseRelease(() => {
+          if (!robot.isConnecting) {
+            this.handlers.map(handler => handler({
+              eventName: "connection",
+              target: "robot",
+              id: k
+            }));
+          }
         });
       } else if (!robot.isReferenced) {
         this.checkBox(x, y, "Homing", false).ifMouseRelease(() => {
@@ -124,12 +128,14 @@ class UI extends _UI_HELPER.default {
     const y = 50;
     const lineHeight = 27;
     if (camera.isError) {} else if (!camera.isConnected) {
-      this.checkBox(x, y, "Connection", false).ifMouseRelease(() => {
-        this.handlers.map(handler => handler({
-          eventName: "connection",
-          target: "camera",
-          id: 0
-        }));
+      this.checkBox(x, y, "Connection", camera.isConnecting).ifMouseRelease(() => {
+        if (!camera.isConnecting) {
+          this.handlers.map(handler => handler({
+            eventName: "connection",
+            target: "camera",
+            id: 0
+          }));
+        }
       });
     } else {
       let counter = 0;
@@ -165,93 +171,87 @@ class UI extends _UI_HELPER.default {
     }
     this.line(10, 600, 1190, 600);
     {
-      //RECORDER STUFF
-      const recorder = this.config.recorder;
-      this.title(10, 625, `RECORDER`);
-      this.checkBox(180, 625, `LOAD`, true).ifMouseRelease(() => {
-        this.handlers.map(handler => handler({
-          eventName: "load",
-          target: "recorder",
-          id: 0
-        }));
-      });
-      switch (this.config.obs.status) {
-        case _OBS.default.OBSStatus.NOT_CONNECTED:
-        case _OBS.default.OBSStatus.CONNECTED:
-          break;
-        case _OBS.default.OBSStatus.OBS_WEBSOCKET_OUTPUT_PAUSED:
-          {
-            this.checkBox(280, 625, "STOP", false).ifMouseRelease(() => {
-              this.handlers.map(handler => handler({
-                eventName: "STOP",
-                target: "recorder",
-                id: 0
-              }));
-            });
-            const name = recorder.channels.map(({
-              record
-            }) => record).some(t => t) ? 'REC' : "PLAY";
-            this.checkBox(380, 625, name, false).ifMouseRelease(() => {
-              this.handlers.map(handler => handler({
-                eventName: "PLAY",
-                target: "recorder",
-                id: 0
-              }));
-            });
-          }
-          break;
-        case _OBS.default.OBSStatus.OBS_WEBSOCKET_OUTPUT_STOPPED:
-          {
-            const name = recorder.channels.map(({
-              record
-            }) => record).some(t => t) ? 'REC' : "PLAY";
-            this.checkBox(280, 625, name, true).ifMouseRelease(() => {
-              this.handlers.map(handler => handler({
-                eventName: "REC",
-                target: "recorder",
-                id: 0
-              }));
-            });
-          }
-          break;
-        case _OBS.default.OBSStatus.OBS_WEBSOCKET_OUTPUT_RESUMED:
-        case _OBS.default.OBSStatus.OBS_WEBSOCKET_OUTPUT_STARTED:
-          this.checkBox(280, 625, "STOP", false).ifMouseRelease(() => {
-            this.handlers.map(handler => handler({
-              eventName: "STOP",
-              target: "recorder",
-              id: 0
-            }));
-          });
-          this.checkBox(380, 625, "PAUSE", true).ifMouseRelease(() => {
-            this.handlers.map(handler => handler({
-              eventName: "PAUSE",
-              target: "recorder",
-              id: 0
-            }));
-          });
-          break;
-      }
-      let offset = 200;
-      let width = 1000;
-      let x = 10;
-      let y = 650;
-      recorder.channels.map(({
-        name,
-        record,
-        play
-      }, n) => {
-        this.checkBox(x, y + n * 20, "play", !play, "lime").ifMouseRelease(() => {
+      //timeline STUFF
+      const timeline = this.config.timeline;
+      this.title(10, 625, `timeline`);
+      if (timeline.isNoneMode) {
+        this.checkBox(180, 625, `LOAD`, true).ifMouseRelease(() => {
           this.handlers.map(handler => handler({
-            eventName: name,
-            target: "recorder",
-            id: 1
+            eventName: "load",
+            target: "timeline",
+            id: 0
           }));
         });
-        this.checkBox(x + 70, y + n * 20, name, !record).ifMouseRelease(() => {
+      } else {
+        switch (this.config.obs.status) {
+          case _OBS.default.OBSStatus.NOT_CONNECTED:
+          case _OBS.default.OBSStatus.CONNECTED:
+            break;
+          case _OBS.default.OBSStatus.OBS_WEBSOCKET_OUTPUT_PAUSED:
+            {
+              this.checkBox(180, 625, "STOP", false).ifMouseRelease(() => {
+                this.handlers.map(handler => handler({
+                  eventName: "STOP",
+                  target: "timeline",
+                  id: 0
+                }));
+              });
+              // const name  = timeline.isRecordMode() ? 'REC' : "PLAY"
+              // this.checkBox(380, 625, name , false)
+              // 	.ifMouseRelease(()=>{
+              // 		this.handlers.map(handler=>handler({
+              // 			eventName : "PLAY",
+              // 			target : "timeline",
+              // 			id : 0
+              // 		}));
+              // 	});
+            }
+            break;
+          case _OBS.default.OBSStatus.OBS_WEBSOCKET_OUTPUT_STOPPED:
+            {
+              const name = timeline.isRecordMode ? 'REC' : "PLAY";
+              this.checkBox(180, 625, name, true).ifMouseRelease(() => {
+                this.handlers.map(handler => handler({
+                  eventName: "REC",
+                  target: "timeline",
+                  id: 0
+                }));
+              });
+            }
+            break;
+          case _OBS.default.OBSStatus.OBS_WEBSOCKET_OUTPUT_RESUMED:
+          case _OBS.default.OBSStatus.OBS_WEBSOCKET_OUTPUT_STARTED:
+            this.checkBox(180, 625, "STOP", false).ifMouseRelease(() => {
+              this.handlers.map(handler => handler({
+                eventName: "STOP",
+                target: "timeline",
+                id: 0
+              }));
+            });
+
+            // this.checkBox(380, 625, "PAUSE" , true)
+            // .ifMouseRelease(()=>{
+            // 	this.handlers.map(handler=>handler({
+            // 		eventName : "PAUSE",
+            // 		target : "timeline",
+            // 		id : 0
+            // 	}));
+            // });
+            break;
+        }
+      }
+      let offset = 100;
+      let width = 1100;
+      let x = 10;
+      let y = 650;
+      timeline.channels.map(({
+        name,
+        target
+      }, n) => {
+        this.checkBox(x, y + n * 20, name, target.isNoneMode, target.isRecordMode ? "red" : "lime").ifMouseRelease(() => {
           this.handlers.map(handler => handler({
             eventName: name,
-            target: "recorder",
+            target: "timeline",
             id: 0
           }));
         });
@@ -259,14 +259,14 @@ class UI extends _UI_HELPER.default {
       this.ctx.save();
       {
         this.ctx.translate(x, y);
-        recorder.channels.map(({
+        timeline.channels.map(({
           canvas
         }, n) => {
           this.ctx.save();
           {
             this.ctx.translate(offset, 0);
-            this.line(0, n * 20, width, n * 20);
-            this.ctx.drawImage(canvas, 0, 0, canvas.width, canvas.height, 0, n * 20, width, 12);
+            this.line(0, n * 20, width - 20, n * 20);
+            this.ctx.drawImage(canvas, 0, 0, canvas.width, canvas.height, 0, n * 20, width - 20, 12);
           }
           this.ctx.restore();
         });
@@ -275,8 +275,8 @@ class UI extends _UI_HELPER.default {
           this.ctx.translate(offset, 0);
           this.ctx.save();
           {
-            this.ctx.translate((0, _Math.lerp)(0, width, recorder.currentTimeNormalized()), 0);
-            this.line(0, 0, 0, 400);
+            this.ctx.translate((0, _Math.lerp)(0, width - 20, timeline.cursor), 0);
+            this.line(0, 0, 0, timeline.channels.length * 20);
           }
           this.ctx.restore();
         }

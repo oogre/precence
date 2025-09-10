@@ -11,17 +11,19 @@ const {
   CTRL_LOG,
   DMX_HOST,
   DMX_LOG,
+  ROBT_X_LOG,
   ROBT_X_HOST,
+  ROBT_X_TIMEOUT,
   ROBT_X_MAX_SPEED,
   ROBT_X_REVERSE_CTRL,
-  ROBT_X_LOG,
+  ROBT_Y_LOG,
   ROBT_Y_HOST,
+  ROBT_Y_TIMEOUT,
   ROBT_Y_MAX_SPEED,
   ROBT_Y_REVERSE_CTRL,
-  ROBT_Y_LOG,
   TITLE,
-  RECORDER_DURATION,
-  RECORDER_REC_FILE,
+  TIMELINE_DURATION,
+  TIMELINE_REC_FILE,
   UI_WIDTH,
   UI_HEIGHT,
   CAME_HOST,
@@ -32,7 +34,7 @@ const {
   CAME_TILT_REVERSE_CTRL,
   OBS_HOST,
   OBS_LOG,
-  REC_LOG
+  TIMELINE_LOG
 } = _dotenv.default.config().parsed;
 var _default = exports.default = {
   window: {
@@ -51,7 +53,8 @@ var _default = exports.default = {
     maxPos: 2775,
     maxSpeed: parseInt(ROBT_X_MAX_SPEED),
     reverseCtrl: 1 == parseInt(ROBT_X_REVERSE_CTRL) ? -1 : 1,
-    log: parseInt(ROBT_X_LOG)
+    log: parseInt(ROBT_X_LOG),
+    timeout: parseInt(ROBT_X_TIMEOUT)
   }, {
     name: "Vertical",
     host: ROBT_Y_HOST.split(":")[0],
@@ -59,7 +62,8 @@ var _default = exports.default = {
     maxPos: 980,
     maxSpeed: parseInt(ROBT_Y_MAX_SPEED),
     reverseCtrl: 1 == parseInt(ROBT_Y_REVERSE_CTRL) ? -1 : 1,
-    log: parseInt(ROBT_Y_LOG)
+    log: parseInt(ROBT_Y_LOG),
+    timeout: parseInt(ROBT_Y_TIMEOUT)
   }],
   CAMERA: {
     name: "AW-UE100",
@@ -83,10 +87,10 @@ var _default = exports.default = {
     port: parseInt(OBS_HOST.split(":")[1]),
     log: parseInt(OBS_LOG)
   },
-  RECORDER: {
+  TIMELINE: {
     name: "REC",
-    log: parseInt(REC_LOG),
-    duration: parseInt(RECORDER_DURATION),
-    recFile: RECORDER_REC_FILE
+    log: parseInt(TIMELINE_LOG),
+    duration: parseInt(TIMELINE_DURATION),
+    recFile: TIMELINE_REC_FILE
   }
 };

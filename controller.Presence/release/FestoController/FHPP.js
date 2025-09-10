@@ -7,9 +7,8 @@ exports.FHPP_OUT = exports.FHPP_IN = void 0;
 var _nodeBuffer = require("node:buffer");
 var _Math = require("../common/Math.js");
 class FHPP {
-  constructor(length, log) {
+  constructor(length) {
     this.data = _nodeBuffer.Buffer.alloc(length);
-    this.log = log;
   }
   getByte(n) {
     return this.data.readUInt8(n);
@@ -34,8 +33,8 @@ class FHPP {
   }
 }
 class FHPP_IN extends FHPP {
-  constructor(log = () => {}) {
-    super(8, log);
+  constructor() {
+    super(8);
     const self = this;
     this.controls = [{
       name: "FAULT",
@@ -68,6 +67,9 @@ class FHPP_IN extends FHPP {
       getValue() {
         return (0, _Math.invlerp)(this.minimum, this.maximum, self.getByte(3));
       },
+      getRawValue() {
+        return self.getByte(3);
+      },
       visible: true,
       type: "slider"
     }, {
@@ -87,8 +89,8 @@ class FHPP_IN extends FHPP {
 }
 exports.FHPP_IN = FHPP_IN;
 class FHPP_OUT extends FHPP {
-  constructor(log = () => {}) {
-    super(8, log);
+  constructor() {
+    super(8);
     const self = this;
     this.controls = [{
       name: "OPM2",

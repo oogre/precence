@@ -1,74 +1,37 @@
 import RequestHolder from "./RequestHolder.js";
-import { pWait } from '../common/Tools.js';
-import got from 'got';
+import { pWait, EventManager} from '../common/Tools.js';
+import { call, httpCall } from './tools.js';
 
 
-export default class HTTPRoutine{
+
+export default class HTTPRoutine extends EventManager{
 	constructor(conf){
+		super("HTTPRoutine", ["request"]);
 		this.log = conf.log;
 		this.out = new RequestHolder(conf);
 		this.in = new RequestHolder(conf);
 		this.isPolling = false;
 		this.errorHandler = ()=>{};
-		this.waitForDataSuccess = ()=>{};
-		this.waitForDataReject = ()=>{};
 		this.requestWaitingList = [];
-		
-		this.handlers = {
-			request : []
-		}
-		this._playMode = false;
-		this._recMode = false;
 	}
 
-	set playMode(value){
-		this._playMode = value;
-	}
-	get playMode(){
-		return this._playMode;
-	}
-	set recMode(value){
-		this._recMode = value;
-	}
-	get recMode(){
-		return this._recMode;
-	}
-
-	on(description, callback){
-		if(!Object.keys(this.handlers).includes(description))
-			throw new Error(`onRequest wait for HTTPRoutine.EVENT_DESC as first parameter. You give "${description}".`);
-		if(typeof callback !== 'function')
-			throw new Error(`onRequest wait for function as second parameter. You give "${typeof callback}".`);
-		this.handlers[description].push(callback);
-		return this;
-	}
-	trigger(eventDesc, event){
-		[...this.handlers[eventDesc]/*, ...this.handlers["*"]*/]
-			.forEach(handler => {
-				handler(event)
-			});
-	}
-
-
-	connect(host, port, callback=()=>{}, error=()=>{}){
+	async connect(host, port, callback=()=>{}, error=()=>{}){
 		this.host = host;
 		this.port = port;
 		this.errorHandler = error.bind(this);
 		this.log("connect")
-		this.httpCall(this.out.get("GET_PAN_TILT_ZOOM_FOCUS_IRIS").data.toRequest())
-			.then( ({body}) => {
-				this.log("<-", body);
-				callback(body);
-				this.startPolling();
-			})
-			.catch(error=>{
-				console.log(error);
-			});
-		//this.requestWaitingList.push("OSA:87:21"); // set Freq to 24fps
-		this.requestWaitingList.push("#D30"); // set IrisMode to manual
-		this.requestWaitingList.push("#D11"); // set IrisMode to manual
-
-		
+		try{
+			const req = this.out.get("GET_PAN_TILT_ZOOM_FOCUS_IRIS").data.toRequest();
+			const body = await call(`${this.host}:${this.port}`, req);
+			this.log("<-", body);
+			callback(body);
+			this.startPolling();
+			//this.requestWaitingList.push("OSA:87:21"); // set Freq to 24fps
+			this.requestWaitingList.push("#D30"); // set IrisMode to manual
+			this.requestWaitingList.push("#D11"); // set IrisMode to manual
+		}catch(error){
+			this.onError(error);
+		}
 	}
 
 	startPolling(){
@@ -82,43 +45,17 @@ export default class HTTPRoutine{
 	}
 
 	inject(request){
-		this.requestWaitingList.unshift(request);
+		this.requestWaitingList.push(request);
 	}
-	httpCall(request){
-		if(	this._recMode &&
-			!request.startsWith(`#${this.out.get("GET_PAN_TILT_ZOOM_FOCUS_IRIS").data.cmd}`)
-		){
-			this.trigger("request", request);
-		}
-		
-		return got(`http://${this.host}:${this.port}/cgi-bin/aw_ptz`,{
-			method: 'GET',
-			searchParams : {
-				cmd : request,
-				res : 1
-			},
-			timeout: {
-				lookup: 100,
-				connect: 1000,
-				socket: 1000,
-				send: 1000,
-				response: 1000
-			}
-		})
-		.catch( error =>{
-			this.log("x-", error.code );
-			this.onError(error);
-		});
-	}
-
+	
 	addRequest(request){
-		const id = this.requestWaitingList.findIndex(req => req.startsWith(`#${request.data.cmd}`));
-		if(id>=0){
-			this.requestWaitingList[id] = request.data.toRequest();
-		}
-		else{
+		// const id = this.requestWaitingList.findIndex(req => req.startsWith(`#${request.data.cmd}`));
+		// if(id>=0){
+		// 	this.requestWaitingList[id] = request.data.toRequest();
+		// }
+		// else{
 			this.requestWaitingList.push(request.data.toRequest());	
-		}
+		// }
 	}
 
 	async send(loop = true){
@@ -130,26 +67,11 @@ export default class HTTPRoutine{
 		}
 
 		if(!autoRqst){
-			this.log(this._playMode ? `~>` : `->`, request);
-			this._recMode && this.trigger("request", request);
+			this.log(this.isPlayMode ? `~>` : `->`, request);
+			this.isRecordMode && this.trigger("request", request);
 		}
 
-		// prepare the waiter for the response
-		this.waitForData = new Promise((resolve, reject)=>{
-			this.waitForDataSuccess = resolve;
-			this.waitForDataReject = reject;
-		});
-		
-		// send and wait for the response
-		this.httpCall(request)
-			.then( ({body}) => {
-				this.onData(body);	
-			})
-			.catch(error=>{
-				console.log(error);
-			});
-
-		const data = await this.waitForData;
+		const data = await call(`${this.host}:${this.port}`, request)
 
 		if(autoRqst){
 			this.in.get("GET_PAN_TILT_ZOOM_FOCUS_IRIS").data.values = data.substr(3);
@@ -162,15 +84,10 @@ export default class HTTPRoutine{
 		loop && this.isPolling && this.send();
 	}
 
-	onData(data){
-		setTimeout(()=>this.waitForDataSuccess(data), 1);
-	}
-
 	onError(err){
 		this.stopPolling();
 		this.log('Error : ', err);
 		this.errorHandler(err);
-		setTimeout(()=>this.waitForDataReject(err), 1);
 	}
 
 }

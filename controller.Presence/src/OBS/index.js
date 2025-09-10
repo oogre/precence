@@ -1,8 +1,9 @@
 import { OBSWebSocket } from 'obs-websocket-js';
 import Enum from 'enum';
+import { EventManager} from '../common/Tools.js';
 
 
-export default class OBS {
+export default class OBS extends EventManager {
 	static OBSStatus = new Enum([
 		'NOT_CONNECTED', 
 		'CONNECTED', 
@@ -12,6 +13,8 @@ export default class OBS {
 		'OBS_WEBSOCKET_OUTPUT_STARTED'
 	]);
 	constructor(conf){
+		super("OBS", OBS.OBSStatus.enums.map(({key})=>key))
+		
 		this.log = conf.log;
 
 		this.conf = conf;
@@ -37,37 +40,13 @@ export default class OBS {
 			for : "",
 			action : ()=>{}
 		};
-		
-		this.handlers = {
-			NOT_CONNECTED : [],
-			CONNECTED : [],
-			OBS_WEBSOCKET_OUTPUT_PAUSED : [],
-			OBS_WEBSOCKET_OUTPUT_RESUMED : [],
-			OBS_WEBSOCKET_OUTPUT_STOPPED : [],
-			OBS_WEBSOCKET_OUTPUT_STARTED : []
-		};
+
 		this.flag = true;
 		this.obsController.on('RecordStateChanged', ({outputState})=>{
 			this.status = OBS.OBSStatus[outputState] || this.conf.status;
 		});
 
 		this.status = OBS.OBSStatus.NOT_CONNECTED;
-	}
-
-	on(description, callback){
-		if(!Object.keys(this.handlers).includes(description))
-			throw new Error(`onObs wait for OBS.EVENT_DESC as first parameter. You give "${description}".`);
-		if(typeof callback !== 'function')
-			throw new Error(`onObs wait for function as second parameter. You give "${typeof callback}".`);
-		this.handlers[description].push(callback);
-		return this;
-	}
-
-	trigger(eventDesc, event){
-		[...this.handlers[eventDesc]/*, ...this.handlers["*"]*/]
-			.forEach(handler => {
-				handler(event)
-			});
 	}
 
 	set status (value){

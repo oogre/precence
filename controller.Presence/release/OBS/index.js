@@ -6,10 +6,14 @@ Object.defineProperty(exports, "__esModule", {
 exports.default = void 0;
 var _obsWebsocketJs = require("obs-websocket-js");
 var _enum = _interopRequireDefault(require("enum"));
+var _Tools = require("../common/Tools.js");
 function _interopRequireDefault(e) { return e && e.__esModule ? e : { default: e }; }
-class OBS {
+class OBS extends _Tools.EventManager {
   static OBSStatus = new _enum.default(['NOT_CONNECTED', 'CONNECTED', 'OBS_WEBSOCKET_OUTPUT_PAUSED', 'OBS_WEBSOCKET_OUTPUT_RESUMED', 'OBS_WEBSOCKET_OUTPUT_STOPPED', 'OBS_WEBSOCKET_OUTPUT_STARTED']);
   constructor(conf) {
+    super("OBS", OBS.OBSStatus.enums.map(({
+      key
+    }) => key));
     this.log = conf.log;
     this.conf = conf;
     this.obsController = new _obsWebsocketJs.OBSWebSocket();
@@ -32,14 +36,6 @@ class OBS {
       for: "",
       action: () => {}
     };
-    this.handlers = {
-      NOT_CONNECTED: [],
-      CONNECTED: [],
-      OBS_WEBSOCKET_OUTPUT_PAUSED: [],
-      OBS_WEBSOCKET_OUTPUT_RESUMED: [],
-      OBS_WEBSOCKET_OUTPUT_STOPPED: [],
-      OBS_WEBSOCKET_OUTPUT_STARTED: []
-    };
     this.flag = true;
     this.obsController.on('RecordStateChanged', ({
       outputState
@@ -47,17 +43,6 @@ class OBS {
       this.status = OBS.OBSStatus[outputState] || this.conf.status;
     });
     this.status = OBS.OBSStatus.NOT_CONNECTED;
-  }
-  on(description, callback) {
-    if (!Object.keys(this.handlers).includes(description)) throw new Error(`onObs wait for OBS.EVENT_DESC as first parameter. You give "${description}".`);
-    if (typeof callback !== 'function') throw new Error(`onObs wait for function as second parameter. You give "${typeof callback}".`);
-    this.handlers[description].push(callback);
-    return this;
-  }
-  trigger(eventDesc, event) {
-    [...this.handlers[eventDesc] /*, ...this.handlers["*"]*/].forEach(handler => {
-      handler(event);
-    });
   }
   set status(value) {
     this.log("set status :", value.key);

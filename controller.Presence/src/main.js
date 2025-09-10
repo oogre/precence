@@ -9,7 +9,7 @@ import DMX from "./DMX";
 import OBS from "./OBS";
 import {pWait, wait} from "./common/Tools.js";
 import Gamepad from "./Gamepad";
-import Recorder from "./Recorder";
+import Timeline from "./Timeline";
 import {lerp} from "./common/Math.js";
 import dialog from 'node-file-dialog';
 import fs from 'node:fs';
@@ -18,10 +18,11 @@ process.title = config.window.title;
 
 const window = sdl.video.createWindow(config.window);
 
-const recorder = new Recorder({
-    ...config.RECORDER, 
-    log : config.RECORDER.log ? (...data)=>console.log(`RECORDER ${config.RECORDER.name} : `, ...data) : ()=>{}
+const timeline = new Timeline({
+    ...config.TIMELINE, 
+    log : config.TIMELINE.log ? (...data)=>console.log(`TIMELINE ${config.TIMELINE.name} : `, ...data) : ()=>{}
 });
+
 
 const gamepad = new Gamepad(sdl.joystick.devices, {
     ...config.CONTROLLER, 
@@ -49,7 +50,7 @@ const obs = new OBS({
     log : config.OBS.log ? (...data)=>console.log(`OBS ${config.OBS.name} : `, ...data) : ()=>{}
 });
 
-const ui = new UI(window, gamepad, robots, camera, recorder, obs);
+const ui = new UI(window, gamepad, robots, camera, timeline, obs);
 
 /* UI CONTROL */
 {
@@ -59,7 +60,8 @@ const ui = new UI(window, gamepad, robots, camera, recorder, obs);
                 robots[event.id].connect();
             }else if(event.eventName == "HOME"){
                 console.log("Homing");
-                robots[event.id].homing();
+                await robots[event.id].homing(true);
+                
             }else if(event.eventName == "ZERO"){
                 robots[event.id].setZero();
             }
@@ -74,25 +76,25 @@ const ui = new UI(window, gamepad, robots, camera, recorder, obs);
                 camera.setZero()
             }
         } 
-        else if(event.target == "recorder"){
+        else if(event.target == "timeline"){
             if(event.eventName == "REC"){
                 await obs.startRecord();
             }
             else if(event.eventName == "STOP"){
-                recorder.stop();
+                timeline.stop();
                 await obs.stopRecord();
             }
             else if(event.eventName == "PLAY"){
                 await obs.playRecord();
             }
-            else if(event.eventName == "PAUSE"){
-                await obs.pauseRecord();
-            }
+            // else if(event.eventName == "PAUSE"){
+            //     await obs.pauseRecord();
+            // }
 
             else if(event.eventName == "load"){
                 dialog({type:'open-file'})
                     .then(([dir]) => {
-                        recorder.channels = JSON.parse(fs.readFileSync(dir, "utf8")).map(item =>{
+                        timeline.channels = JSON.parse(fs.readFileSync(dir, "utf8")).map(item =>{
                             if(item.name == "ROBOT X"){
                                 item.target = robots[0]
                             }else if(item.name == "ROBOT Y"){
@@ -111,14 +113,8 @@ const ui = new UI(window, gamepad, robots, camera, recorder, obs);
                 ){
                     return;
                 }
-                const chan = recorder.channels.find(({name})=>name == event.eventName);
-                if(event.id==0){
-                    chan.record = !chan.record;
-                    chan.target.recMode = chan.record;
-                }else if(event.id==1){
-                    chan.play = !chan.play;
-                    chan.target.playMode = chan.play;
-                }
+                const chan = timeline.channels.find(({name})=>name == event.eventName);
+                chan.target.nextMode();
             }
         } 
     });
@@ -127,23 +123,23 @@ const ui = new UI(window, gamepad, robots, camera, recorder, obs);
 /* OBS CONTROL */
 {
     obs.on("OBS_WEBSOCKET_OUTPUT_STARTED", ()=>{
-        recorder.start();
+        timeline.start();
     });
 
     obs.on("OBS_WEBSOCKET_OUTPUT_STOPPED", ()=>{
-        //recorder.stop();
+        //timeline.stop();
     });
-    obs.on("OBS_WEBSOCKET_OUTPUT_PAUSED", ()=>{
-        recorder.pause();
-    });
-    obs.on("OBS_WEBSOCKET_OUTPUT_RESUMED", ()=>{
-        recorder.play();
-    });
+    // obs.on("OBS_WEBSOCKET_OUTPUT_PAUSED", ()=>{
+    //     timeline.pause();
+    // });
+    // obs.on("OBS_WEBSOCKET_OUTPUT_RESUMED", ()=>{
+    //     timeline.start();
+    // });
 }
 
-/* RECORDER CONTROL */
+/* timeline CONTROL */
 {
-    recorder.channels = [   {
+    timeline.channels = [   {
                                 name : "ROBOT X",
                                 target : robots[0],
                                 zero : 0
@@ -153,8 +149,8 @@ const ui = new UI(window, gamepad, robots, camera, recorder, obs);
                                 target : robots[1],
                                 zero : 0
                             },
-                            ...camera.controllable.map(name=>{return {
-                                name,
+                            {
+                                name : "CAMERA",
                                 target : camera,
                                 zero : {
                                     pan : 0.5, 
@@ -162,142 +158,166 @@ const ui = new UI(window, gamepad, robots, camera, recorder, obs);
                                     zoom : 0, 
                                     iris : 0
                                 }
-                            }})
+                            }
                         ];
 
-    recorder.on("play", ({c:eventDesc, v:value})=>{
-        if(camera.controllable.includes(eventDesc)){
-            camera.inject(value);
-        }else if(eventDesc == "ROBOT X" && robots[0].playMode){
-            robots[0].inject(Buffer.from(value));
-        }else if(eventDesc == "ROBOT Y" && robots[1].playMode){
-            robots[1].inject(Buffer.from(value));
+    timeline.on("trig", ({c:eventDesc, v:value})=>{
+        switch(eventDesc){
+            case 0 :
+                robots[0].isConnected && robots[0].inject(Buffer.from(value));
+            break;
+            case 1 :
+                robots[1].isConnected && robots[1].inject(Buffer.from(value));
+            break;
+            case 2 :
+                camera.isConnected && camera.inject(value);
+            break;
         }
     });
-
-    recorder.on("lastFrame", async ()=>{
-        await obs.changeScene("Scène 2");
-        await obs.stopRecord();
-        await pWait(5000);
-        await obs.changeScene("Scène");
-        await pWait(500);
-        await Promise.all([camera.reset(), robots[0].reset(), robots[1].reset()]);
-        await pWait(1000);
-        await obs.startRecord();
-        await pWait(1000);
-    });
-
     camera.on("request", event=>{
-        if( (
-            obs.status == OBS.OBSStatus.OBS_WEBSOCKET_OUTPUT_RESUMED ||
-            obs.status == OBS.OBSStatus.OBS_WEBSOCKET_OUTPUT_STARTED)
-            )
-        {
-            const [name] = event.match(/(#[A-Za-z]+)/);
-            recorder.rec({
-                name,
-                value : event
-            });
-        }
+        if(!timeline.isRecording)return;
+        timeline.rec(2, event);
     });
-
 
     robots[0].on("request", event=>{
-        if( obs.status == OBS.OBSStatus.OBS_WEBSOCKET_OUTPUT_RESUMED ||
-            obs.status == OBS.OBSStatus.OBS_WEBSOCKET_OUTPUT_STARTED)
-        {
-            recorder.rec({
-                name : "ROBOT X",
-                value : event
-            });
-        }
+        if(!timeline.isRecording)return;
+        timeline.rec(0, event);
+    
     });
-
 
     robots[1].on("request", event=>{
-        if( obs.status == OBS.OBSStatus.OBS_WEBSOCKET_OUTPUT_RESUMED ||
-            obs.status == OBS.OBSStatus.OBS_WEBSOCKET_OUTPUT_STARTED)
-        {
-            recorder.rec({
-                name : "ROBOT Y",
-                value : event
-            });
-        }
+        if(!timeline.isRecording)return;
+        timeline.rec(1, event);
     });
+
+    timeline.on("endRecord", async ()=>{
+        await obs.stopRecord();
+        await Promise.all([camera.reset(), robots[0].reset(), robots[1].reset()]);
+        timeline.stop();
+    });
+
+    timeline.on("lastFrame", async ()=>{
+        await obs.stopRecord();
+        await Promise.all([camera.reset(), robots[0].reset(), robots[1].reset()]);
+        // await pWait(1000);
+        // await obs.changeScene("Scène 2");
+        // await pWait(1000);
+        timeline._hasToRun = false;
+        timeline.cursorAt = 0;
+        // await obs.changeScene("Scène");
+        // await pWait(1000);
+        await pWait(1000);
+        await obs.startRecord();
+        // 
+        // await pWait(5000);
+        // await obs.changeScene("Scène");
+        // await pWait(500);
+        // await Promise.all([camera.reset(), robots[0].reset(), robots[1].reset()]);
+        // await pWait(1000);
+        // if(!timeline.isRecordingMode()){
+        //     await obs.startRecord();
+        //     await pWait(1000);    
+        // }
+    });
+
+   
 }
 
 /* GAMEPAD CONTROL */
 {
-
     gamepad.on("JOYSTICK_LEFT_HORIZONTAL", event => {
-        if(!robots[0].playMode){
+        if(!robots[0].isPlayMode){
             robots[0].speed(robots[0].conf.reverseCtrl * (event.target.getValue() * 2 - 1));    
         }
     });
 
     gamepad.on("JOYSTICK_LEFT_VERTICAL", event => {
-        if(!robots[1].playMode){
+        if(!robots[1].isPlayMode){
             robots[1].speed(robots[1].conf.reverseCtrl *  (event.target.getValue() * 2 - 1));
         }
     });
 
     gamepad.on("JOYSTICK_RIGHT_HORIZONTAL", event => {
-        camera.setPanTiltSpeed(camera.conf.panReverseCtrl ? 1-event.target.getValue() : event.target.getValue(), camera.tilt);
+        if(!camera.isPlayMode){
+            camera.setPanTiltSpeed(camera.conf.panReverseCtrl ? 1-event.target.getValue() : event.target.getValue(), camera.tilt);
+        }
     });
 
     gamepad.on("JOYSTICK_RIGHT_VERTICAL", event => {
-        camera.setPanTiltSpeed(camera.pan, camera.conf.tiltReverseCtrl ? 1-event.target.getValue() : event.target.getValue());
+        if(!camera.isPlayMode){
+            camera.setPanTiltSpeed(camera.pan, camera.conf.tiltReverseCtrl ? 1-event.target.getValue() : event.target.getValue());
+        }
     });
 
     gamepad.on("TRIGGER_LEFT", event => {
-        camera.setZoom( lerp(0.5, 1, event.target.getValue()));
+        if(!camera.isPlayMode){
+            camera.setZoom( lerp(0.5, 1, event.target.getValue()));
+        }
     });
 
     gamepad.on("TRIGGER_RIGHT", event => {
-        camera.setZoom( lerp(0.5, 0, event.target.getValue()))
+        if(!camera.isPlayMode){
+            camera.setZoom( lerp(0.5, 0, event.target.getValue()))
+        }
     });
 
     let irisRun;
     gamepad.on("BUTTON_TRIGGER_LEFT", event => {
-        clearInterval(irisRun);
-        if(event.target.getValue() != 0){
-            irisRun = setInterval(()=>{
-                camera.setIris(-1 * event.target.getValue() * 0.05);    
-            }, 50);
+        if(!camera.isPlayMode){
+            clearInterval(irisRun);
+            if(event.target.getValue() != 0){
+                irisRun = setInterval(()=>{
+                    camera.setIris(-1 * event.target.getValue() * 0.05);    
+                }, 50);
+            }
         }
     });
 
     gamepad.on("BUTTON_TRIGGER_RIGHT", event => {
-        clearInterval(irisRun);
-        if(event.target.getValue() != 0){
-            irisRun = setInterval(()=>{
-                camera.setIris(event.target.getValue() * 0.2);    
-            }, 50);
+        if(!camera.isPlayMode){
+            clearInterval(irisRun);
+            if(event.target.getValue() != 0){
+                irisRun = setInterval(()=>{
+                    camera.setIris(event.target.getValue() * 0.1);    
+                }, 50);
+            }
         }
     });
 
     gamepad.on("BUTTON_HOME", event=>{
+
         if(event.target.getValue() == 1){
-            robots[0].reset();
-            robots[1].reset();
-            camera.reset();    
+            if(!robots[0].isPlayMode){
+                robots[0].reset();
+            }
+            if(!robots[1].isPlayMode){
+                robots[1].reset();
+            }
+            if(!camera.isPlayMode){
+                camera.reset();    
+            }
         }
     });
 
     gamepad.on("BUTTON_SELECT", event=>{
         if(event.target.getValue() == 1){
-            robots[0].setZero();
-            robots[1].setZero();
-            camera.setZero();
+            if(!robots[0].isPlayMode){
+                robots[0].setZero();
+            }
+            if(!robots[1].isPlayMode){
+                robots[1].setZero();
+            }
+            if(!camera.isPlayMode){
+                camera.setZero();
+            }
         }
     });
 
-    gamepad.on("BUTTON_B", event=>{
-        
-        if(event.target.getValue() == 1){
-            obs.toggleRecord();
-        }
-    });
+    // gamepad.on("BUTTON_B", event=>{
+    //     if(event.target.getValue() == 1){
+    //         obs.toggleRecord();
+    //     }
+    // });
 }
 
 /* ON CLOSE */
@@ -307,7 +327,7 @@ const ui = new UI(window, gamepad, robots, camera, recorder, obs);
         await robots[1].close();
         await camera.close();
         await ui.close();
-        await recorder.close();
+        await timeline.close();
         await gamepad.close();
         process.exit();
     }

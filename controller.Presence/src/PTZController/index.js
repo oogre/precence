@@ -2,25 +2,27 @@ import Enum from 'enum';
 import HTTPRoutine from "./HTTPRoutine.js";
 import {lerp, clamp} from "../common/Math.js";
 import {wait} from "../common/Tools.js";
+import { ChannelStatus as Channel_Status, nextChannel } from '../common/Constants.js';
 
 //converter takes value [0->1] and turn it to [0/8 1/8 2/8 3/8 4/8 5/8 6/8 7/8 8/8]		
 const converter = value => Math.round(value * 8) / 8;
 
 
 export default class PTZController extends HTTPRoutine {
-	static CameraStatus = new Enum(['NOT_CONNECTED', "CONNECTED", 'ERROR']);
+	static CameraStatus = new Enum(['NOT_CONNECTED', "CONNECTING", "CONNECTED", 'ERROR']);
+	static ChannelStatus = Channel_Status; 
 	constructor(conf){
 		super(conf);
 		this.conf = conf;
 		this.conf.status = PTZController.CameraStatus.NOT_CONNECTED;
 		this.controllable = this.out.controls
-                        .filter(({data, visible}) => data.withParams && visible)
+                        .filter(({data, visible}) => data.withParams)
                         .map(({data}) => `#${data.cmd.toUpperCase()}`)
 
         this.out.get("PAN_TILT").data.params.pan.value = 0.5;
 		this.out.get("PAN_TILT").data.params.tilt.value = 0.5;
 
-		
+		this._mode = PTZController.ChannelStatus.NONE;
 	}
 	get isError(){
 		return this.conf.status == PTZController.CameraStatus.ERROR;
@@ -28,23 +30,31 @@ export default class PTZController extends HTTPRoutine {
 	get isConnected(){
 		return this.conf.status == PTZController.CameraStatus.CONNECTED;
 	}
+	get isConnecting(){
+		return this.conf.status == PTZController.CameraStatus.CONNECTING;
+	}
 
 	get zero (){
 		return this._zero;
 	}
-
 	set zero (value){
-		console.log(value);
 		this._zero = value;
-	
 	}
 
-	connect(){
-		super.connect(this.conf.host, this.conf.port, ()=>{
-			this.conf.status = PTZController.CameraStatus.CONNECTED;
-		}, (error)=>{
-			this.conf.status = PTZController.CameraStatus.ERROR;
-		});
+	nextMode(){
+		this._mode = nextChannel(this._mode);
+	}
+	get mode(){
+		return this._mode.value;
+	}
+	get isRecordMode(){
+		return this._mode == PTZController.ChannelStatus.RECORD;
+	}
+	get isPlayMode(){
+		return this._mode == PTZController.ChannelStatus.PLAY;
+	}
+	get isNoneMode(){
+		return this._mode == PTZController.ChannelStatus.NONE;
 	}
 
 	setZero(){
@@ -56,6 +66,17 @@ export default class PTZController extends HTTPRoutine {
 		} = this.in.get("GET_PAN_TILT_ZOOM_FOCUS_IRIS").data.params;
 		this.zero = {pan,tilt,zoom,iris};
 	}
+
+	connect(){
+		this.conf.status = PTZController.CameraStatus.CONNECTING;
+		super.connect(this.conf.host, this.conf.port, ()=>{
+			this.conf.status = PTZController.CameraStatus.CONNECTED;
+		}, (error)=>{
+			this.conf.status = PTZController.CameraStatus.ERROR;
+		});
+	}
+
+	
 
 	async reset(){
 		// REANIMATOR ANIMATION

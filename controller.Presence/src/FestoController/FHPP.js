@@ -2,9 +2,8 @@ import { Buffer } from 'node:buffer';
 import { invlerp } from '../common/Math.js';
 
 class FHPP{
-	constructor(length, log){
+	constructor(length){
 		this.data = Buffer.alloc(length);
-		this.log = log;
 	}
 	getByte(n){
 		return this.data.readUInt8(n);
@@ -28,8 +27,8 @@ class FHPP{
 }
 
 export class FHPP_IN extends FHPP{
-	constructor(log = ()=>{}){
-		super(8, log);
+	constructor(){
+		super(8);
 		const self = this;
 		this.controls = [{
 			name : "FAULT",
@@ -56,6 +55,9 @@ export class FHPP_IN extends FHPP{
 			getValue (){ 
 				return invlerp(this.minimum, this.maximum, self.getByte(3)); 
 			},
+			getRawValue(){
+				return  self.getByte(3);
+			},
 			visible : true,
 			type : "slider"
 		},{
@@ -75,8 +77,8 @@ export class FHPP_IN extends FHPP{
 }
 
 export class FHPP_OUT extends FHPP{
-	constructor(log = ()=>{}){
-		super(8, log);
+	constructor(){
+		super(8);
 		
 		const self = this;
 		this.controls = [{
