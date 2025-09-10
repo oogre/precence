@@ -103,7 +103,6 @@ export default class OBS extends EventManager {
 		});
 	}
 
-
 	async playRecord(){
 		return new Promise(async (resolve)=>{
 			if( this.status == OBS.OBSStatus.OBS_WEBSOCKET_OUTPUT_PAUSED)
@@ -133,5 +132,14 @@ export default class OBS extends EventManager {
 
 	async changeScene(name){		
 		await this.obsController.call('SetCurrentProgramScene', {sceneName : name});	
+	}
+
+	async close(){
+		return new Promise(async r=>{
+			if(this.status != OBS.OBSStatus.OBS_WEBSOCKET_OUTPUT_STOPED){
+			 	await this.obsController.call('StopRecord');
+			 	r();
+			 }
+		});		
 	}
 }

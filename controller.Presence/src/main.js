@@ -9,6 +9,7 @@ import DMX from "./DMX";
 import OBS from "./OBS";
 import {pWait, wait} from "./common/Tools.js";
 import Gamepad from "./Gamepad";
+import Player from "./Player";
 import Timeline from "./Timeline";
 import {lerp} from "./common/Math.js";
 import dialog from 'node-file-dialog';
@@ -49,6 +50,12 @@ const obs = new OBS({
     ...config.OBS, 
     log : config.OBS.log ? (...data)=>console.log(`OBS ${config.OBS.name} : `, ...data) : ()=>{}
 });
+
+
+const player = new Player({
+    ...config.PLAYER, 
+    log : config.PLAYER.log ? (...data)=>console.log(`PLAYER ${config.CAMERA.name} : `, ...data) : ()=>{}
+})
 
 const ui = new UI(window, gamepad, robots, camera, timeline, obs);
 
@@ -198,6 +205,7 @@ const ui = new UI(window, gamepad, robots, camera, timeline, obs);
 
     timeline.on("lastFrame", async ()=>{
         await obs.stopRecord();
+        await player.play("test");
         await Promise.all([camera.reset(), robots[0].reset(), robots[1].reset()]);
         // await pWait(1000);
         // await obs.changeScene("Scène 2");
@@ -323,6 +331,8 @@ const ui = new UI(window, gamepad, robots, camera, timeline, obs);
 /* ON CLOSE */
 {
     const terminate = async ()=>{
+        await player.close();
+        await obs.close();
         await robots[0].close();
         await robots[1].close();
         await camera.close();

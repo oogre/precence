@@ -76,7 +76,7 @@ export default class ModBus extends EventManager{
 
 			//console.log(this.in.get("SPEED").getRawValue());
 
-			this.isRecordMode && this.trigger("request", );
+			this.isRecordMode && this.trigger("request", request);
 
 
 		}catch(error){

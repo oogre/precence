@@ -29,7 +29,9 @@ const {
     CAME_TILT_REVERSE_CTRL,
     OBS_HOST,
     OBS_LOG,
-    TIMELINE_LOG
+    TIMELINE_LOG,
+    PLAYER_HOST,
+    PLAYER_LOG
 } = dotenv.config().parsed;
 
 export default {
@@ -88,5 +90,10 @@ export default {
     log : parseInt(TIMELINE_LOG),
     duration : parseInt(TIMELINE_DURATION),
     recFile : TIMELINE_REC_FILE
+  },
+  PLAYER : {
+    log : parseInt(PLAYER_LOG),
+    host : PLAYER_HOST.split(":")[0],
+    port : parseInt(PLAYER_HOST.split(":")[1])
   }
 };
