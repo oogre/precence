@@ -7,7 +7,7 @@ import PTZController from "./PTZController";
 import FestoController from "./FestoController";
 import DMX from "./DMX";
 import OBS from "./OBS";
-import {pWait, wait} from "./common/Tools.js";
+import {wait} from "./common/Tools.js";
 import Gamepad from "./Gamepad";
 import Player from "./Player";
 import Timeline from "./Timeline";
@@ -66,9 +66,7 @@ const ui = new UI(window, gamepad, robots, camera, timeline, obs);
             if(event.eventName == "connection"){
                 robots[event.id].connect();
             }else if(event.eventName == "HOME"){
-                console.log("Homing");
-                await robots[event.id].homing(true);
-                
+                await robots[event.id].homing();
             }else if(event.eventName == "ZERO"){
                 robots[event.id].setZero();
             }
@@ -76,7 +74,7 @@ const ui = new UI(window, gamepad, robots, camera, timeline, obs);
         else if(event.target == "camera"){
             if(event.eventName == "connection"){
                 camera.connect();
-                await pWait(1000);
+                await wait(1000);
                 await obs.changeScene("Scène");
             }
             else if(event.eventName == "ZERO"){
@@ -171,10 +169,10 @@ const ui = new UI(window, gamepad, robots, camera, timeline, obs);
     timeline.on("trig", ({c:eventDesc, v:value})=>{
         switch(eventDesc){
             case 0 :
-                robots[0].isConnected && robots[0].inject(Buffer.from(value));
+                robots[0].isConnected && robots[0].inject(value);
             break;
             case 1 :
-                robots[1].isConnected && robots[1].inject(Buffer.from(value));
+                robots[1].isConnected && robots[1].inject(value);
             break;
             case 2 :
                 camera.isConnected && camera.inject(value);
@@ -207,24 +205,24 @@ const ui = new UI(window, gamepad, robots, camera, timeline, obs);
         await obs.stopRecord();
         await player.play("test");
         await Promise.all([camera.reset(), robots[0].reset(), robots[1].reset()]);
-        // await pWait(1000);
+        // await wait(1000);
         // await obs.changeScene("Scène 2");
-        // await pWait(1000);
+        // await wait(1000);
         timeline._hasToRun = false;
         timeline.cursorAt = 0;
         // await obs.changeScene("Scène");
-        // await pWait(1000);
-        await pWait(1000);
+        // await wait(1000);
+        await wait(1000);
         await obs.startRecord();
         // 
-        // await pWait(5000);
+        // await wait(5000);
         // await obs.changeScene("Scène");
-        // await pWait(500);
+        // await wait(500);
         // await Promise.all([camera.reset(), robots[0].reset(), robots[1].reset()]);
-        // await pWait(1000);
+        // await wait(1000);
         // if(!timeline.isRecordingMode()){
         //     await obs.startRecord();
-        //     await pWait(1000);    
+        //     await wait(1000);    
         // }
     });
 

@@ -18,20 +18,20 @@ class FestoController extends _ModBus.default {
     super(conf);
     this.conf = conf;
     this.conf.status = FestoController.RobotStatus.NOT_CONNECTED;
-    this.out.get("OPM1").toggle();
-    this.out.get("HALT").toggle();
-    this.out.get("STOP").toggle();
-    this.out.get("ENABLE").toggle();
     this.in.get("POSITION").minimum = 0;
     this.in.get("POSITION").maximum = this.conf.maxPos;
     this.in.get("SPEED").minimum = 0;
     this.in.get("SPEED").maximum = this.conf.maxSpeed;
-    this.out.get("DESTINATION").minimum = 0;
-    this.out.get("DESTINATION").maximum = this.conf.maxPos;
-    this.out.get("SPEED").minimum = 0;
-    this.out.get("SPEED").maximum = this.conf.maxSpeed;
+    this.DEFAULT_OUT.get("DESTINATION").minimum = 0;
+    this.DEFAULT_OUT.get("DESTINATION").maximum = this.conf.maxPos;
+    this.DEFAULT_OUT.get("SPEED").minimum = 0;
+    this.DEFAULT_OUT.get("SPEED").maximum = this.conf.maxSpeed;
     this._zero = 0;
     this._mode = FestoController.ChannelStatus.NONE;
+    this._speed = 0;
+    this._dest = 0;
+    this._goTo = false;
+    this._goHome = false;
   }
   get isError() {
     return this.status == _ModBus.default.ModBusStatus.ERROR || this.conf.status == FestoController.RobotStatus.ERROR;
@@ -56,6 +56,7 @@ class FestoController extends _ModBus.default {
   }
   nextMode() {
     this._mode = (0, _Constants.nextChannel)(this._mode);
+    console.log(this._mode);
     if (this.isPlayMode) {
       this.stopPolling();
     } else {
@@ -80,9 +81,11 @@ class FestoController extends _ModBus.default {
       await super.connect(this.conf.host, this.conf.port, this.conf.timeout, error => {
         this.conf.status = FestoController.RobotStatus.ERROR;
       });
-      await (0, _Tools.wait)(100);
-      await this.homing();
       this.startPolling();
+      await (0, _Tools.wait)(100);
+      if (!this.isReferenced) {
+        await this.homing();
+      }
       this.conf.status = FestoController.RobotStatus.CONNECTED;
     } catch (error) {
       console.log(error);
@@ -97,57 +100,40 @@ class FestoController extends _ModBus.default {
     }
     super.close();
   }
-  async homing(forced = false) {
-    if (forced) {
-      this.out.get("HOME").toggle();
-      this.in.get("REF").toggle();
-    }
-    let homeTrigged = false;
-    return new Promise(async resolve => {
-      while (!this.isReferenced) {
-        this.send(false);
-        await (0, _Tools.wait)(50);
-        if (!homeTrigged && !this.isReferenced) {
-          this.out.get("HOME").toggle();
-          homeTrigged = true;
-        }
+  async homing() {
+    this._goHome = true;
+    while (true) {
+      await (0, _Tools.wait)(100);
+      if (this.isReferenced) {
+        this._goHome = false;
+        this.sendingHome = false;
+        break;
       }
-      resolve();
-    });
+    }
   }
   async reset() {
-    if (!this.isConnected) return;
-    this.out.get("DESTINATION").setValue(this._zero);
-    this.out.get("SPEED").setValue(this.conf.maxSpeed);
-    this.out.get("START").toggle();
-    return new Promise(async resolve => {
-      while (0 != this._zero - this.in.get("POSITION").getRawValue()) {
-        await (0, _Tools.wait)(100);
-      }
-      this.log("OK");
-      resolve();
-    });
+    await this.goTo(this._zero);
+  }
+  async goTo(position) {
+    this._goTo = Math.max(0, Math.min(Math.floor(position), this.conf.maxPos));
+    while (Math.abs(this._goTo - this.in.get("POSITION").getRawValue()) > 0) {
+      await (0, _Tools.wait)(100);
+    }
+    this._goTo = false;
   }
   speed(input) {
     //converter takes value [-1->1] in multiple of 1/8th 
     const converter = value => Math.round(value * 8) / 8;
     let value = converter(input);
-    if (Math.abs(Math.abs(value) - this.out.get("SPEED").getValue()) < 0.05) {
-      return;
-    }
     if (value > 0) {
       // GO FURTHER TO HOME
-      this.out.get("DESTINATION").setValue(this.conf.maxPos);
+      this._dest = this.conf.maxPos;
     } else {
       // GO CLOSET TO HOME
-      this.out.get("DESTINATION").setValue(0);
+      this._dest = 0;
       value = Math.abs(value);
     }
-    this.out.get("SPEED").setValue(value * this.conf.maxSpeed);
-    if (!this.out.get("START").getValue()) {
-      this.out.get("START").toggle();
-    }
-    //this.log(this.out.get("SPEED").getValue());
+    this._speed = Math.floor(value * this.conf.maxSpeed);
   }
 }
 exports.default = FestoController;

@@ -51,6 +51,16 @@ class FHPP_IN extends FHPP {
       visible: true,
       type: "checkBox"
     }, {
+      name: "ACK",
+      getValue() {
+        return self.getBitOfByte(1, 1);
+      },
+      toggle() {
+        return self.flipBitOfByte(1, 1);
+      },
+      visible: true,
+      type: "checkBox"
+    }, {
       name: "REF",
       getValue() {
         return self.getBitOfByte(1, 7);

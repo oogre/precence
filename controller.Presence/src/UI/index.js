@@ -68,7 +68,7 @@ export default class UI extends UI_HELPER{
 				})
 			}else{
 				this.text( x, y , `OUTPUT`.toUpperCase());
-				const outItem = robot.out.controls
+				const outItem = robot.DEFAULT_OUT.controls
 					.filter(({visible}) => visible)
 					.map((ctrl, n)=>{
 						const yOffset = (n+1) * lineHeight;

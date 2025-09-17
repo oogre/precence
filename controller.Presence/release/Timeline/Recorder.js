@@ -46,11 +46,11 @@ class Recorder extends _Tools.EventManager {
     }, id) => {
       const canvas = (0, _canvas.createCanvas)(this.conf.duration, 16);
       const ctx = canvas.getContext('2d');
-      const draw = ({
+      const draw = async ({
         t
       }) => {
         ctx.save();
-        ctx.translate(canvas.width * t * this.DURATION_NORMALIZER * _Constants.NANO_TO_MILLIS, 0);
+        ctx.translate(canvas.width * t * this.DURATION_NORMALIZER, 0);
         ctx.strokeStyle = `rgba(255, 255, 255, 0.1)`;
         ctx.beginPath(); // Start a new path
         ctx.moveTo(0, 0); // Move the pen to (30, 50)
@@ -74,13 +74,13 @@ class Recorder extends _Tools.EventManager {
     this.hasNewRecord = false;
     this.workingOn = this._channels.map(({
       data
-    }) => data).flat().filter(({
-      t
-    }) => t > this.cursorAt) /* <= LAST ADD  */.sort(({
+    }) => data).flat().sort(({
       t: a
     }, {
       t: b
-    }) => a - b);
+    }) => a - b)
+    //.filter(({t})=>t>this.cursorAt)/* <= LAST ADD  */
+    ;
   }
   async stop() {
     if (!this.hasNewRecord) return;
@@ -112,25 +112,15 @@ class Recorder extends _Tools.EventManager {
   async loop() {
     const index = this.workingOn.findLastIndex(({
       t
-    }) => t + this.loopDelay * _Constants.MILLIS_TO_NANO < this.cursorAt);
+    }) => t < this.cursorAt);
     if (index == -1) {
       return;
     }
-    // this.workingOn.forEach((e, k)=>{
-    // 	this.log(e, k == index ? ' < ' : '')
-    // });
-
-    const toDoList = this.workingOn.splice(0, 1 + index).filter(({
+    this.workingOn.splice(0, 1 + index).filter(({
       c
     }) => {
       return this._channels[c].target.isPlayMode;
-    });
-    toDoList.forEach(async item => {
-      do {
-        this.updateCursor();
-      } while (this.cursorAt < item.t);
-      // const dT = Math.floor((this.cursorAt - item.t) * NANO_TO_MILLIS);
-      // this.log(dT);
+    }).forEach(item => {
       this.trigger("trig", item);
     });
   }
@@ -139,7 +129,7 @@ class Recorder extends _Tools.EventManager {
     if (!chan.target.isRecordMode) return;
     chan.data.push({
       c: chan.id,
-      t: Number(_nodeProcess.hrtime.bigint() - this.startRecordAt),
+      t: Date.now() - this.startRecordAt,
       v: value
     });
     const time = chan.data[chan.data.length - 1].t;

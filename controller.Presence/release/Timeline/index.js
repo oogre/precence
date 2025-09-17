@@ -17,19 +17,18 @@ class Timeline extends _Recorder.Recorder {
     this.log = conf.log;
     this.conf = conf;
     this.status = Timeline.TimelineStatus.STOP;
-    this.startRecordAt = _nodeProcess.hrtime.bigint();
+    this.startRecordAt = Date.now();
     this.cursorAt = 0;
     this.cursorWas = 0;
     this.DURATION_NORMALIZER = 0.001 / this.conf.duration;
-    this.loopDelay = 50;
+    this.loopDelay = 30;
     this._hasToRun = false;
   }
   get cursor() {
-    return this.cursorAt * this.DURATION_NORMALIZER * _Constants.NANO_TO_MILLIS;
+    return this.cursorAt * this.DURATION_NORMALIZER;
   }
   updateCursor() {
-    this.cursorAt = Number(_nodeProcess.hrtime.bigint() - this.startRecordAt);
-    // console.log(this.cursorAt);
+    this.cursorAt = Date.now() - this.startRecordAt;
   }
   get hasToRun() {
     return this._hasToRun;
@@ -43,7 +42,7 @@ class Timeline extends _Recorder.Recorder {
   async start() {
     this.status = this.isRecordMode ? Timeline.TimelineStatus.RECORDING : Timeline.TimelineStatus.LOOPING;
     await super.start();
-    this.startRecordAt = _nodeProcess.hrtime.bigint() - BigInt(this.cursorAt);
+    this.startRecordAt = Date.now() - this.cursorAt;
     this._hasToRun = true;
     this.loop();
   }
@@ -66,7 +65,7 @@ class Timeline extends _Recorder.Recorder {
       }
     }
     await super.loop();
-    await (0, _Tools.pWait)(this.loopDelay);
+    await (0, _Tools.wait)(1);
     this._hasToRun && this.loop();
   }
   async close() {

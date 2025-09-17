@@ -56,15 +56,14 @@ const ui = new _UI.default(window, gamepad, robots, camera, timeline, obs);
       if (event.eventName == "connection") {
         robots[event.id].connect();
       } else if (event.eventName == "HOME") {
-        console.log("Homing");
-        await robots[event.id].homing(true);
+        await robots[event.id].homing();
       } else if (event.eventName == "ZERO") {
         robots[event.id].setZero();
       }
     } else if (event.target == "camera") {
       if (event.eventName == "connection") {
         camera.connect();
-        await (0, _Tools.pWait)(1000);
+        await (0, _Tools.wait)(1000);
         await obs.changeScene("Scène");
       } else if (event.eventName == "ZERO") {
         camera.setZero();
@@ -182,24 +181,24 @@ const ui = new _UI.default(window, gamepad, robots, camera, timeline, obs);
     await obs.stopRecord();
     await player.play("test");
     await Promise.all([camera.reset(), robots[0].reset(), robots[1].reset()]);
-    // await pWait(1000);
+    // await wait(1000);
     // await obs.changeScene("Scène 2");
-    // await pWait(1000);
+    // await wait(1000);
     timeline._hasToRun = false;
     timeline.cursorAt = 0;
     // await obs.changeScene("Scène");
-    // await pWait(1000);
-    await (0, _Tools.pWait)(1000);
+    // await wait(1000);
+    await (0, _Tools.wait)(1000);
     await obs.startRecord();
     // 
-    // await pWait(5000);
+    // await wait(5000);
     // await obs.changeScene("Scène");
-    // await pWait(500);
+    // await wait(500);
     // await Promise.all([camera.reset(), robots[0].reset(), robots[1].reset()]);
-    // await pWait(1000);
+    // await wait(1000);
     // if(!timeline.isRecordingMode()){
     //     await obs.startRecord();
-    //     await pWait(1000);    
+    //     await wait(1000);    
     // }
   });
 }

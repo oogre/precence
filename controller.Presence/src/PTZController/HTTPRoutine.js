@@ -1,5 +1,5 @@
 import RequestHolder from "./RequestHolder.js";
-import { pWait, EventManager} from '../common/Tools.js';
+import { wait, EventManager} from '../common/Tools.js';
 import { call, httpCall } from './tools.js';
 
 
@@ -80,7 +80,7 @@ export default class HTTPRoutine extends EventManager{
 		}
 
 		// it cannot be faster than 40 send per second
-		await pWait(50);
+		await wait(50);
 		loop && this.isPolling && this.send();
 	}
 

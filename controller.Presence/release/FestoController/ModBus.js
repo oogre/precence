@@ -10,6 +10,8 @@ var _nodeBuffer = require("node:buffer");
 var _Tools = require("../common/Tools.js");
 var _tool = require("./tool.js");
 var _enum = _interopRequireDefault(require("enum"));
+var _nodeProcess = require("node:process");
+var _Constants = require("../common/Constants.js");
 function _interopRequireDefault(e) { return e && e.__esModule ? e : { default: e }; }
 class ModBus extends _Tools.EventManager {
   static ModBusStatus = new _enum.default(['STOPED', 'RUNNING', 'ERROR']);
@@ -17,17 +19,26 @@ class ModBus extends _Tools.EventManager {
     super("ModBus", ["request"]);
     this.log = conf.log;
     this.lost = 0;
-    this.out = new _FHPP.FHPP_OUT(conf.log);
-    this.in = new _FHPP.FHPP_IN(conf.log);
+    this.DEFAULT_OUT = new _FHPP.FHPP_OUT();
+    this.DEFAULT_OUT.get("OPM1").toggle();
+    this.DEFAULT_OUT.get("HALT").toggle();
+    this.DEFAULT_OUT.get("STOP").toggle();
+    this.DEFAULT_OUT.get("ENABLE").toggle();
+    this.in = new _FHPP.FHPP_IN();
     this.isPolling = false;
     this.status = ModBus.ModBusStatus.STOPED;
     this.client = new _net.default.Socket();
     this.client.on('end', this.onEnd.bind(this));
     this.client.on('error', this.onError.bind(this));
     this.client.on('close', this.onClose.bind(this));
-    this.readjustSpeedDelay = null;
-    this.NULL_BUFFER = _nodeBuffer.Buffer.from([0x43, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00]);
-    this.oldRequest = _nodeBuffer.Buffer.from([]);
+    this._lastSpeed = -1;
+    this._lastDest = -1;
+    this.sendingHome = false;
+  }
+  get nullRequest() {
+    const out = new _FHPP.FHPP_OUT();
+    out.data = this.DEFAULT_OUT.data;
+    return out;
   }
   async connect(host, port, timeout, error = () => {}) {
     console.log(host, port);
@@ -42,6 +53,7 @@ class ModBus extends _Tools.EventManager {
     this.client.on('end', error.bind(this));
   }
   startPolling() {
+    if (this.isPolling) return;
     this.isPolling = true;
     this.status = ModBus.ModBusStatus.RUNNING;
     this.send();
@@ -50,55 +62,64 @@ class ModBus extends _Tools.EventManager {
     this.isPolling = false;
   }
   async inject(request) {
-    this.out.data = _nodeBuffer.Buffer.from(request);
-    this.log(`~>`, request);
-    try {
-      this.in.data = await (0, _tool.call)(this.client, request);
-    } catch (error) {
-      console.log("ERROROR ");
-      console.log(error);
-    }
+    const rq = this.nullRequest;
+    rq.data = _nodeBuffer.Buffer.from(request);
+    this.send(rq);
   }
-  async send(loop = true) {
+  async send(request = this.nullRequest) {
+    let hasToRec = false;
+    if (this.sendingHome) {} else if (this._goHome) {
+      request.get("HOME").toggle();
+      this.in.get("REF").toggle();
+      this.sendingHome = true;
+    } else if (Number.isInteger(this._goTo)) {
+      request.get("DESTINATION").setValue(this._goTo);
+      request.get("SPEED").setValue(this.conf.maxSpeed);
+      request.get("START").toggle();
+      hasToRec = true;
+    } else if (this._speed != this._lastSpeed || this._dest != this._lastDest) {
+      request.get("DESTINATION").setValue(this._dest);
+      request.get("SPEED").setValue(this._speed);
+      request.get("START").toggle();
+      this._lastSpeed = this._speed;
+      this._lastDest = this._dest;
+      hasToRec = true;
+    }
     try {
-      const request = _nodeBuffer.Buffer.from([...this.out.data]);
-      this.log(`->`, request);
-      this.in.data = await (0, _tool.call)(this.client, request);
-      //const rec = {...this.out};
-      // rec.get("SPEED").setValue(  )
-
-      //console.log(this.in.get("SPEED").getRawValue());
-
-      this.isRecordMode && this.trigger("request", request);
+      this.log("->", request.data);
+      this.isRecordMode && hasToRec && this.trigger("request", [...request.data]);
+      this.in.data = await (0, _tool.call)(this.client, request.data);
+      await (0, _Tools.wait)(30);
+      if (request.get("START").getValue()) {
+        while (this.in.get("ACK").getValue() != 1) {
+          this.log("~>", request.data);
+          this.in.data = await (0, _tool.call)(this.client, request.data);
+          await (0, _Tools.wait)(5);
+        }
+        request.get("START").toggle();
+        while (this.in.get("ACK").getValue() != 0) {
+          this.log("•>", request.data);
+          this.in.data = await (0, _tool.call)(this.client, request.data);
+          await (0, _Tools.wait)(5);
+        }
+      } else if (request.get("HOME").getValue()) {
+        while (this.in.get("ACK").getValue() != 1) {
+          this.log("~>", request.data);
+          this.in.data = await (0, _tool.call)(this.client, request.data);
+          await (0, _Tools.wait)(5);
+        }
+        request.get("HOME").toggle();
+        while (this.in.get("ACK").getValue() != 0) {
+          this.log("•>", request.data);
+          this.in.data = await (0, _tool.call)(this.client, request.data);
+          await (0, _Tools.wait)(5);
+        }
+      }
+      this.isPolling && this.send();
     } catch (error) {
       console.log("ERROROR ");
-      console.log(error);
+      console.log(error, request.data);
     }
-
-    // this.log(`<-`, this.in.data);
-
-    if (!this.isPlayMode) {
-      // Start and Home has to be strobed to be applied
-      // So if one is UP this turn it down and send
-      const [isStart, isHome] = [this.out.get("START").getValue(), this.out.get("HOME").getValue()];
-      if (isStart || isHome) {
-        isStart && this.out.get("START").toggle();
-        isHome && this.out.get("HOME").toggle();
-        this.send(false);
-      }
-
-      // if( !this.readjustSpeedDelay && 
-      // 	Math.abs(this.in.get("SPEED").getValue() - this.out.get("SPEED").getValue()) > 0.11
-      // ){
-      // 	this.readjustSpeedDelay = setTimeout(()=>{
-      // 		this.out.get("START").toggle();
-      // 		this.readjustSpeedDelay = null;
-      // 	}, 40);
-      // }
-    }
-    await (0, _Tools.pWait)(50);
-    // it cannot be faster than 50 send per second
-    loop && this.isPolling && this.send();
   }
   close() {
     this.client.destroy();
@@ -110,7 +131,7 @@ class ModBus extends _Tools.EventManager {
   }
   onError(err) {
     this.stopPolling();
-    this.log('Error : ', err);
+    console.log('Error : ', err);
     this.status = ModBus.ModBusStatus.ERROR;
   }
   onClose() {

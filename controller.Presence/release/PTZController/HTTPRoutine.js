@@ -75,7 +75,7 @@ class HTTPRoutine extends _Tools.EventManager {
     }
 
     // it cannot be faster than 40 send per second
-    await (0, _Tools.pWait)(50);
+    await (0, _Tools.wait)(50);
     loop && this.isPolling && this.send();
   }
   onError(err) {

@@ -9,4 +9,4 @@ IF NOT "%ERRORLEVEL%" == "0"  (
 
 cd /D %~dp0
 cd /D ../
-node ./release/main.js
+node --trace-warnings ./release/main.js

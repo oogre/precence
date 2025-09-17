@@ -1,9 +1,12 @@
 import net from 'net';
 import { FHPP_OUT, FHPP_IN } from './FHPP.js';
 import { Buffer } from 'node:buffer';
-import { pWait, wait, EventManager } from '../common/Tools.js';
+import { wait, EventManager } from '../common/Tools.js';
 import { call } from './tool.js';
 import Enum from 'enum';
+import { hrtime } from 'node:process';
+import { NANO_TO_MILLIS, MILLIS_TO_NANO } from "../common/Constants.js";
+
 
 export default class ModBus extends EventManager{
 	static ModBusStatus = new Enum(['STOPED', 'RUNNING', 'ERROR']);
@@ -12,8 +15,13 @@ export default class ModBus extends EventManager{
 		super("ModBus", ["request"])
 		this.log = conf.log;
 		this.lost = 0;
-		this.out = new FHPP_OUT(conf.log);
-		this.in = new FHPP_IN(conf.log);
+		this.DEFAULT_OUT = new FHPP_OUT();
+		this.DEFAULT_OUT.get("OPM1").toggle();
+		this.DEFAULT_OUT.get("HALT").toggle();
+		this.DEFAULT_OUT.get("STOP").toggle();
+		this.DEFAULT_OUT.get("ENABLE").toggle();
+		
+		this.in = new FHPP_IN();
 		this.isPolling = false;
 		this.status = ModBus.ModBusStatus.STOPED;
 		this.client = new net.Socket();
@@ -21,11 +29,15 @@ export default class ModBus extends EventManager{
 		this.client.on('error', this.onError.bind(this));
 		this.client.on('close', this.onClose.bind(this));
 		
-		this.readjustSpeedDelay = null;
+		this._lastSpeed = -1;
+		this._lastDest = -1;
+		this.sendingHome = false;
+	}
 
-		this.NULL_BUFFER = Buffer.from([0x43, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 ]);
-
-		this.oldRequest = Buffer.from([]);
+	get nullRequest(){
+		const out = new FHPP_OUT();
+		out.data = this.DEFAULT_OUT.data;
+		return out;
 	}
 
 	async connect(host, port, timeout, error=()=>{}){
@@ -46,6 +58,7 @@ export default class ModBus extends EventManager{
 	}
 
 	startPolling(){
+		if(this.isPolling)return;
 		this.isPolling = true;
 		this.status = ModBus.ModBusStatus.RUNNING;
 		this.send();
@@ -55,61 +68,71 @@ export default class ModBus extends EventManager{
 		this.isPolling = false;
 	}
 
+	
 	async inject(request){
-		this.out.data = Buffer.from(request)
-		this.log(`~>`, request);
+		const rq = this.nullRequest;
+		rq.data = Buffer.from(request);
+		this.send(rq);
+	}
+
+	async send(request = this.nullRequest){
+		let hasToRec = false;
+		if(this.sendingHome){
+
+		}
+		else if(this._goHome){
+			request.get("HOME").toggle();
+			this.in.get("REF").toggle();
+			this.sendingHome = true;
+		}
+		else if(Number.isInteger(this._goTo)){
+			request.get("DESTINATION").setValue(this._goTo);
+			request.get("SPEED").setValue(this.conf.maxSpeed);
+			request.get("START").toggle();
+			hasToRec = true;
+		}
+		else if(this._speed != this._lastSpeed || this._dest != this._lastDest){
+			request.get("DESTINATION").setValue(this._dest);
+			request.get("SPEED").setValue(this._speed);
+			request.get("START").toggle();
+			this._lastSpeed = this._speed;
+			this._lastDest = this._dest
+			hasToRec = true;
+		}
+
 		try{
-			this.in.data = await call(this.client, request)
+			this.log("->", request.data)
+			this.isRecordMode && hasToRec && this.trigger("request", [...request.data]);
+			this.in.data = await call(this.client, request.data);
+			await wait(30);
+
+			_TRIG_("START");
+			_TRIG_("HOME");
+						
+			this.isPolling && this.send();
 		}catch(error){
 			console.log("ERROROR ");
-			console.log(error);
+			console.log(error, request.data);
 		}
 	}
 
-	async send(loop = true){
-		try{
-			const request = Buffer.from([...this.out.data]);
-			this.log(`->`, request);
-			this.in.data = await call(this.client, request);
-			//const rec = {...this.out};
-			// rec.get("SPEED").setValue(  )
+	_TRIG_(name){
+		if(!(name == "START" || name == "HOME"))
+			return;
 
-			//console.log(this.in.get("SPEED").getRawValue());
-
-			this.isRecordMode && this.trigger("request", request);
-
-
-		}catch(error){
-			console.log("ERROROR ");
-			console.log(error);
-		}
-		
-		
-		// this.log(`<-`, this.in.data);
-
-		if(!this.isPlayMode){
-			// Start and Home has to be strobed to be applied
-			// So if one is UP this turn it down and send
-			const [isStart, isHome] = [this.out.get("START").getValue(), this.out.get("HOME").getValue()];
-			if(isStart || isHome){
-				isStart && this.out.get("START").toggle();
-				isHome && this.out.get("HOME").toggle();
-				this.send(false);
+		if(request.get(name).getValue()){
+			while(this.in.get("ACK").getValue() != 1){
+				this.log("~>", request.data)
+				this.in.data = await call(this.client, request.data);
+				await wait(5);
 			}
-
-			// if( !this.readjustSpeedDelay && 
-			// 	Math.abs(this.in.get("SPEED").getValue() - this.out.get("SPEED").getValue()) > 0.11
-			// ){
-			// 	this.readjustSpeedDelay = setTimeout(()=>{
-			// 		this.out.get("START").toggle();
-			// 		this.readjustSpeedDelay = null;
-			// 	}, 40);
-			// }
+			request.get(name).toggle();
+			while(this.in.get("ACK").getValue() != 0){
+				this.log("•>", request.data)
+				this.in.data = await call(this.client, request.data);
+				await wait(5);
+			}
 		}
-
-		await pWait(50);
-		// it cannot be faster than 50 send per second
-		loop && this.isPolling && this.send();
 	}
 
 	close(){
@@ -123,7 +146,7 @@ export default class ModBus extends EventManager{
 	}
 	onError(err){
 		this.stopPolling();
-		this.log('Error : ', err);
+		console.log('Error : ', err);
 		this.status = ModBus.ModBusStatus.ERROR;
 	}
 	onClose () {

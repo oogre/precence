@@ -1,5 +1,5 @@
 import Enum from 'enum';
-import {pWait, EventManager} from "../common/Tools.js";
+import { wait, EventManager} from "../common/Tools.js";
 import { NANO_TO_MILLIS } from "../common/Constants.js";
 import { hrtime } from 'node:process';
 
@@ -14,21 +14,20 @@ export default class Timeline extends Recorder {
 		this.log = conf.log;
 		this.conf = conf;
 		this.status = Timeline.TimelineStatus.STOP;
-		this.startRecordAt = hrtime.bigint();
+		this.startRecordAt = Date.now();
 		this.cursorAt = 0;
 		this.cursorWas = 0;
 		this.DURATION_NORMALIZER = 0.001/this.conf.duration;
-		this.loopDelay = 50;
+		this.loopDelay = 30;
 		this._hasToRun = false;
 	}
 
 	get cursor(){
-		return this.cursorAt * this.DURATION_NORMALIZER * NANO_TO_MILLIS;
+		return this.cursorAt * this.DURATION_NORMALIZER;
 	}
 
 	updateCursor(){
-		this.cursorAt = Number(hrtime.bigint() - this.startRecordAt);
-		// console.log(this.cursorAt);
+		this.cursorAt = Date.now() - this.startRecordAt;
 	}
 
 	get hasToRun(){
@@ -45,10 +44,8 @@ export default class Timeline extends Recorder {
 
 	async start(){
 		this.status = this.isRecordMode ? Timeline.TimelineStatus.RECORDING : Timeline.TimelineStatus.LOOPING;
-		
 		await super.start()
-
-		this.startRecordAt = hrtime.bigint() - BigInt(this.cursorAt);
+		this.startRecordAt = Date.now() - this.cursorAt;
 		this._hasToRun = true;
 		this.loop();
 	}
@@ -72,7 +69,7 @@ export default class Timeline extends Recorder {
 			}
 		}
 		await super.loop()
-		await pWait(this.loopDelay);
+		await wait(1);
 		this._hasToRun && this.loop();
 	}
 

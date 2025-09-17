@@ -1,5 +1,5 @@
 
-import {wait, EventManager} from "../common/Tools.js";
+import { wait, EventManager } from "../common/Tools.js";
 import { NANO_TO_MILLIS, MILLIS_TO_NANO } from "../common/Constants.js";
 import { createCanvas } from '@napi-rs/canvas';
 import { hrtime } from 'node:process';
@@ -31,9 +31,9 @@ export class Recorder extends EventManager{
 		this._channels = channels.map(({target, zero, name, data=[], record=false, play=false}, id)=>{
 			const canvas = createCanvas(this.conf.duration, 16);
 			const ctx = canvas.getContext('2d');
-			const draw = ({t})=>{
+			const draw = async ({t})=>{
 				ctx.save();
-				ctx.translate(canvas.width * t * this.DURATION_NORMALIZER * NANO_TO_MILLIS, 0);
+				ctx.translate(canvas.width * t * this.DURATION_NORMALIZER, 0);
 				ctx.strokeStyle = `rgba(255, 255, 255, 0.1)`;
 				ctx.beginPath(); // Start a new path
 				ctx.moveTo(0, 0); // Move the pen to (30, 50)
@@ -59,8 +59,9 @@ export class Recorder extends EventManager{
 
 		this.workingOn = this._channels
 			.map(({data})=>data).flat()
-			.filter(({t})=>t>this.cursorAt)/* <= LAST ADD  */
-			.sort(({t:a},{t:b}) => a-b);
+			.sort(({t:a},{t:b}) => a-b)
+			//.filter(({t})=>t>this.cursorAt)/* <= LAST ADD  */
+			;
 	}
 
 	async stop(){
@@ -82,30 +83,19 @@ export class Recorder extends EventManager{
 	}
 
 	async loop(){
-
-
-		const index = this.workingOn.findLastIndex(({t})=> t + this.loopDelay * MILLIS_TO_NANO  < this.cursorAt);
+		const index = this.workingOn.findLastIndex(({t})=> t < this.cursorAt);
 		if(index == -1){
 			return
 		}
-		// this.workingOn.forEach((e, k)=>{
-		// 	this.log(e, k == index ? ' < ' : '')
-		// });
-
-		const toDoList = this.workingOn
+		
+		this.workingOn
 			.splice(0, 1+index)
 			.filter(({c}) => {
 				return this._channels[c].target.isPlayMode
+			})
+			.forEach( item => {
+				this.trigger("trig", item)
 			});
-
-		toDoList.forEach(async item=>{
-			do{
-				this.updateCursor();
-			}while(this.cursorAt < item.t);
-			// const dT = Math.floor((this.cursorAt - item.t) * NANO_TO_MILLIS);
-			// this.log(dT);
-			this.trigger("trig", item);
-		});
 	}
 
 	
@@ -116,7 +106,7 @@ export class Recorder extends EventManager{
 
 		chan.data.push({
 			c : chan.id,
-			t : Number(hrtime.bigint() - this.startRecordAt),
+			t : Date.now() - this.startRecordAt,
 			v : value
 		});
 		const time = chan.data[chan.data.length-1].t;

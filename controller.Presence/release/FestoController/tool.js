@@ -12,16 +12,14 @@ const call = async (client, request) => {
     waitForDataSuccess = resolve;
     waitForDataReject = reject;
   });
-  const onData = data => {
-    client.off("data", onData);
+  client.once("data", data => {
     const d = Buffer.copyBytesFrom(data, 9, 8);
     if (d.length != 8) {
       waitForDataReject(d);
     } else {
       waitForDataSuccess(d);
     }
-  };
-  client.on("data", onData);
+  });
 
   //increment values of 2 firsts bytes of header
   outHeader.writeUInt16BE((outHeader.readUInt16BE(0) + 1) % 0XFFFF);
