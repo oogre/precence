@@ -118,5 +118,13 @@ class OBS extends _Tools.EventManager {
       sceneName: name
     });
   }
+  async close() {
+    return new Promise(async r => {
+      if (this.status != OBS.OBSStatus.OBS_WEBSOCKET_OUTPUT_STOPED) {
+        await this.obsController.call('StopRecord');
+        r();
+      }
+    });
+  }
 }
 exports.default = OBS;

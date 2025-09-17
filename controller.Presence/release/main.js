@@ -10,6 +10,7 @@ var _DMX = _interopRequireDefault(require("./DMX"));
 var _OBS = _interopRequireDefault(require("./OBS"));
 var _Tools = require("./common/Tools.js");
 var _Gamepad = _interopRequireDefault(require("./Gamepad"));
+var _Player = _interopRequireDefault(require("./Player"));
 var _Timeline = _interopRequireDefault(require("./Timeline"));
 var _Math = require("./common/Math.js");
 var _nodeFileDialog = _interopRequireDefault(require("node-file-dialog"));
@@ -41,6 +42,10 @@ const camera = new _PTZController.default({
 const obs = new _OBS.default({
   ..._config.default.OBS,
   log: _config.default.OBS.log ? (...data) => console.log(`OBS ${_config.default.OBS.name} : `, ...data) : () => {}
+});
+const player = new _Player.default({
+  ..._config.default.PLAYER,
+  log: _config.default.PLAYER.log ? (...data) => console.log(`PLAYER ${_config.default.CAMERA.name} : `, ...data) : () => {}
 });
 const ui = new _UI.default(window, gamepad, robots, camera, timeline, obs);
 
@@ -175,6 +180,7 @@ const ui = new _UI.default(window, gamepad, robots, camera, timeline, obs);
   });
   timeline.on("lastFrame", async () => {
     await obs.stopRecord();
+    await player.play("test");
     await Promise.all([camera.reset(), robots[0].reset(), robots[1].reset()]);
     // await pWait(1000);
     // await obs.changeScene("Scène 2");
@@ -288,6 +294,8 @@ const ui = new _UI.default(window, gamepad, robots, camera, timeline, obs);
 /* ON CLOSE */
 {
   const terminate = async () => {
+    await player.close();
+    await obs.close();
     await robots[0].close();
     await robots[1].close();
     await camera.close();

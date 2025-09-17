@@ -60,15 +60,16 @@ class ModBus extends _Tools.EventManager {
     }
   }
   async send(loop = true) {
-    const request = _nodeBuffer.Buffer.from([...this.out.data]);
-    this.log(`->`, request);
     try {
+      const request = _nodeBuffer.Buffer.from([...this.out.data]);
+      this.log(`->`, request);
       this.in.data = await (0, _tool.call)(this.client, request);
-      // const rec = {...this.out};
+      //const rec = {...this.out};
       // rec.get("SPEED").setValue(  )
 
-      console.log(this.in.get("SPEED").getRawValue());
-      this.isRecordMode && this.trigger("request");
+      //console.log(this.in.get("SPEED").getRawValue());
+
+      this.isRecordMode && this.trigger("request", request);
     } catch (error) {
       console.log("ERROROR ");
       console.log(error);
