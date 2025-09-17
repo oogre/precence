@@ -16,7 +16,7 @@ function _interopRequireDefault(e) { return e && e.__esModule ? e : { default: e
 class ModBus extends _Tools.EventManager {
   static ModBusStatus = new _enum.default(['STOPED', 'RUNNING', 'ERROR']);
   constructor(conf) {
-    super("ModBus", ["request"]);
+    super("ModBus", ["request", "connect"]);
     this.log = conf.log;
     this.lost = 0;
     this.DEFAULT_OUT = new _FHPP.FHPP_OUT();

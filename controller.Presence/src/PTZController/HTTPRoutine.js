@@ -6,7 +6,7 @@ import { call, httpCall } from './tools.js';
 
 export default class HTTPRoutine extends EventManager{
 	constructor(conf){
-		super("HTTPRoutine", ["request"]);
+		super("HTTPRoutine", ["request", "connect"]);
 		this.log = conf.log;
 		this.out = new RequestHolder(conf);
 		this.in = new RequestHolder(conf);

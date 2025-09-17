@@ -28,6 +28,9 @@ class PTZController extends _HTTPRoutine.default {
     this.out.get("PAN_TILT").data.params.pan.value = 0.5;
     this.out.get("PAN_TILT").data.params.tilt.value = 0.5;
     this._mode = PTZController.ChannelStatus.NONE;
+    setTimeout(() => {
+      this.conf.autoConnect && this.connect();
+    }, 1000);
   }
   get isError() {
     return this.conf.status == PTZController.CameraStatus.ERROR;
@@ -85,6 +88,7 @@ class PTZController extends _HTTPRoutine.default {
     this.conf.status = PTZController.CameraStatus.CONNECTING;
     super.connect(this.conf.host, this.conf.port, () => {
       this.conf.status = PTZController.CameraStatus.CONNECTED;
+      this.trigger("connect", "ok");
     }, error => {
       this.conf.status = PTZController.CameraStatus.ERROR;
     });

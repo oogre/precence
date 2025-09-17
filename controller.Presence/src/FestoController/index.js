@@ -32,6 +32,9 @@ export default class FestoController extends ModBus{
 		this._dest = 0;
 		this._goTo = false;
 		this._goHome = false;
+		setTimeout(()=>{
+			this.conf.autoConnect && this.connect()
+		}, 1000)
 	}
 
 	get isError(){
@@ -94,6 +97,7 @@ export default class FestoController extends ModBus{
 				await this.homing();	
 			}
 			this.conf.status = FestoController.RobotStatus.CONNECTED;
+			this.trigger("connect", "ok");
 		}catch(error){
 			console.log(error);
 			this.conf.status = FestoController.RobotStatus.ERROR;
@@ -122,12 +126,18 @@ export default class FestoController extends ModBus{
 	}
 	
 	async reset(){
+		if(!this.isConnected)
+			return;
+		
 		await this.goTo(this._zero);
 	}
 
 	async goTo(position){
 		this._goTo = Math.max(0, Math.min(Math.floor(position), this.conf.maxPos));
+		this.isPlayMode && this.send();
+		
 		while(Math.abs(this._goTo - this.in.get("POSITION").getRawValue()) > 0){
+			this.isPlayMode && this.send();
 			await wait(100);
 		}
 		this._goTo = false;

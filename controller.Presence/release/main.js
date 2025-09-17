@@ -39,6 +39,9 @@ const camera = new _PTZController.default({
   ..._config.default.CAMERA,
   log: _config.default.CAMERA.log ? (...data) => console.log(`CAMERA ${_config.default.CAMERA.name} : `, ...data) : () => {}
 });
+camera.on('connect', async () => {
+  await obs.changeScene("Scène");
+});
 const obs = new _OBS.default({
   ..._config.default.OBS,
   log: _config.default.OBS.log ? (...data) => console.log(`OBS ${_config.default.OBS.name} : `, ...data) : () => {}
@@ -63,8 +66,6 @@ const ui = new _UI.default(window, gamepad, robots, camera, timeline, obs);
     } else if (event.target == "camera") {
       if (event.eventName == "connection") {
         camera.connect();
-        await (0, _Tools.wait)(1000);
-        await obs.changeScene("Scène");
       } else if (event.eventName == "ZERO") {
         camera.setZero();
       }
@@ -76,11 +77,7 @@ const ui = new _UI.default(window, gamepad, robots, camera, timeline, obs);
         await obs.stopRecord();
       } else if (event.eventName == "PLAY") {
         await obs.playRecord();
-      }
-      // else if(event.eventName == "PAUSE"){
-      //     await obs.pauseRecord();
-      // }
-      else if (event.eventName == "load") {
+      } else if (event.eventName == "load") {
         (0, _nodeFileDialog.default)({
           type: 'open-file'
         }).then(([dir]) => {
@@ -106,22 +103,6 @@ const ui = new _UI.default(window, gamepad, robots, camera, timeline, obs);
       }
     }
   });
-}
-
-/* OBS CONTROL */
-{
-  obs.on("OBS_WEBSOCKET_OUTPUT_STARTED", () => {
-    timeline.start();
-  });
-  obs.on("OBS_WEBSOCKET_OUTPUT_STOPPED", () => {
-    //timeline.stop();
-  });
-  // obs.on("OBS_WEBSOCKET_OUTPUT_PAUSED", ()=>{
-  //     timeline.pause();
-  // });
-  // obs.on("OBS_WEBSOCKET_OUTPUT_RESUMED", ()=>{
-  //     timeline.start();
-  // });
 }
 
 /* timeline CONTROL */
@@ -180,15 +161,17 @@ const ui = new _UI.default(window, gamepad, robots, camera, timeline, obs);
   timeline.on("lastFrame", async () => {
     await obs.stopRecord();
     await player.play("test");
-    await Promise.all([camera.reset(), robots[0].reset(), robots[1].reset()]);
-    // await wait(1000);
-    // await obs.changeScene("Scène 2");
-    // await wait(1000);
     timeline._hasToRun = false;
     timeline.cursorAt = 0;
-    // await obs.changeScene("Scène");
-    // await wait(1000);
     await (0, _Tools.wait)(1000);
+    await Promise.all([camera.reset(), robots[0].reset(), robots[1].reset()]);
+    // // await wait(1000);
+    // // await obs.changeScene("Scène 2");
+    // // await wait(1000);
+    // // await obs.changeScene("Scène");
+    // // await wait(1000);
+    // await wait(2000);
+
     await obs.startRecord();
     // 
     // await wait(5000);
@@ -200,6 +183,16 @@ const ui = new _UI.default(window, gamepad, robots, camera, timeline, obs);
     //     await obs.startRecord();
     //     await wait(1000);    
     // }
+  });
+}
+
+/* OBS CONTROL */
+{
+  obs.on("OBS_WEBSOCKET_OUTPUT_STARTED", () => {
+    timeline.start();
+  });
+  obs.on("OBS_WEBSOCKET_OUTPUT_STOPPED", () => {
+    //timeline.stop();
   });
 }
 

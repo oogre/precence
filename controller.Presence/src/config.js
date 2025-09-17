@@ -10,12 +10,13 @@ const {
     ROBT_X_TIMEOUT,
     ROBT_X_MAX_SPEED,
     ROBT_X_REVERSE_CTRL,
-    
+    ROBT_X_AUTOCONNECT,
     ROBT_Y_LOG,
     ROBT_Y_HOST,
     ROBT_Y_TIMEOUT,
     ROBT_Y_MAX_SPEED,
     ROBT_Y_REVERSE_CTRL,
+    ROBT_Y_AUTOCONNECT,
     TITLE,
     TIMELINE_DURATION,
     TIMELINE_REC_FILE,
@@ -27,6 +28,7 @@ const {
     CAME_TILT_MAX_SPEED,
     CAME_PAN_REVERSE_CTRL,
     CAME_TILT_REVERSE_CTRL,
+    CAME_AUTOCONNECT,
     OBS_HOST,
     OBS_LOG,
     TIMELINE_LOG,
@@ -53,6 +55,7 @@ export default {
     reverseCtrl : 1 == parseInt(ROBT_X_REVERSE_CTRL)? -1 : 1,
     log : parseInt(ROBT_X_LOG),
     timeout : parseInt(ROBT_X_TIMEOUT),
+    autoConnect : ROBT_X_AUTOCONNECT
   },{
     name : "Vertical",
     host : ROBT_Y_HOST.split(":")[0],
@@ -62,6 +65,7 @@ export default {
     reverseCtrl : 1 == parseInt(ROBT_Y_REVERSE_CTRL)? -1 : 1,
     log : parseInt(ROBT_Y_LOG),
     timeout : parseInt(ROBT_Y_TIMEOUT),
+    autoConnect : ROBT_Y_AUTOCONNECT
   }],
   CAMERA : {
     name : "AW-UE100",
@@ -71,7 +75,8 @@ export default {
     panReverseCtrl : 1 == parseInt(CAME_PAN_REVERSE_CTRL),
     tiltMaxSpeed : parseFloat(CAME_TILT_MAX_SPEED),
     tiltReverseCtrl : 1 == parseInt(CAME_TILT_REVERSE_CTRL),
-    log : parseInt(CAME_LOG)
+    log : parseInt(CAME_LOG),
+    autoConnect : CAME_AUTOCONNECT
   },
   DMX : {
     name : "LanBox LCE",

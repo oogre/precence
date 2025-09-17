@@ -12,7 +12,7 @@ export default class ModBus extends EventManager{
 	static ModBusStatus = new Enum(['STOPED', 'RUNNING', 'ERROR']);
 	
 	constructor(conf){
-		super("ModBus", ["request"])
+		super("ModBus", ["request", "connect"])
 		this.log = conf.log;
 		this.lost = 0;
 		this.DEFAULT_OUT = new FHPP_OUT();

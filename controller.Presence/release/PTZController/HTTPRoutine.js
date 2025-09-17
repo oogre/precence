@@ -10,7 +10,7 @@ var _tools = require("./tools.js");
 function _interopRequireDefault(e) { return e && e.__esModule ? e : { default: e }; }
 class HTTPRoutine extends _Tools.EventManager {
   constructor(conf) {
-    super("HTTPRoutine", ["request"]);
+    super("HTTPRoutine", ["request", "connect"]);
     this.log = conf.log;
     this.out = new _RequestHolder.default(conf);
     this.in = new _RequestHolder.default(conf);
