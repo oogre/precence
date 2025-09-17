@@ -150,10 +150,10 @@ const ui = new _UI.default(window, gamepad, robots, camera, timeline, obs);
   }) => {
     switch (eventDesc) {
       case 0:
-        robots[0].isConnected && robots[0].inject(Buffer.from(value));
+        robots[0].isConnected && robots[0].inject(value);
         break;
       case 1:
-        robots[1].isConnected && robots[1].inject(Buffer.from(value));
+        robots[1].isConnected && robots[1].inject(value);
         break;
       case 2:
         camera.isConnected && camera.inject(value);

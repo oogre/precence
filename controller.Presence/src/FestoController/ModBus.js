@@ -106,8 +106,8 @@ export default class ModBus extends EventManager{
 			this.in.data = await call(this.client, request.data);
 			await wait(30);
 
-			_TRIG_("START");
-			_TRIG_("HOME");
+			await this._TRIG_("START", request);
+			await this._TRIG_("HOME", request);
 						
 			this.isPolling && this.send();
 		}catch(error){
@@ -116,7 +116,7 @@ export default class ModBus extends EventManager{
 		}
 	}
 
-	_TRIG_(name){
+	async _TRIG_(name, request){
 		if(!(name == "START" || name == "HOME"))
 			return;
 

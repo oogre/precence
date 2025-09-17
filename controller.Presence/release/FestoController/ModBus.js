@@ -90,35 +90,28 @@ class ModBus extends _Tools.EventManager {
       this.isRecordMode && hasToRec && this.trigger("request", [...request.data]);
       this.in.data = await (0, _tool.call)(this.client, request.data);
       await (0, _Tools.wait)(30);
-      if (request.get("START").getValue()) {
-        while (this.in.get("ACK").getValue() != 1) {
-          this.log("~>", request.data);
-          this.in.data = await (0, _tool.call)(this.client, request.data);
-          await (0, _Tools.wait)(5);
-        }
-        request.get("START").toggle();
-        while (this.in.get("ACK").getValue() != 0) {
-          this.log("•>", request.data);
-          this.in.data = await (0, _tool.call)(this.client, request.data);
-          await (0, _Tools.wait)(5);
-        }
-      } else if (request.get("HOME").getValue()) {
-        while (this.in.get("ACK").getValue() != 1) {
-          this.log("~>", request.data);
-          this.in.data = await (0, _tool.call)(this.client, request.data);
-          await (0, _Tools.wait)(5);
-        }
-        request.get("HOME").toggle();
-        while (this.in.get("ACK").getValue() != 0) {
-          this.log("•>", request.data);
-          this.in.data = await (0, _tool.call)(this.client, request.data);
-          await (0, _Tools.wait)(5);
-        }
-      }
+      await this._TRIG_("START", request);
+      await this._TRIG_("HOME", request);
       this.isPolling && this.send();
     } catch (error) {
       console.log("ERROROR ");
       console.log(error, request.data);
+    }
+  }
+  async _TRIG_(name, request) {
+    if (!(name == "START" || name == "HOME")) return;
+    if (request.get(name).getValue()) {
+      while (this.in.get("ACK").getValue() != 1) {
+        this.log("~>", request.data);
+        this.in.data = await (0, _tool.call)(this.client, request.data);
+        await (0, _Tools.wait)(5);
+      }
+      request.get(name).toggle();
+      while (this.in.get("ACK").getValue() != 0) {
+        this.log("•>", request.data);
+        this.in.data = await (0, _tool.call)(this.client, request.data);
+        await (0, _Tools.wait)(5);
+      }
     }
   }
   close() {
