@@ -1,0 +1,24 @@
+ 
+ 
+ 
+#################################### 
+#################################### 
+#################################### 
+RUN LAUNCH AT 22/09/2025 17:36:44,21
+#################################### 
+#################################### 
+#################################### 
+192.168.0.21 502
+192.168.0.20 502
+C:\Users\Presence\Desktop\presence\controller.Presence\node_modules\obs-websocket-js\dist\chunk-RL7MGYX4.cjs:150
+      throw new OBSWebSocketError(requestStatus.code, requestStatus.comment);
+            ^
+
+OBSWebSocketError
+    at _class.call (C:\Users\Presence\Desktop\presence\controller.Presence\node_modules\obs-websocket-js\dist\chunk-RL7MGYX4.cjs:150:13)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async C:\Users\Presence\Desktop\presence\controller.Presence\release\OBS\index.js:124:9 {
+  code: 501
+}
+
+Node.js v22.19.0
