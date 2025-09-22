@@ -93,9 +93,9 @@ export default class FestoController extends ModBus{
 			this.startPolling();
 			await wait(100);
 
-			if(!this.isReferenced){
-				await this.homing();	
-			}
+			// if(!this.isReferenced){
+			await this.homing();	
+			// }
 			this.conf.status = FestoController.RobotStatus.CONNECTED;
 			this.trigger("connect", "ok");
 		}catch(error){
