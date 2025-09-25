@@ -4,26 +4,35 @@ import processing.video.*;
 import java.io.File;
 import java.io.FilenameFilter;
 
-Movie movie;
+Movie A;
+Movie B;
+boolean flag = true;
 OscP5 oscP5;
 
 File currentMovieFile;
 File folder;
 void setup() {
-  size(1920, 1080);
-  folder = new File(sketchPath("../rec"));
+  fullScreen(P3D);
+  folder = new File("C:/Users/Presence/Desktop/presence/movies");
   cleanOldVideos();
   oscP5 = new OscP5(this, 8080);
   background(0);
 }
 
 void draw() {
-  if (null != movie) {
-    image(movie, 0, 0, width, height);
+  if (flag) {
+    if (null != A) {
+      image(A, 0, 0, width, height);
+    }
+  } else {
+    if (null != B) {
+      image(B, 0, 0, width, height);
+    }
   }
 }
 
 void oscEvent(OscMessage theOscMessage) {
+  flag = !flag;
   if (theOscMessage.checkAddrPattern("/play")) {
     if (theOscMessage.checkTypetag("s")) {
       loadLastVideo();
@@ -35,14 +44,25 @@ void oscEvent(OscMessage theOscMessage) {
 }
 
 void loadLastVideo() {
-  if (null != currentMovieFile) {
-    movie.stop();
-    movie = null;
-    currentMovieFile.delete();
+  if (!flag) {
+    if (null != currentMovieFile) {
+      A.stop();
+      A = null;
+      currentMovieFile.delete();
+    }
+    currentMovieFile = getVideos()[0];
+    B = new Movie(this, currentMovieFile.getAbsolutePath());
+    B.loop();
+  } else {
+    if (null != currentMovieFile) {
+      B.stop();
+      B = null;
+      currentMovieFile.delete();
+    }
+    currentMovieFile = getVideos()[0];
+    A = new Movie(this, currentMovieFile.getAbsolutePath());
+    A.loop();
   }
-  currentMovieFile = getVideos()[0];
-  movie = new Movie(this, currentMovieFile.getAbsolutePath());
-  movie.loop();
 }
 
 

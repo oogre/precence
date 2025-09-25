@@ -24,6 +24,12 @@ export default class PTZController extends HTTPRoutine {
 
 		this._mode = PTZController.ChannelStatus.NONE;
 
+		this.isReady = new Promise(resolve=>{
+			this.trigReady = resolve
+		});
+		this.on("ready", ()=>{
+			this.trigReady()
+		});
 		setTimeout(()=>{
 			this.conf.autoConnect && this.connect()
 		}, 1000);

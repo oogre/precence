@@ -24,4 +24,6 @@ node_modules/*
 
 .env
 
-movies/rec/*
+*.mp4
+
+*.log

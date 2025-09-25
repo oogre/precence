@@ -28,6 +28,12 @@ class FestoController extends _ModBus.default {
     this.DEFAULT_OUT.get("SPEED").maximum = this.conf.maxSpeed;
     this._zero = 0;
     this._mode = FestoController.ChannelStatus.NONE;
+    this.isReady = new Promise(resolve => {
+      this.trigReady = resolve;
+    });
+    this.on("ready", () => {
+      this.trigReady();
+    });
     this._speed = 0;
     this._dest = 0;
     this._goTo = false;
@@ -86,11 +92,14 @@ class FestoController extends _ModBus.default {
       });
       this.startPolling();
       await (0, _Tools.wait)(100);
-      if (!this.isReferenced) {
+      if (this.conf.autoHome) {
         await this.homing();
       }
       this.conf.status = FestoController.RobotStatus.CONNECTED;
       this.trigger("connect", "ok");
+      if (!this.conf.autoHome) {
+        this.trigger("ready");
+      }
     } catch (error) {
       console.log(error);
       this.conf.status = FestoController.RobotStatus.ERROR;
@@ -114,6 +123,7 @@ class FestoController extends _ModBus.default {
         break;
       }
     }
+    this.trigger("ready");
   }
   async reset() {
     if (!this.isConnected) return;

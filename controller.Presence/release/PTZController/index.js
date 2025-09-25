@@ -28,6 +28,12 @@ class PTZController extends _HTTPRoutine.default {
     this.out.get("PAN_TILT").data.params.pan.value = 0.5;
     this.out.get("PAN_TILT").data.params.tilt.value = 0.5;
     this._mode = PTZController.ChannelStatus.NONE;
+    this.isReady = new Promise(resolve => {
+      this.trigReady = resolve;
+    });
+    this.on("ready", () => {
+      this.trigReady();
+    });
     setTimeout(() => {
       this.conf.autoConnect && this.connect();
     }, 1000);

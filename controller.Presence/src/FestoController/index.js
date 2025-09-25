@@ -28,6 +28,13 @@ export default class FestoController extends ModBus{
 		this._zero = 0;
 		this._mode = FestoController.ChannelStatus.NONE;
 
+		this.isReady = new Promise(resolve=>{
+			this.trigReady = resolve
+		});
+		this.on("ready", ()=>{
+			this.trigReady()
+		});
+
 		this._speed = 0;
 		this._dest = 0;
 		this._goTo = false;
@@ -93,11 +100,14 @@ export default class FestoController extends ModBus{
 			this.startPolling();
 			await wait(100);
 
-			// if(!this.isReferenced){
-			await this.homing();	
-			// }
+			if(this.conf.autoHome){
+				await this.homing();	
+			}
 			this.conf.status = FestoController.RobotStatus.CONNECTED;
 			this.trigger("connect", "ok");
+			if(!this.conf.autoHome){
+				this.trigger("ready");
+			}
 		}catch(error){
 			console.log(error);
 			this.conf.status = FestoController.RobotStatus.ERROR;
@@ -123,6 +133,7 @@ export default class FestoController extends ModBus{
 				break;
 			}
 		}
+		this.trigger("ready");
 	}
 	
 	async reset(){

@@ -41,6 +41,8 @@ const camera = new _PTZController.default({
 });
 camera.on('connect', async () => {
   await obs.changeScene("Scène");
+  await (0, _Tools.wait)(1000);
+  camera.trigger("ready");
 });
 const obs = new _OBS.default({
   ..._config.default.OBS,
@@ -75,8 +77,6 @@ const ui = new _UI.default(window, gamepad, robots, camera, timeline, obs);
       } else if (event.eventName == "STOP") {
         timeline.stop();
         await obs.stopRecord();
-      } else if (event.eventName == "PLAY") {
-        await obs.playRecord();
       } else if (event.eventName == "load") {
         (0, _nodeFileDialog.default)({
           type: 'open-file'
@@ -159,30 +159,17 @@ const ui = new _UI.default(window, gamepad, robots, camera, timeline, obs);
     timeline.stop();
   });
   timeline.on("lastFrame", async () => {
+    await obs.changeScene("Black");
+    await (0, _Tools.wait)(5000);
     await obs.stopRecord();
-    await player.play("test");
     timeline._hasToRun = false;
     timeline.cursorAt = 0;
     await (0, _Tools.wait)(1000);
     await Promise.all([camera.reset(), robots[0].reset(), robots[1].reset()]);
-    // // await wait(1000);
-    // // await obs.changeScene("Scène 2");
-    // // await wait(1000);
-    // // await obs.changeScene("Scène");
-    // // await wait(1000);
-    // await wait(2000);
-
+    await (0, _Tools.wait)(1000);
+    await player.play("play");
+    await obs.changeScene("Scène");
     await obs.startRecord();
-    // 
-    // await wait(5000);
-    // await obs.changeScene("Scène");
-    // await wait(500);
-    // await Promise.all([camera.reset(), robots[0].reset(), robots[1].reset()]);
-    // await wait(1000);
-    // if(!timeline.isRecordingMode()){
-    //     await obs.startRecord();
-    //     await wait(1000);    
-    // }
   });
 }
 
@@ -281,6 +268,32 @@ const ui = new _UI.default(window, gamepad, robots, camera, timeline, obs);
   //         obs.toggleRecord();
   //     }
   // });
+}
+
+/* ON EVERYTHING IS READY */
+{
+  Promise.all([robots[0].isReady, robots[1].isReady, camera.isReady]).then(async () => {
+    console.log("OK TO GO");
+    if (_config.default.APP.autoPlay) {
+      timeline.channels = JSON.parse(_nodeFs.default.readFileSync(_config.default.APP.perfFile, "utf8")).map(item => {
+        if (item.name == "ROBOT X") {
+          item.target = robots[0];
+        } else if (item.name == "ROBOT Y") {
+          item.target = robots[1];
+        } else {
+          item.target = camera;
+        }
+        return item;
+      });
+      const chan = timeline.channels.map(({
+        target
+      }) => target.nextMode());
+      await (0, _Tools.wait)(1000);
+      await Promise.all([camera.reset(), robots[0].reset(), robots[1].reset()]);
+      await (0, _Tools.wait)(1000);
+      await obs.startRecord();
+    }
+  });
 }
 
 /* ON CLOSE */

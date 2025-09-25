@@ -17,15 +17,16 @@ const {
   ROBT_X_MAX_SPEED,
   ROBT_X_REVERSE_CTRL,
   ROBT_X_AUTOCONNECT,
+  ROBT_X_AUTO_HOME,
   ROBT_Y_LOG,
   ROBT_Y_HOST,
   ROBT_Y_TIMEOUT,
   ROBT_Y_MAX_SPEED,
   ROBT_Y_REVERSE_CTRL,
   ROBT_Y_AUTOCONNECT,
+  ROBT_Y_AUTO_HOME,
   TITLE,
   TIMELINE_DURATION,
-  TIMELINE_REC_FILE,
   UI_WIDTH,
   UI_HEIGHT,
   CAME_HOST,
@@ -39,7 +40,9 @@ const {
   OBS_LOG,
   TIMELINE_LOG,
   PLAYER_HOST,
-  PLAYER_LOG
+  PLAYER_LOG,
+  AUTO_PLAY,
+  PERFO_FILE
 } = _dotenv.default.config().parsed;
 var _default = exports.default = {
   window: {
@@ -60,7 +63,8 @@ var _default = exports.default = {
     reverseCtrl: 1 == parseInt(ROBT_X_REVERSE_CTRL) ? -1 : 1,
     log: parseInt(ROBT_X_LOG),
     timeout: parseInt(ROBT_X_TIMEOUT),
-    autoConnect: ROBT_X_AUTOCONNECT
+    autoConnect: parseInt(ROBT_X_AUTOCONNECT),
+    autoHome: parseInt(ROBT_X_AUTO_HOME)
   }, {
     name: "Vertical",
     host: ROBT_Y_HOST.split(":")[0],
@@ -70,7 +74,8 @@ var _default = exports.default = {
     reverseCtrl: 1 == parseInt(ROBT_Y_REVERSE_CTRL) ? -1 : 1,
     log: parseInt(ROBT_Y_LOG),
     timeout: parseInt(ROBT_Y_TIMEOUT),
-    autoConnect: ROBT_Y_AUTOCONNECT
+    autoConnect: parseInt(ROBT_Y_AUTOCONNECT),
+    autoHome: parseInt(ROBT_Y_AUTO_HOME)
   }],
   CAMERA: {
     name: "AW-UE100",
@@ -98,12 +103,15 @@ var _default = exports.default = {
   TIMELINE: {
     name: "REC",
     log: parseInt(TIMELINE_LOG),
-    duration: parseInt(TIMELINE_DURATION),
-    recFile: TIMELINE_REC_FILE
+    duration: parseInt(TIMELINE_DURATION)
   },
   PLAYER: {
     log: parseInt(PLAYER_LOG),
     host: PLAYER_HOST.split(":")[0],
     port: parseInt(PLAYER_HOST.split(":")[1])
+  },
+  APP: {
+    autoPlay: parseInt(AUTO_PLAY),
+    perfFile: PERFO_FILE
   }
 };
