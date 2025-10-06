@@ -27,3 +27,5 @@ node_modules/*
 *.mp4
 
 *.log
+
+movies/player/windows-amd64/*

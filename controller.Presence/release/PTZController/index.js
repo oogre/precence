@@ -145,7 +145,7 @@ class PTZController extends _HTTPRoutine.default {
     const oPan = this.out.get("PAN_TILT").data.params.pan.value;
     const oTilt = this.out.get("PAN_TILT").data.params.tilt.value;
     const z = this.in.get("GET_PAN_TILT_ZOOM_FOCUS_IRIS").data.params.zoom.value;
-    const amp = (0, _Math.lerp)(this.conf.panMaxSpeed, 0.2, Math.pow(z, 0.5));
+    const amp = (0, _Math.lerp)(this.conf.panMaxSpeed, 0.3, Math.pow(z, 0.75));
     this.out.get("PAN_TILT").data.params.pan.amp = amp;
     this.out.get("PAN_TILT").data.params.tilt.amp = amp;
     const nPan = converter(pan);
@@ -165,13 +165,14 @@ class PTZController extends _HTTPRoutine.default {
   setZoom(value) {
     const oValue = this.out.get("ZOOM").data.params.zoom.value;
     const z = this.in.get("GET_PAN_TILT_ZOOM_FOCUS_IRIS").data.params.zoom.value;
-    const amp = (0, _Math.lerp)(this.conf.panMaxSpeed, 0.2, Math.pow(z, 0.5));
+    const amp = (0, _Math.lerp)(this.conf.panMaxSpeed, 0.3, Math.pow(z, 0.75));
     this.out.get("PAN_TILT").data.params.pan.amp = amp;
     this.out.get("PAN_TILT").data.params.tilt.amp = amp;
     const nValue = converter(value);
     if (oValue != nValue) {
       this.out.get("ZOOM").data.params.zoom.value = nValue;
       this.addRequest(this.out.get("ZOOM"));
+      this.addRequest(this.out.get("PAN_TILT"));
     }
   }
   setFocus(value) {
