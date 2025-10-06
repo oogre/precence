@@ -4,9 +4,25 @@ import { Client as OSC_Client } from 'node-osc';
 
 
 import { 
-	connectInput as MidiInConnect
+	connectOutput as MidiOutConnect,
+	connectInput as MidiInConnect,
+	sendCC as MidiSendCC,
 } from './Midi/MidiTools.js';
 
+
+const knobs = [{
+	name : "pos",
+	value : 0,
+},{
+	name : "amp",
+	value : 0
+},{
+	name : "min",
+	value : 0
+},{
+	name : "max",
+	value : 0
+}];
 
 
 export default class LightController extends EventManager {
@@ -18,11 +34,17 @@ export default class LightController extends EventManager {
 		this.conf.status = LightController.LightStatus.NOT_CONNECTED;
 		this.oscClient = new OSC_Client(conf.host, conf.port);
 
-		console.log(conf);
-		
+		this.displayInterface = MidiOutConnect(midiName);
 		this.midiInterface = MidiInConnect(conf.name);
 		this.midiInterface.onCC((channel, number, value, deltaTime)=>{
-			console.log(channel, number, value);
+			if(!knobs[number]){
+				return;
+			}
+			console.log(knobs[number]);
+			
+			knobs[number].value += value - 64
+			knobs[number].value = Math.min(128, Math.max(0, knobs[number].value));
+			MidiSendCC(this.displayInterface, 0, number, knobs[number].value);
 		});
 
 
