@@ -13,7 +13,7 @@ export default class LightController extends EventManager {
 	static LightStatus = new Enum(['NOT_CONNECTED', "CONNECTING", "CONNECTED", 'ERROR']);
 	
 	constructor(conf){
-		super(conf);
+		super("LightController", ["request", "connect", "ready"]);
 		this.conf = conf;
 		this.conf.status = LightController.LightStatus.NOT_CONNECTED;
 		this.oscClient = new OSC_Client(conf.host, conf.port);
