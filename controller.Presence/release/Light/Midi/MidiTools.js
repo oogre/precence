@@ -16,10 +16,7 @@ function _interopRequireDefault(e) { return e && e.__esModule ? e : { default: e
 const midiDevices = {};
 const getID = midiName => {
   const findIdFor = (devices, name) => {
-    return new Array(devices.getPortCount()).fill(0).map((_, id) => devices.getPortName(id)).map(e => {
-      console.log(e);
-      return e;
-    }).findIndex(value => name == value);
+    return new Array(devices.getPortCount()).fill(0).map((_, id) => devices.getPortName(id)).findIndex(value => name == value);
   };
   return [findIdFor(new _midi.default.Input(), midiName), findIdFor(new _midi.default.Output(), midiName)];
 };
@@ -29,8 +26,8 @@ const connectOutput = midiName => {
   const device = new _midi.default.Output();
   const [_, outID] = getID(midiName);
   if (outID < 0) {
-    device.openVirtualPort(midiName);
-    console.log(`MIDI_DEVICE_OUT (${midiName}) not found => go virtual`);
+    //device.openVirtualPort(midiName);
+    throw new Error(`MIDI_DEVICE_OUT (${midiName}) not found => go virtual`);
   } else {
     device.openPort(outID);
   }
@@ -44,8 +41,8 @@ const connectInput = midiName => {
   const device = new _midi.default.Input();
   const [inID, _] = getID(midiName);
   if (inID < 0) {
-    device.openVirtualPort(midiName);
-    console.log(`MIDI_DEVICE_IN (${midiName}) not found => go virtual`);
+    // device.openVirtualPort(midiName);
+    throw new Error(`MIDI_DEVICE_IN (${midiName}) not found => go virtual`);
   } else {
     device.openPort(inID);
   }

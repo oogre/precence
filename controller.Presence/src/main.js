@@ -176,6 +176,7 @@ const ui = new UI(window, gamepad, robots, camera, timeline, obs);
                 camera.isConnected && camera.inject(value);
             break;
             case 3 :
+                console.log(light, value);
                 light.isConnected && light.inject(value);
             break;
         }
