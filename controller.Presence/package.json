@@ -24,6 +24,6 @@
     "node-file-dialog": "^1.0.3",
     "node-osc": "^11.0.0",
     "obs-websocket-js": "^5.0.6",
-    "precision-timeout-interval": "^4.3.0"
+    "midi": "^2.0.0"
   }
 }

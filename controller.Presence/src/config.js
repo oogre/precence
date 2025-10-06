@@ -3,8 +3,9 @@ import dotenv from 'dotenv';
 const {
     CTRL_NAME,
     CTRL_LOG,
-    DMX_HOST,
-    DMX_LOG,
+    LIGHT_HOST,
+    LIGHT_LOG,
+    LIGHT_MIDI_DEVICE_NAME,
     ROBT_X_LOG,
     ROBT_X_HOST,
     ROBT_X_TIMEOUT,
@@ -83,11 +84,11 @@ export default {
     log : parseInt(CAME_LOG),
     autoConnect : CAME_AUTOCONNECT
   },
-  DMX : {
-    name : "LanBox LCE",
-    host : DMX_HOST.split(":")[0],
-    port : parseInt(DMX_HOST.split(":")[1]),
-    log : parseInt(DMX_LOG)
+  LIGHT : {
+    name : LIGHT_MIDI_DEVICE_NAME,
+    host : LIGHT_HOST.split(":")[0],
+    port : parseInt(LIGHT_HOST.split(":")[1]),
+    log : parseInt(LIGHT_LOG)
   },
   OBS : {
     name : "OBS",

@@ -5,7 +5,7 @@ import UI from "./UI";
 import config from "./config.js";
 import PTZController from "./PTZController";
 import FestoController from "./FestoController";
-import DMX from "./DMX";
+import Light from "./Light";
 import OBS from "./OBS";
 import {wait} from "./common/Tools.js";
 import Gamepad from "./Gamepad";
@@ -40,7 +40,6 @@ const robots = [
     })
 ];
 
-
 const camera = new PTZController({
     ...config.CAMERA, 
     log : config.CAMERA.log ? (...data)=>console.log(`CAMERA ${config.CAMERA.name} : `, ...data) : ()=>{}
@@ -60,7 +59,14 @@ const obs = new OBS({
 const player = new Player({
     ...config.PLAYER, 
     log : config.PLAYER.log ? (...data)=>console.log(`PLAYER ${config.CAMERA.name} : `, ...data) : ()=>{}
-})
+});
+
+const light = new LightController({
+    ...config.LIGHT, 
+    log : config.LIGHT.log ? (...data)=>console.log(`LIGHT ${config.LIGHT.name} : `, ...data) : ()=>{}
+});
+
+
 
 const ui = new UI(window, gamepad, robots, camera, timeline, obs);
 
