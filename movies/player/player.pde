@@ -17,6 +17,7 @@ void setup() {
   cleanOldVideos();
   oscP5 = new OscP5(this, 8080);
   background(0);
+  noCursor();
 }
 
 void draw() {
