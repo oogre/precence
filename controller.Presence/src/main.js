@@ -151,6 +151,16 @@ const ui = new UI(window, gamepad, robots, camera, timeline, obs);
                                     zoom : 0, 
                                     iris : 0
                                 }
+                            },
+                            {
+                                name : "LIGHT",
+                                target : light,
+                                zero : {
+                                    pos : 64, 
+                                    amp : 27, 
+                                    min : 0, 
+                                    max : 127
+                                }
                             }
                         ];
 
@@ -165,12 +175,12 @@ const ui = new UI(window, gamepad, robots, camera, timeline, obs);
             case 2 :
                 camera.isConnected && camera.inject(value);
             break;
+            case 3 :
+                light.isConnected && light.inject(value);
+            break;
         }
     });
-    camera.on("request", event=>{
-        if(!timeline.isRecording)return;
-        timeline.rec(2, event);
-    });
+   
 
     robots[0].on("request", event=>{
         if(!timeline.isRecording)return;
@@ -181,6 +191,16 @@ const ui = new UI(window, gamepad, robots, camera, timeline, obs);
     robots[1].on("request", event=>{
         if(!timeline.isRecording)return;
         timeline.rec(1, event);
+    });
+
+    camera.on("request", event=>{
+        if(!timeline.isRecording)return;
+        timeline.rec(2, event);
+    });
+
+    light.on("request", event=>{
+        if(!timeline.isRecording)return;
+        timeline.rec(3, event);
     });
 
     timeline.on("endRecord", async ()=>{

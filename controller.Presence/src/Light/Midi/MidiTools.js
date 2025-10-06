@@ -14,10 +14,6 @@ export const getID = (midiName) => {
   const findIdFor = (devices, name)=>{
   	return new Array(devices.getPortCount()).fill(0)
   			.map((_, id)=>devices.getPortName(id))
-        .map((e)=>{
-          console.log(e);
-          return e;
-        })
   			.findIndex(value => name == value);
   }
   return [
@@ -34,8 +30,8 @@ export const connectOutput = (midiName)=>{
   const [_, outID] = getID(midiName);
 
   if(outID < 0){
-    device.openVirtualPort(midiName);
-    console.log(`MIDI_DEVICE_OUT (${midiName}) not found => go virtual`) ;
+    //device.openVirtualPort(midiName);
+    throw new Error(`MIDI_DEVICE_OUT (${midiName}) not found => go virtual`) ;
   }else{
     device.openPort(outID);  
   }
@@ -49,8 +45,8 @@ export const connectInput = (midiName)=>{
   const [inID, _] = getID(midiName);
   
   if(inID < 0){
-    device.openVirtualPort(midiName);
-    console.log(`MIDI_DEVICE_IN (${midiName}) not found => go virtual`) ;
+    // device.openVirtualPort(midiName);
+    throw new Error(`MIDI_DEVICE_IN (${midiName}) not found => go virtual`) ;
   }else{
     device.openPort(inID);  
   }
