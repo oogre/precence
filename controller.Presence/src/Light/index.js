@@ -18,7 +18,7 @@ export default class LightController extends EventManager {
 		this.conf.status = LightController.LightStatus.NOT_CONNECTED;
 		this.oscClient = new OSC_Client(conf.host, conf.port);
 
-		console.log("conf.name", conf.name);
+		console.log(conf);
 		
 		this.midiInterface = MidiInConnect(conf.name);
 		this.midiInterface.onCC((channel, number, value, deltaTime)=>{
