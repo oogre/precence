@@ -5,7 +5,7 @@ import UI from "./UI";
 import config from "./config.js";
 import PTZController from "./PTZController";
 import FestoController from "./FestoController";
-import Light from "./Light";
+import LightController from "./Light";
 import OBS from "./OBS";
 import {wait} from "./common/Tools.js";
 import Gamepad from "./Gamepad";
