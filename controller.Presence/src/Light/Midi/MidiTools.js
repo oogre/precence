@@ -14,6 +14,10 @@ export const getID = (midiName) => {
   const findIdFor = (devices, name)=>{
   	return new Array(devices.getPortCount()).fill(0)
   			.map((_, id)=>devices.getPortName(id))
+        .map((e)=>{
+          console.log(e);
+          return e;
+        })
   			.findIndex(value => name == value);
   }
   return [
