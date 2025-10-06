@@ -12,16 +12,16 @@ import {
 
 const knobs = [{
 	name : "pos",
-	value : 0,
+	value : 64,
 },{
 	name : "amp",
-	value : 0
+	value : 27
 },{
 	name : "min",
-	value : 0
+	value : 1
 },{
 	name : "max",
-	value : 0
+	value : 127
 }];
 
 
