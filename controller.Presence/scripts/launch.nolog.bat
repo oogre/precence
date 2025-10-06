@@ -2,21 +2,21 @@
 
 
 
-call waitForDevices.bat
+REM call waitForDevices.bat
 
-tasklist /FI "IMAGENAME eq obs64.exe" 2>NUL | find /I /N "obs64.exe">NUL
+REM tasklist /FI "IMAGENAME eq obs64.exe" 2>NUL | find /I /N "obs64.exe">NUL
 
-IF NOT "%ERRORLEVEL%" == "0"  (
-    start "" \  obs64.exe.lnk
-    timeout /t 10 /nobreak
-)
+REM IF NOT "%ERRORLEVEL%" == "0"  (
+REM     start "" \  obs64.exe.lnk
+REM     timeout /t 10 /nobreak
+REM )
 
-tasklist /FI "IMAGENAME eq player.exe" 2>NUL | find /I /N "player.exe">NUL
+REM tasklist /FI "IMAGENAME eq player.exe" 2>NUL | find /I /N "player.exe">NUL
 
-IF NOT "%ERRORLEVEL%" == "0"  (
-    start "" player.exe.lnk
-    timeout /t 10 /nobreak
-)
+REM IF NOT "%ERRORLEVEL%" == "0"  (
+REM     start "" player.exe.lnk
+REM     timeout /t 10 /nobreak
+REM )
 
 cd ../
 

@@ -6,7 +6,7 @@ var _UI = _interopRequireDefault(require("./UI"));
 var _config = _interopRequireDefault(require("./config.js"));
 var _PTZController = _interopRequireDefault(require("./PTZController"));
 var _FestoController = _interopRequireDefault(require("./FestoController"));
-var _DMX = _interopRequireDefault(require("./DMX"));
+var _Light = _interopRequireDefault(require("./Light"));
 var _OBS = _interopRequireDefault(require("./OBS"));
 var _Tools = require("./common/Tools.js");
 var _Gamepad = _interopRequireDefault(require("./Gamepad"));
@@ -51,6 +51,10 @@ const obs = new _OBS.default({
 const player = new _Player.default({
   ..._config.default.PLAYER,
   log: _config.default.PLAYER.log ? (...data) => console.log(`PLAYER ${_config.default.CAMERA.name} : `, ...data) : () => {}
+});
+const light = new _Light.default({
+  ..._config.default.LIGHT,
+  log: _config.default.LIGHT.log ? (...data) => console.log(`LIGHT ${_config.default.LIGHT.name} : `, ...data) : () => {}
 });
 const ui = new _UI.default(window, gamepad, robots, camera, timeline, obs);
 
