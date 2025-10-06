@@ -200,7 +200,7 @@
             "dmxPro": {
               "parameters": [
                 {
-                  "value": "ENTTEC DMX USB PRO(SN : EN077312)",
+                  "value": "",
                   "controlAddress": "/port"
                 }
               ],
@@ -255,7 +255,7 @@
         "device": {
           "parameters": [
             {
-              "value": "ENTTEC DMX USB PRO(SN : EN077312)",
+              "value": "",
               "controlAddress": "/port"
             }
           ],
