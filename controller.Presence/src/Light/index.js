@@ -40,17 +40,13 @@ export default class LightController extends EventManager {
 			if(!knobs[number]){
 				return;
 			}
-			console.log(knobs[number]);
-			
 			knobs[number].value += value - 64
 			knobs[number].value = Math.min(128, Math.max(0, knobs[number].value));
 			MidiSendCC(this.displayInterface, 0, number, knobs[number].value);
+			this.oscClient.send(`/${knobs[number].name}`, knobs[number].value, (err) => {
+				if (err) console.error(err);
+			});
 		});
-
-
-		// this.oscClient.send('/play', videoName, (err) => {
-		// 	if (err) console.error(err);
-		// });
 	}
 
 }
