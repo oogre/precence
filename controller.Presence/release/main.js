@@ -90,8 +90,10 @@ const ui = new _UI.default(window, gamepad, robots, camera, timeline, obs);
               item.target = robots[0];
             } else if (item.name == "ROBOT Y") {
               item.target = robots[1];
-            } else {
+            } else if (item.name == "CAMERA") {
               item.target = camera;
+            } else if (item.name == "LIGHT") {
+              item.target = light;
             }
             return item;
           });

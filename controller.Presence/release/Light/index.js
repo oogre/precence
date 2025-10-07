@@ -69,6 +69,15 @@ class LightController extends _Tools.EventManager {
   get mode() {
     return this._mode.value;
   }
+  get isError() {
+    return this.conf.status == LightController.LightStatus.ERROR;
+  }
+  get isConnected() {
+    return this.conf.status == LightController.LightStatus.CONNECTED;
+  }
+  get isConnecting() {
+    return this.conf.status == LightController.LightStatus.CONNECTING;
+  }
   get isRecordMode() {
     return this._mode == LightController.ChannelStatus.RECORD;
   }
