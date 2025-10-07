@@ -40,7 +40,7 @@ export default class FestoController extends ModBus{
 		});
 
 		this._robotSpeed = FestoController.RobotSpeed.WIND;
-
+		this._lastSpeedInput = 0;
 		this._speed = 0;
 		this._dest = 0;
 		this._goTo = false;
@@ -51,12 +51,14 @@ export default class FestoController extends ModBus{
 	}
 
 	nextSpeed = ()=>{
-		this._robotSpeed = FestoController.RobotSpeed.get( Math.min(this._robotSpeed.value+1, FestoController.RobotSpeed.enums.length));
-		console.log(this._robotSpeed);
+		this._robotSpeed = FestoController.RobotSpeed.get( Math.min(this._robotSpeed.value+1, FestoController.RobotSpeed.enums.length -1));
+		console.log(this._robotSpeed.key);
+		this.speed(this._lastSpeedInput);
 	}
 	prevSpeed = ()=>{
 		this._robotSpeed = FestoController.RobotSpeed.get( Math.max(this._robotSpeed.value-1, 0));
-		console.log(this._robotSpeed);
+		console.log(this._robotSpeed.key);
+		this.speed(this._lastSpeedInput);
 	}
 
 	get isError(){
@@ -85,8 +87,6 @@ export default class FestoController extends ModBus{
 
 	nextMode(){
 		this._mode = nextChannel(this._mode);
-
-		console.log(this._mode);
 		if(this.isPlayMode){
 			this.stopPolling();
 		}else{
@@ -172,6 +172,7 @@ export default class FestoController extends ModBus{
 
 
 	speed(input){
+		this._lastSpeedInput = input;
 		//converter takes value [-1->1] in multiple of 1/8th 
 		const converter = value => Math.round((value) * 8) / 8;
 		let value = converter(input);

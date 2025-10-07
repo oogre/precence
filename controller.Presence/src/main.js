@@ -278,14 +278,14 @@ const ui = new UI(window, gamepad, robots, camera, timeline, obs);
 
     let irisRun;
     gamepad.on("BUTTON_TRIGGER_LEFT", event => {
-
-        if(!robots[1].isPlayMode){
-            robots[1].prevSpeed();
+        if(event.target.getValue() == 1){
+            if(!robots[1].isPlayMode){
+                robots[1].prevSpeed();
+            }
+            if(!robots[0].isPlayMode){
+                robots[0].prevSpeed();
+            }
         }
-        if(!robots[0].isPlayMode){
-            robots[0].prevSpeed();
-        }
-
 
         // if(!camera.isPlayMode){
         //     clearInterval(irisRun);
@@ -298,15 +298,15 @@ const ui = new UI(window, gamepad, robots, camera, timeline, obs);
     });
 
     gamepad.on("BUTTON_TRIGGER_RIGHT", event => {
-
-        // SPEED UP
-        if(!robots[1].isPlayMode){
-            robots[1].nextSpeed();
+        if(event.target.getValue() == 1){
+            // SPEED UP
+            if(!robots[1].isPlayMode){
+                robots[1].nextSpeed();
+            }
+            if(!robots[0].isPlayMode){
+                robots[0].nextSpeed();
+            }
         }
-        if(!robots[0].isPlayMode){
-            robots[0].nextSpeed();
-        }
-
 
         // if(!camera.isPlayMode){
         //     clearInterval(irisRun);
