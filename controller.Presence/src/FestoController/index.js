@@ -51,10 +51,12 @@ export default class FestoController extends ModBus{
 	}
 
 	nextSpeed = ()=>{
-		this._robotSpeed = FestoController.RobotSpeed.get((this._robotSpeed.value+1)%FestoController.RobotSpeed.enums.length);
+		this._robotSpeed = FestoController.RobotSpeed.get( min(this._robotSpeed.value+1, FestoController.RobotSpeed.enums.length));
+		console.log(this._robotSpeed);
 	}
 	prevSpeed = ()=>{
-		this._robotSpeed = FestoController.RobotSpeed.get((this._robotSpeed.value+FestoController.RobotSpeed.enums.length-1)%FestoController.RobotSpeed.enums.length);
+		this._robotSpeed = FestoController.RobotSpeed.get( max(this._robotSpeed.value-1, 0));
+		console.log(this._robotSpeed);
 	}
 
 	get isError(){
