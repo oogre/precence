@@ -6,8 +6,12 @@ import ModBus from './ModBus.js';
 import { ChannelStatus as Channel_Status, nextChannel } from '../common/Constants.js';
 
 export default class FestoController extends ModBus{
-	static RobotStatus = new Enum(['NOT_CONNECTED', 'CONNECTING', 'CONNECTED', 'ERROR']) 
+	static RobotStatus = new Enum(['NOT_CONNECTED', 'CONNECTING', 'CONNECTED', 'ERROR']);
 	static ChannelStatus = Channel_Status; 
+
+	static RobotSpeed = new Enum({'MOUNTAIN':0, 'SNAIL':1, 'WIND':2, 'ALPHAJET':3, "LIGHT":4});
+	static SpeedValue = [0.1, 0.3, 0.5, 0.7, 1.0];
+
 	constructor(conf){
 		super(conf);
 		this.conf = conf;
@@ -35,6 +39,8 @@ export default class FestoController extends ModBus{
 			this.trigReady()
 		});
 
+		this._robotSpeed = FestoController.RobotSpeed.WIND;
+
 		this._speed = 0;
 		this._dest = 0;
 		this._goTo = false;
@@ -42,6 +48,13 @@ export default class FestoController extends ModBus{
 		setTimeout(()=>{
 			this.conf.autoConnect && this.connect()
 		}, 1000)
+	}
+
+	nextSpeed = ()=>{
+		this._robotSpeed = FestoController.RobotSpeed.get((this._robotSpeed.value+1)%FestoController.RobotSpeed.enums.length);
+	}
+	prevSpeed = ()=>{
+		this._robotSpeed = FestoController.RobotSpeed.get((this._robotSpeed.value+FestoController.RobotSpeed.enums.length-1)%FestoController.RobotSpeed.enums.length);
 	}
 
 	get isError(){
@@ -63,6 +76,7 @@ export default class FestoController extends ModBus{
 	set zero (value){
 		this._zero = value;
 	}
+
 	setZero(){
 		this.zero = this.in.get("POSITION").getRawValue();
 	}
@@ -154,6 +168,7 @@ export default class FestoController extends ModBus{
 		this._goTo = false;
 	}
 
+
 	speed(input){
 		//converter takes value [-1->1] in multiple of 1/8th 
 		const converter = value => Math.round((value) * 8) / 8;
@@ -166,6 +181,6 @@ export default class FestoController extends ModBus{
 			this._dest = 0;
 			value = Math.abs(value);
 		}
-		this._speed = Math.floor(value * this.conf.maxSpeed);
+		this._speed = Math.floor(value * this.conf.maxSpeed * FestoController.SpeedValue[this._robotSpeed.value]);
 	}
 }

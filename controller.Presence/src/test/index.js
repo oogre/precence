@@ -15,3 +15,4 @@ const time = async (wait, iteration)=>{
 
 
 time(10, 100);
+
