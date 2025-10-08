@@ -259,30 +259,20 @@ const ui = new _UI.default(window, gamepad, robots, camera, timeline, obs);
       }
     }
   });
-
-  // let irisRun;
-  // gamepad.on("CROSS_LEFT", event => {
-  //     if(!camera.isPlayMode){
-  //         clearInterval(irisRun);
-  //         if(event.target.getValue() != 0){
-  //             irisRun = setInterval(()=>{
-  //                 camera.setIris(-1 * event.target.getValue() * 0.05); 
-  //             }, 50);
-  //         }
-  //     }
-  // });
-  // gamepad.on("CROSS_RIGHT", event => {
-  //     if(!camera.isPlayMode){
-  //         clearInterval(irisRun);
-  //         if(event.target.getValue() != 0){
-  //             irisRun = setInterval(()=>{
-  //                 camera.setIris(event.target.getValue() * 0.1);
-  //             }, 50);
-  //         }
-  //     }
-
-  // });
-
+  gamepad.on("CROSS_LEFT", event => {
+    if (event.target.getValue() == 1) {
+      if (!camera.isPlayMode) {
+        camera.prevSpeed();
+      }
+    }
+  });
+  gamepad.on("CROSS_RIGHT", event => {
+    if (event.target.getValue() == 1) {
+      if (!camera.isPlayMode) {
+        camera.nextSpeed();
+      }
+    }
+  });
   gamepad.on("CROSS_UP", event => {
     if (!camera.isPlayMode) {
       camera.setFocus((0, _Math.lerp)(0.5, 0.0, event.target.getValue()));

@@ -44,7 +44,7 @@ export default class PTZController extends HTTPRoutine {
 			_timer : null,
 			_isRunnable : ()=>{
 				return Object.values(this._checkPosition._data).every(d=>d==0.5)
-			}
+			},
 			set pan(value) {
 				this._data[0] = value;
 				this.run();
@@ -62,11 +62,11 @@ export default class PTZController extends HTTPRoutine {
 				this.run();
 			},
 			run : ()=>{
-				!this._checkPosition._isRunnable() && return;
+				if(!this._checkPosition._isRunnable()) return;
 
 				clearTimeout(this._checkPosition._timer);
 				this._checkPosition._timer = setTimeout(()=>{
-					!this._checkPosition._isRunnable() && return;
+					if(!this._checkPosition._isRunnable()) return;
 
 					const {
 						pan : {value : pan}, 
@@ -95,22 +95,6 @@ export default class PTZController extends HTTPRoutine {
 		this._lastZoomInput = 0.5;
 		this._lastFocusInput = 0.5;
 	}
-
-	nextSpeed = ()=>{
-		this._cameraSpeed = PTZController.CameraSpeed.get( Math.min(this._cameraSpeed.value+1, PTZController.CameraSpeed.enums.length -1));
-		console.log("CAMERA", this._cameraSpeed.key);
-		this.setPanTiltSpeed(...this._lastPanTiltInput);
-		this.setZoom(...this._lastZoomInput);
-		this.setFocus(...this._lastFocusInput);
-	}
-	prevSpeed = ()=>{
-		this._cameraSpeed = PTZController.CameraSpeed.get( Math.max(this._cameraSpeed.value-1, 0));
-		console.log("CAMERA", this._cameraSpeed.key);
-		this.setPanTiltSpeed(...this._lastPanTiltInput);
-		this.setZoom(...this._lastZoomInput);
-		this.setFocus(...this._lastFocusInput);
-	}
-
 
 	get isError(){
 		return this.conf.status == PTZController.CameraStatus.ERROR;
@@ -216,7 +200,7 @@ export default class PTZController extends HTTPRoutine {
 			resolve();
 		});
 	}
-	setPanTiltSpeed(pan, tilt){
+	setPanTiltSpeed(pan, tilt, force=0){
 		this._lastPanTiltInput = [pan, tilt];
 
 		const oPan = this.out.get("PAN_TILT").data.params.pan.value;
@@ -228,7 +212,7 @@ export default class PTZController extends HTTPRoutine {
 		const nPan = converter(pan);
 		const nTilt = converter(tilt);
 
-		if(oPan != nPan || oTilt != nTilt){
+		if(force || oPan != nPan || oTilt != nTilt){
 			this.out.get("PAN_TILT").data.params.pan.value = nPan;
 			this.out.get("PAN_TILT").data.params.tilt.value = nTilt;
 			this.addRequest(this.out.get("PAN_TILT"));
@@ -244,11 +228,11 @@ export default class PTZController extends HTTPRoutine {
 	// 	this.addRequest(this.out.get("IRIS"));	
 	// 	this._checkPosition.iris = nValue;
 	// }
-	setZoom(value){
+	setZoom(value, force=0){
 		this._lastZoomInput = value;
 		const oValue = this.out.get("ZOOM").data.params.zoom.value;
 		const nValue = converter(value);
-		if(oValue != nValue){
+		if(force || oValue != nValue){
 			this.out.get("ZOOM").data.params.zoom.amp = PTZController.SpeedValue[this._cameraSpeed.value];
 			this.out.get("ZOOM").data.params.zoom.value = nValue;
 			this.addRequest(this.out.get("ZOOM"));
@@ -256,11 +240,11 @@ export default class PTZController extends HTTPRoutine {
 			this._checkPosition.zoom = nValue;
 		}
 	}
-	setFocus(value){
+	setFocus(value, force=0){
 		this._lastFocusInput = value;
 		const oValue = this.out.get("FOCUS").data.params.focus.value;
 		const nValue = converter(value);
-		if(oValue != nValue){
+		if(force || oValue != nValue){
 			this.out.get("FOCUS").data.params.focus.amp = PTZController.SpeedValue[this._cameraSpeed.value];
 			this.out.get("FOCUS").data.params.focus.value = nValue;
 			this.addRequest(this.out.get("FOCUS"));
@@ -277,6 +261,22 @@ export default class PTZController extends HTTPRoutine {
 	close(){
 		this.stopPolling();
 		this.conf.status = PTZController.CameraStatus.NOT_CONNECTED;
+	}
+
+	nextSpeed(){
+		this._cameraSpeed = PTZController.CameraSpeed.get( Math.min(this._cameraSpeed.value+1, PTZController.CameraSpeed.enums.length-1));
+		console.log("CAMERA", this._cameraSpeed.key);
+		this.setPanTiltSpeed(...this._lastPanTiltInput, 1);
+		this.setZoom(this._lastZoomInput, 1);
+		this.setFocus(this._lastFocusInput, 1);
+	}
+	
+	prevSpeed(){
+		this._cameraSpeed = PTZController.CameraSpeed.get( Math.max(this._cameraSpeed.value-1, 0));
+		console.log("CAMERA", this._cameraSpeed.key);
+		this.setPanTiltSpeed(...this._lastPanTiltInput, 1);
+		this.setZoom(this._lastZoomInput, 1);
+		this.setFocus(this._lastFocusInput, 1);
 	}
 
 }

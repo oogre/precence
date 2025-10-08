@@ -52,16 +52,16 @@ class FestoController extends _ModBus.default {
       this.conf.autoConnect && this.connect();
     }, 1000);
   }
-  nextSpeed = () => {
+  nextSpeed() {
     this._robotSpeed = FestoController.RobotSpeed.get(Math.min(this._robotSpeed.value + 1, FestoController.RobotSpeed.enums.length - 1));
-    console.log(this._robotSpeed.key);
+    console.log("ROBOT", this._robotSpeed.key);
     this.speed(this._lastSpeedInput);
-  };
-  prevSpeed = () => {
+  }
+  prevSpeed() {
     this._robotSpeed = FestoController.RobotSpeed.get(Math.max(this._robotSpeed.value - 1, 0));
-    console.log(this._robotSpeed.key);
+    console.log("ROBOT", this._robotSpeed.key);
     this.speed(this._lastSpeedInput);
-  };
+  }
   get isError() {
     return this.status == _ModBus.default.ModBusStatus.ERROR || this.conf.status == FestoController.RobotStatus.ERROR;
   }
