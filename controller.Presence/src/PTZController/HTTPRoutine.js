@@ -27,11 +27,10 @@ export default class HTTPRoutine extends EventManager{
 			callback(body);
 			this.startPolling();
 
-			
-			this.requestWaitingList.push("OFT:0"); // disable ND filter
-			this.requestWaitingList.push("OSA:87:21"); // set 4K 24fps
+			//this.requestWaitingList.push("OFT:0"); // disable ND filter
+			//this.requestWaitingList.push("OSA:87:21"); // set 4K 24fps
 			this.requestWaitingList.push("#D30"); // set IrisMode to manual
-			this.requestWaitingList.push("#D11"); // set FocusMode to auto
+			this.requestWaitingList.push("#D10"); // set FocusMode to manual
 		}catch(error){
 			this.onError(error);
 		}
