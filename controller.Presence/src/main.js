@@ -150,8 +150,7 @@ const ui = new UI(window, gamepad, robots, camera, timeline, obs);
                                 zero : {
                                     pan : 0.5, 
                                     tilt : 0.5, 
-                                    zoom : 0, 
-                                    iris : 0
+                                    zoom : 0
                                 }
                             },
                             {
@@ -286,15 +285,6 @@ const ui = new UI(window, gamepad, robots, camera, timeline, obs);
                 robots[0].prevSpeed();
             }
         }
-
-        // if(!camera.isPlayMode){
-        //     clearInterval(irisRun);
-        //     if(event.target.getValue() != 0){
-        //         irisRun = setInterval(()=>{
-        //             camera.setIris(-1 * event.target.getValue() * 0.05);    
-        //         }, 50);
-        //     }
-        // }
     });
 
     gamepad.on("BUTTON_TRIGGER_RIGHT", event => {
@@ -307,64 +297,43 @@ const ui = new UI(window, gamepad, robots, camera, timeline, obs);
                 robots[0].nextSpeed();
             }
         }
-
-        // if(!camera.isPlayMode){
-        //     clearInterval(irisRun);
-        //     if(event.target.getValue() != 0){
-        //         irisRun = setInterval(()=>{
-        //             camera.setIris(event.target.getValue() * 0.1);    
-        //         }, 50);
-        //     }
-        // }
     });
 
-    let irisRun;
-    gamepad.on("CROSS_LEFT", event => {
-        if(!camera.isPlayMode){
-            clearInterval(irisRun);
-            if(event.target.getValue() != 0){
-                irisRun = setInterval(()=>{
-                    camera.setIris(-1 * event.target.getValue() * 0.05); 
-                }, 50);
-            }
-        }
-    });
-    gamepad.on("CROSS_RIGHT", event => {
-        if(!camera.isPlayMode){
-            clearInterval(irisRun);
-            if(event.target.getValue() != 0){
-                irisRun = setInterval(()=>{
-                    camera.setIris(event.target.getValue() * 0.1);
-                }, 50);
-            }
-        }
+    // let irisRun;
+    // gamepad.on("CROSS_LEFT", event => {
+    //     if(!camera.isPlayMode){
+    //         clearInterval(irisRun);
+    //         if(event.target.getValue() != 0){
+    //             irisRun = setInterval(()=>{
+    //                 camera.setIris(-1 * event.target.getValue() * 0.05); 
+    //             }, 50);
+    //         }
+    //     }
+    // });
+    // gamepad.on("CROSS_RIGHT", event => {
+    //     if(!camera.isPlayMode){
+    //         clearInterval(irisRun);
+    //         if(event.target.getValue() != 0){
+    //             irisRun = setInterval(()=>{
+    //                 camera.setIris(event.target.getValue() * 0.1);
+    //             }, 50);
+    //         }
+    //     }
         
-    });
+    // });
 
-    let focusRun;
     gamepad.on("CROSS_UP", event => {
         if(!camera.isPlayMode){
-            clearInterval(focusRun);
-            if(event.target.getValue() != 0){
-                focusRun = setInterval(()=>{
-                    camera.setFocus(event.target.getValue() * 0.1); 
-                }, 50);
-            }
+            camera.setFocus(event.target.getValue() * 0.2); 
         }
     });
     gamepad.on("CROSS_DOWN", event => {
         if(!camera.isPlayMode){
-            clearInterval(focusRun);
-            if(event.target.getValue() != 0){
-                focusRun = setInterval(()=>{
-                    camera.setFocus(-1 * event.target.getValue() * 0.1); 
-                }, 50);
-            }
+            camera.setFocus(-1 * event.target.getValue() * 0.2); 
         }
     });
     
     gamepad.on("BUTTON_HOME", event=>{
-
         if(event.target.getValue() == 1){
             if(!robots[0].isPlayMode){
                 robots[0].reset();

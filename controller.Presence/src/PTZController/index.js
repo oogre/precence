@@ -35,7 +35,7 @@ export default class PTZController extends HTTPRoutine {
 		}, 1000);
 
 		this._checkPosition = {
-			_data : new Array(5).fill(0),
+			_data : new Array(4).fill(0),
 			_timer : null,
 			set pan(value) {
 				this._data[0] = value;
@@ -53,10 +53,6 @@ export default class PTZController extends HTTPRoutine {
 				this._data[3] = value;
 				this.run();
 			},
-			set iris(value) {
-				this._data[4] = value; 
-				this.run();
-			},
 			run : ()=>{
 				console.log(this._checkPosition._data);
 				if(!Object.values(this._checkPosition._data).every(d=>d==0)){
@@ -71,10 +67,9 @@ export default class PTZController extends HTTPRoutine {
 						pan : {value : pan}, 
 						tilt : {value : tilt}, 
 						zoom : {value : zoom}, 
-						focus : {value : focus}, 
-						iris : {value : iris}
+						focus : {value : focus}
 					} = this.in.get("GET_PAN_TILT_ZOOM_FOCUS_IRIS").data.params;
-					this.zero = {pan,tilt,zoom,iris};
+
 					this.out.get("ZOOM_POS").data.params.zoom.value = 1-zoom;
 					this.addRequest(this.out.get("ZOOM_POS"));
 
@@ -82,9 +77,6 @@ export default class PTZController extends HTTPRoutine {
 					this.out.get("POSITION").data.params.tilt.value = 1-tilt;
 					this.addRequest(this.out.get("POSITION"));
 
-					this.out.get("IRIS").data.params.iris.value = 1-iris;
-					this.addRequest(this.out.get("IRIS"));
-				
 					this.out.get("FOCUS_POS").data.params.focus.value = 1-focus;
 					this.addRequest(this.out.get("FOCUS_POS"));
 					console.log("RESET_POS");
@@ -131,13 +123,12 @@ export default class PTZController extends HTTPRoutine {
 			pan : {value : pan}, 
 			tilt : {value : tilt}, 
 			zoom : {value : zoom}, 
-			focus : {value : focus}, 
-			iris : {value : iris}
+			focus : {value : focus}
 		} = this.in.get("GET_PAN_TILT_ZOOM_FOCUS_IRIS").data.params;
 
-		console.log({pan,tilt,zoom,focus,iris})
+		console.log({pan,tilt,zoom,focus})
 
-		this.zero = {pan,tilt,zoom,focus,iris};
+		this.zero = {pan,tilt,zoom,focus};
 	}
 
 	connect(){
@@ -172,8 +163,8 @@ export default class PTZController extends HTTPRoutine {
 			this.out.get("POSITION").data.params.tilt.value = 1-this._zero.tilt;
 			this.addRequest(this.out.get("POSITION"));
 
-			this.out.get("IRIS").data.params.iris.value = 1-this._zero.iris;
-			this.addRequest(this.out.get("IRIS"));
+			// this.out.get("IRIS").data.params.iris.value = 1-this._zero.iris;
+			// this.addRequest(this.out.get("IRIS"));
 			
 			this.out.get("FOCUS_POS").data.params.focus.value = 1-this._zero.focus;
 			this.addRequest(this.out.get("FOCUS_POS"));
@@ -183,15 +174,13 @@ export default class PTZController extends HTTPRoutine {
 					pan : {value : pan}, 
 					tilt : {value : tilt}, 
 					zoom : {value : zoom}, 
-					focus : {value : focus}, 
-					iris : {value : iris}
+					focus : {value : focus}
 				} = this.in.get("GET_PAN_TILT_ZOOM_FOCUS_IRIS").data.params;
 				if(
 					Math.abs(this._zero.pan - pan)<0.1 &&
 					Math.abs(this._zero.tilt - tilt)<0.1 &&
 					Math.abs(this._zero.zoom - zoom)<0.1  &&
-					Math.abs(this._zero.focus - focus)<0.1  &&
-					Math.abs(this._zero.iris - iris)<0.1
+					Math.abs(this._zero.focus - focus)<0.1
 				){
 					break;
 				}
@@ -222,13 +211,13 @@ export default class PTZController extends HTTPRoutine {
 			this._checkPosition.tilt = tilt;
 		}
 	}
-	setIris(value){
-		const oValue = this.out.get("IRIS").data.params.iris.value;
-		const nValue = clamp(oValue + value, 0, 1);
-		this.out.get("IRIS").data.params.iris.value = nValue;
-		this.addRequest(this.out.get("IRIS"));	
-		this._checkPosition.iris = nValue;
-	}
+	// setIris(value){
+	// 	const oValue = this.out.get("IRIS").data.params.iris.value;
+	// 	const nValue = clamp(oValue + value, 0, 1);
+	// 	this.out.get("IRIS").data.params.iris.value = nValue;
+	// 	this.addRequest(this.out.get("IRIS"));	
+	// 	this._checkPosition.iris = nValue;
+	// }
 	setZoom(value){
 		const oValue = this.out.get("ZOOM").data.params.zoom.value;
 
