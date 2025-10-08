@@ -120,6 +120,7 @@ export default class UI extends UI_HELPER{
 						id : k
 					}));
 				});
+				this.text( x, y + yOffset + (counter+4) * lineHeight, robot._robotSpeed.key.toUpperCase());
 			}
 		});
 		
@@ -175,6 +176,8 @@ export default class UI extends UI_HELPER{
 					id : 0
 				}));
 			});
+
+			this.text( x, y + yOffset + (counter+4) * lineHeight, camera._cameraSpeed.key.toUpperCase());
 
 		}
 
