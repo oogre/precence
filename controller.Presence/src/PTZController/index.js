@@ -35,7 +35,7 @@ export default class PTZController extends HTTPRoutine {
 		}, 1000);
 
 		this._checkPosition = {
-			_data : new Array(4).fill(0),
+			_data : new Array(4).fill(0.5),
 			_timer : null,
 			set pan(value) {
 				this._data[0] = value;
@@ -55,7 +55,7 @@ export default class PTZController extends HTTPRoutine {
 			},
 			run : ()=>{
 				console.log(this._checkPosition._data);
-				if(!Object.values(this._checkPosition._data).every(d=>d==0)){
+				if(!Object.values(this._checkPosition._data).every(d=>d==0.5)){
 					return;
 				}
 
@@ -208,7 +208,7 @@ export default class PTZController extends HTTPRoutine {
 			this.addRequest(this.out.get("PAN_TILT"));
 
 			this._checkPosition.pan = nPan;
-			this._checkPosition.tilt = tilt;
+			this._checkPosition.tilt = nTilt;
 		}
 	}
 	// setIris(value){

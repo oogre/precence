@@ -126,34 +126,34 @@ class Gamepad extends _Tools.EventManager {
       } else if (eventType == "hatMotion") {
         switch (event.value) {
           case "up":
-            eventProcess("CROSS_UP", 1);
             eventProcess("CROSS_LEFT", 0);
             eventProcess("CROSS_DOWN", 0);
             eventProcess("CROSS_RIGHT", 0);
+            eventProcess("CROSS_UP", 1);
             break;
           case "leftup":
-            eventProcess("CROSS_UP", 1);
-            eventProcess("CROSS_LEFT", 1);
             eventProcess("CROSS_DOWN", 0);
             eventProcess("CROSS_RIGHT", 0);
+            eventProcess("CROSS_UP", 1);
+            eventProcess("CROSS_LEFT", 1);
             break;
           case "left":
             eventProcess("CROSS_UP", 0);
-            eventProcess("CROSS_LEFT", 1);
             eventProcess("CROSS_DOWN", 0);
             eventProcess("CROSS_RIGHT", 0);
+            eventProcess("CROSS_LEFT", 1);
             break;
           case "leftdown":
             eventProcess("CROSS_UP", 0);
+            eventProcess("CROSS_RIGHT", 0);
             eventProcess("CROSS_LEFT", 1);
             eventProcess("CROSS_DOWN", 1);
-            eventProcess("CROSS_RIGHT", 0);
             break;
           case "down":
             eventProcess("CROSS_UP", 0);
             eventProcess("CROSS_LEFT", 0);
-            eventProcess("CROSS_DOWN", 1);
             eventProcess("CROSS_RIGHT", 0);
+            eventProcess("CROSS_DOWN", 1);
             break;
           case "rightdown":
             eventProcess("CROSS_UP", 0);
@@ -168,10 +168,10 @@ class Gamepad extends _Tools.EventManager {
             eventProcess("CROSS_RIGHT", 1);
             break;
           case "rightup":
-            eventProcess("CROSS_UP", 1);
             eventProcess("CROSS_LEFT", 0);
             eventProcess("CROSS_DOWN", 0);
             eventProcess("CROSS_RIGHT", 1);
+            eventProcess("CROSS_UP", 1);
             break;
           case "centered":
             eventProcess("CROSS_UP", 0);

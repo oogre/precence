@@ -32,7 +32,7 @@ class RequestHolder extends RequesHelper {
       visible: true
     }, {
       name: "FOCUS",
-      data: new _Control.default("F", new _Param.default("focus", 0x555, 0xFFF, 16, 3)).setter(),
+      data: new _Control.default("F", new _Param.default("focus", 1, 99)).setter(),
       visible: true
     }, {
       name: "IRIS",

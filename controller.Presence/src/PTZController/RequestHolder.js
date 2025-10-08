@@ -36,7 +36,7 @@ export default class RequestHolder extends RequesHelper{
 		},{
 			name : "FOCUS",
 			data : new Control("F", 
-				new Param("focus", 0x555, 0xFFF, 16, 3)
+				new Param("focus", 1, 99)
 			).setter(),
 			visible : true
 		},{

@@ -38,7 +38,7 @@ class PTZController extends _HTTPRoutine.default {
       this.conf.autoConnect && this.connect();
     }, 1000);
     this._checkPosition = {
-      _data: new Array(5).fill(0),
+      _data: new Array(4).fill(0.5),
       _timer: null,
       set pan(value) {
         this._data[0] = value;
@@ -56,13 +56,9 @@ class PTZController extends _HTTPRoutine.default {
         this._data[3] = value;
         this.run();
       },
-      set iris(value) {
-        this._data[4] = value;
-        this.run();
-      },
       run: () => {
         console.log(this._checkPosition._data);
-        if (!Object.values(this._checkPosition._data).every(d => d == 0)) {
+        if (!Object.values(this._checkPosition._data).every(d => d == 0.5)) {
           return;
         }
         if (!!this._checkPosition._timer) {
@@ -81,24 +77,13 @@ class PTZController extends _HTTPRoutine.default {
             },
             focus: {
               value: focus
-            },
-            iris: {
-              value: iris
             }
           } = this.in.get("GET_PAN_TILT_ZOOM_FOCUS_IRIS").data.params;
-          this.zero = {
-            pan,
-            tilt,
-            zoom,
-            iris
-          };
           this.out.get("ZOOM_POS").data.params.zoom.value = 1 - zoom;
           this.addRequest(this.out.get("ZOOM_POS"));
           this.out.get("POSITION").data.params.pan.value = 1 - pan;
           this.out.get("POSITION").data.params.tilt.value = 1 - tilt;
           this.addRequest(this.out.get("POSITION"));
-          this.out.get("IRIS").data.params.iris.value = 1 - iris;
-          this.addRequest(this.out.get("IRIS"));
           this.out.get("FOCUS_POS").data.params.focus.value = 1 - focus;
           this.addRequest(this.out.get("FOCUS_POS"));
           console.log("RESET_POS");
@@ -149,24 +134,19 @@ class PTZController extends _HTTPRoutine.default {
       },
       focus: {
         value: focus
-      },
-      iris: {
-        value: iris
       }
     } = this.in.get("GET_PAN_TILT_ZOOM_FOCUS_IRIS").data.params;
     console.log({
       pan,
       tilt,
       zoom,
-      focus,
-      iris
+      focus
     });
     this.zero = {
       pan,
       tilt,
       zoom,
-      focus,
-      iris
+      focus
     };
   }
   connect() {
@@ -195,8 +175,10 @@ class PTZController extends _HTTPRoutine.default {
       this.out.get("POSITION").data.params.pan.value = 1 - this._zero.pan;
       this.out.get("POSITION").data.params.tilt.value = 1 - this._zero.tilt;
       this.addRequest(this.out.get("POSITION"));
-      this.out.get("IRIS").data.params.iris.value = 1 - this._zero.iris;
-      this.addRequest(this.out.get("IRIS"));
+
+      // this.out.get("IRIS").data.params.iris.value = 1-this._zero.iris;
+      // this.addRequest(this.out.get("IRIS"));
+
       this.out.get("FOCUS_POS").data.params.focus.value = 1 - this._zero.focus;
       this.addRequest(this.out.get("FOCUS_POS"));
       while (true) {
@@ -212,12 +194,9 @@ class PTZController extends _HTTPRoutine.default {
           },
           focus: {
             value: focus
-          },
-          iris: {
-            value: iris
           }
         } = this.in.get("GET_PAN_TILT_ZOOM_FOCUS_IRIS").data.params;
-        if (Math.abs(this._zero.pan - pan) < 0.1 && Math.abs(this._zero.tilt - tilt) < 0.1 && Math.abs(this._zero.zoom - zoom) < 0.1 && Math.abs(this._zero.focus - focus) < 0.1 && Math.abs(this._zero.iris - iris) < 0.1) {
+        if (Math.abs(this._zero.pan - pan) < 0.1 && Math.abs(this._zero.tilt - tilt) < 0.1 && Math.abs(this._zero.zoom - zoom) < 0.1 && Math.abs(this._zero.focus - focus) < 0.1) {
           break;
         }
         await (0, _Tools.wait)(50);
@@ -239,16 +218,16 @@ class PTZController extends _HTTPRoutine.default {
       this.out.get("PAN_TILT").data.params.tilt.value = nTilt;
       this.addRequest(this.out.get("PAN_TILT"));
       this._checkPosition.pan = nPan;
-      this._checkPosition.tilt = tilt;
+      this._checkPosition.tilt = nTilt;
     }
   }
-  setIris(value) {
-    const oValue = this.out.get("IRIS").data.params.iris.value;
-    const nValue = (0, _Math.clamp)(oValue + value, 0, 1);
-    this.out.get("IRIS").data.params.iris.value = nValue;
-    this.addRequest(this.out.get("IRIS"));
-    this._checkPosition.iris = nValue;
-  }
+  // setIris(value){
+  // 	const oValue = this.out.get("IRIS").data.params.iris.value;
+  // 	const nValue = clamp(oValue + value, 0, 1);
+  // 	this.out.get("IRIS").data.params.iris.value = nValue;
+  // 	this.addRequest(this.out.get("IRIS"));	
+  // 	this._checkPosition.iris = nValue;
+  // }
   setZoom(value) {
     const oValue = this.out.get("ZOOM").data.params.zoom.value;
     const z = this.in.get("GET_PAN_TILT_ZOOM_FOCUS_IRIS").data.params.zoom.value;

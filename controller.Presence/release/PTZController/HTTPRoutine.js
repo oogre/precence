@@ -34,6 +34,7 @@ class HTTPRoutine extends _Tools.EventManager {
       //this.requestWaitingList.push("OSA:87:21"); // set 4K 24fps
       this.requestWaitingList.push("#D30"); // set IrisMode to manual
       this.requestWaitingList.push("#D10"); // set FocusMode to manual
+      this.requestWaitingList.push("#AXIFFF"); // set FocusMode to manual
     } catch (error) {
       this.onError(error);
     }
