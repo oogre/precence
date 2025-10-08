@@ -324,12 +324,12 @@ const ui = new UI(window, gamepad, robots, camera, timeline, obs);
 
     gamepad.on("CROSS_UP", event => {
         if(!camera.isPlayMode){
-            camera.setFocus(event.target.getValue() * 0.2); 
+            camera.setFocus(lerp(0.5, 0.6, event.target.getValue())); 
         }
     });
     gamepad.on("CROSS_DOWN", event => {
         if(!camera.isPlayMode){
-            camera.setFocus(-1 * event.target.getValue() * 0.2); 
+            camera.setFocus(lerp(0.5, 0.4, event.target.getValue())); 
         }
     });
     
