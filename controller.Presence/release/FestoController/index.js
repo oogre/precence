@@ -14,6 +14,14 @@ function _interopRequireDefault(e) { return e && e.__esModule ? e : { default: e
 class FestoController extends _ModBus.default {
   static RobotStatus = new _enum.default(['NOT_CONNECTED', 'CONNECTING', 'CONNECTED', 'ERROR']);
   static ChannelStatus = _Constants.ChannelStatus;
+  static RobotSpeed = new _enum.default({
+    'MOUNTAIN': 0,
+    'SNAIL': 1,
+    'WIND': 2,
+    'ALPHAJET': 3,
+    "LIGHT": 4
+  });
+  static SpeedValue = [0.1, 0.3, 0.5, 0.7, 1.0];
   constructor(conf) {
     super(conf);
     this.conf = conf;
@@ -34,6 +42,8 @@ class FestoController extends _ModBus.default {
     this.on("ready", () => {
       this.trigReady();
     });
+    this._robotSpeed = FestoController.RobotSpeed.WIND;
+    this._lastSpeedInput = 0;
     this._speed = 0;
     this._dest = 0;
     this._goTo = false;
@@ -42,6 +52,16 @@ class FestoController extends _ModBus.default {
       this.conf.autoConnect && this.connect();
     }, 1000);
   }
+  nextSpeed = () => {
+    this._robotSpeed = FestoController.RobotSpeed.get(Math.min(this._robotSpeed.value + 1, FestoController.RobotSpeed.enums.length - 1));
+    console.log(this._robotSpeed.key);
+    this.speed(this._lastSpeedInput);
+  };
+  prevSpeed = () => {
+    this._robotSpeed = FestoController.RobotSpeed.get(Math.max(this._robotSpeed.value - 1, 0));
+    console.log(this._robotSpeed.key);
+    this.speed(this._lastSpeedInput);
+  };
   get isError() {
     return this.status == _ModBus.default.ModBusStatus.ERROR || this.conf.status == FestoController.RobotStatus.ERROR;
   }
@@ -65,7 +85,6 @@ class FestoController extends _ModBus.default {
   }
   nextMode() {
     this._mode = (0, _Constants.nextChannel)(this._mode);
-    console.log(this._mode);
     if (this.isPlayMode) {
       this.stopPolling();
     } else {
@@ -139,6 +158,7 @@ class FestoController extends _ModBus.default {
     this._goTo = false;
   }
   speed(input) {
+    this._lastSpeedInput = input;
     //converter takes value [-1->1] in multiple of 1/8th 
     const converter = value => Math.round(value * 8) / 8;
     let value = converter(input);
@@ -150,7 +170,7 @@ class FestoController extends _ModBus.default {
       this._dest = 0;
       value = Math.abs(value);
     }
-    this._speed = Math.floor(value * this.conf.maxSpeed);
+    this._speed = Math.floor(value * this.conf.maxSpeed * FestoController.SpeedValue[this._robotSpeed.value]);
   }
 }
 exports.default = FestoController;

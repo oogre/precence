@@ -40,7 +40,7 @@ class RequestHolder extends RequesHelper {
       visible: true
     }, {
       name: "GET_PAN_TILT_ZOOM_FOCUS_IRIS",
-      data: new _Control.default("PTD", new _Param.default("pan", 0x0000, 0xFFFF, 16, 4), new _Param.default("tilt", 0x0000, 0xFFFF, 16, 4), new _Param.default("zoom", 0x000, 0x3E7, 16, 3), new _Param.default("focus", 0x00, 0x63, 16, 2), new _Param.default("iris", 0x00, 0xFF, 16, 2)).getter(),
+      data: new _Control.default("PTV", new _Param.default("pan", 0x0000, 0xFFFF, 16, 4), new _Param.default("tilt", 0x0000, 0xFFFF, 16, 4), new _Param.default("zoom", 0x555, 0xFFF, 16, 3), new _Param.default("focus", 0x555, 0xFFF, 16, 3), new _Param.default("iris", 0x555, 0xFFF, 16, 3)).getter(),
       visible: true
     }, {
       name: "POSITION",
@@ -49,6 +49,10 @@ class RequestHolder extends RequesHelper {
     }, {
       name: "ZOOM_POS",
       data: new _Control.default("AXZ", new _Param.default("zoom", 0x555, 0xFFF, 16, 3)).setter(),
+      visible: false
+    }, {
+      name: "FOCUS_POS",
+      data: new _Control.default("AXF", new _Param.default("focus", 0x555, 0xFFF, 16, 3)).setter(),
       visible: false
     }];
   }

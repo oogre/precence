@@ -240,24 +240,43 @@ const ui = new _UI.default(window, gamepad, robots, camera, timeline, obs);
   });
   let irisRun;
   gamepad.on("BUTTON_TRIGGER_LEFT", event => {
-    if (!camera.isPlayMode) {
-      clearInterval(irisRun);
-      if (event.target.getValue() != 0) {
-        irisRun = setInterval(() => {
-          camera.setIris(-1 * event.target.getValue() * 0.05);
-        }, 50);
+    if (event.target.getValue() == 1) {
+      if (!robots[1].isPlayMode) {
+        robots[1].prevSpeed();
+      }
+      if (!robots[0].isPlayMode) {
+        robots[0].prevSpeed();
       }
     }
+
+    // if(!camera.isPlayMode){
+    //     clearInterval(irisRun);
+    //     if(event.target.getValue() != 0){
+    //         irisRun = setInterval(()=>{
+    //             camera.setIris(-1 * event.target.getValue() * 0.05);    
+    //         }, 50);
+    //     }
+    // }
   });
   gamepad.on("BUTTON_TRIGGER_RIGHT", event => {
-    if (!camera.isPlayMode) {
-      clearInterval(irisRun);
-      if (event.target.getValue() != 0) {
-        irisRun = setInterval(() => {
-          camera.setIris(event.target.getValue() * 0.1);
-        }, 50);
+    if (event.target.getValue() == 1) {
+      // SPEED UP
+      if (!robots[1].isPlayMode) {
+        robots[1].nextSpeed();
+      }
+      if (!robots[0].isPlayMode) {
+        robots[0].nextSpeed();
       }
     }
+
+    // if(!camera.isPlayMode){
+    //     clearInterval(irisRun);
+    //     if(event.target.getValue() != 0){
+    //         irisRun = setInterval(()=>{
+    //             camera.setIris(event.target.getValue() * 0.1);    
+    //         }, 50);
+    //     }
+    // }
   });
   gamepad.on("BUTTON_HOME", event => {
     if (event.target.getValue() == 1) {
