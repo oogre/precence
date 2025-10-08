@@ -118,6 +118,7 @@ class UI extends _UI_HELPER.default {
             id: k
           }));
         });
+        this.text(x, y + yOffset + (counter + 4) * lineHeight, robot._robotSpeed.key.toUpperCase());
       }
     });
 
@@ -168,6 +169,7 @@ class UI extends _UI_HELPER.default {
           id: 0
         }));
       });
+      this.text(x, y + (counter + 4) * lineHeight, camera._cameraSpeed.key.toUpperCase());
     }
     this.line(10, 600, 1190, 600);
     {
