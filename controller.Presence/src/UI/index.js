@@ -177,7 +177,7 @@ export default class UI extends UI_HELPER{
 				}));
 			});
 
-			this.text( x, y + yOffset + (counter+4) * lineHeight, camera._cameraSpeed.key.toUpperCase());
+			this.text( x, y + (counter+4) * lineHeight, camera._cameraSpeed.key.toUpperCase());
 
 		}
 
