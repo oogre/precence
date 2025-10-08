@@ -6,7 +6,7 @@ Object.defineProperty(exports, "__esModule", {
 exports.httpCall = exports.call = void 0;
 var _got = _interopRequireDefault(require("got"));
 function _interopRequireDefault(e) { return e && e.__esModule ? e : { default: e }; }
-const call = async (address, request) => {
+const call = async (address, request, flag = 1) => {
   // prepare the waiter for the response
   let waitForDataSuccess;
   let waitForDataReject;
@@ -16,7 +16,7 @@ const call = async (address, request) => {
   });
 
   // send and wait for the response
-  httpCall(address, request).then(({
+  httpCall(address, request, flag).then(({
     body
   }) => {
     waitForDataSuccess(body);
@@ -26,8 +26,8 @@ const call = async (address, request) => {
   return await waitForData;
 };
 exports.call = call;
-const httpCall = (address, request) => {
-  return (0, _got.default)(`http://${address}/cgi-bin/aw_ptz`, {
+const httpCall = (address, request, flag) => {
+  return (0, _got.default)(`http://${address}/cgi-bin/${flag ? `aw_ptz` : `aw_cam`}`, {
     method: 'GET',
     searchParams: {
       cmd: request,

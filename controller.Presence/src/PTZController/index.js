@@ -54,15 +54,16 @@ export default class PTZController extends HTTPRoutine {
 				this.run();
 			},
 			run : ()=>{
-				console.log(this._checkPosition._data);
 				if(!Object.values(this._checkPosition._data).every(d=>d==0.5)){
 					return;
 				}
 
-				if(!!this._checkPosition._timer){
-					clearTimeout(this._checkPosition._timer);
-				}
+				clearTimeout(this._checkPosition._timer);
+				
 				this._checkPosition._timer = setTimeout(()=>{
+					if(!Object.values(this._checkPosition._data).every(d=>d==0.5)){
+						return;
+					}
 					const {
 						pan : {value : pan}, 
 						tilt : {value : tilt}, 
@@ -79,8 +80,9 @@ export default class PTZController extends HTTPRoutine {
 
 					this.out.get("FOCUS_POS").data.params.focus.value = 1-focus;
 					this.addRequest(this.out.get("FOCUS_POS"));
-					console.log("RESET_POS");
-				}, 5000);
+
+					console.log("RESET CAM POSITION")
+				}, 1000);
 			}
 		}
 	}

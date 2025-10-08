@@ -1,6 +1,6 @@
 import got from 'got';
 
-export const call = async(address, request) => {
+export const call = async(address, request, flag=1) => {
 	// prepare the waiter for the response
 	let waitForDataSuccess;
 	let waitForDataReject;
@@ -11,7 +11,7 @@ export const call = async(address, request) => {
 	});
 	
 	// send and wait for the response
-	httpCall(address, request)
+	httpCall(address, request, flag)
 		.then( ({body}) => {
 			waitForDataSuccess(body);	
 		})
@@ -23,8 +23,8 @@ export const call = async(address, request) => {
 }
 
 
-export const httpCall = (address,  request) => {
-	return got(`http://${address}/cgi-bin/aw_ptz`,{
+export const httpCall = (address, request, flag) => {
+	return got(`http://${address}/cgi-bin/${flag?`aw_ptz`:`aw_cam`}`,{
 		method: 'GET',
 		searchParams : {
 			cmd : request,

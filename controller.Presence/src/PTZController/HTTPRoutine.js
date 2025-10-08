@@ -25,13 +25,15 @@ export default class HTTPRoutine extends EventManager{
 			const body = await call(`${this.host}:${this.port}`, req);
 			this.log("<-", body);
 			callback(body);
-			this.startPolling();
 
-			//this.requestWaitingList.push("OFT:0"); // disable ND filter
-			//this.requestWaitingList.push("OSA:87:21"); // set 4K 24fps
-			this.requestWaitingList.push("#D30"); // set IrisMode to manual
-			this.requestWaitingList.push("#D10"); // set FocusMode to manual
-			this.requestWaitingList.push("#AXIFFF"); // set FocusMode to manual
+			//this.log("<-", await call(`${this.host}:${this.port}`, "OSA:87:21", 0)); // set 4K 24fps
+			this.log("<-", await call(`${this.host}:${this.port}`, "OAW:0", 0)); // set WB to ATW
+			this.log("<-", await call(`${this.host}:${this.port}`, "OFT:0", 0)); // disable ND filter
+			this.log("<-", await call(`${this.host}:${this.port}`, "#D30")); // set IrisMode to manual
+			this.log("<-", await call(`${this.host}:${this.port}`, "#D10")); // set FocusMode to manual
+			this.log("<-", await call(`${this.host}:${this.port}`, "#AXIFFF")); // set FocusMode to manual
+
+			this.startPolling();
 		}catch(error){
 			this.onError(error);
 		}

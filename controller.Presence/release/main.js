@@ -127,7 +127,8 @@ const ui = new _UI.default(window, gamepad, robots, camera, timeline, obs);
     zero: {
       pan: 0.5,
       tilt: 0.5,
-      zoom: 0
+      zoom: 0,
+      focus: 0
     }
   }, {
     name: "LIGHT",
@@ -284,12 +285,12 @@ const ui = new _UI.default(window, gamepad, robots, camera, timeline, obs);
 
   gamepad.on("CROSS_UP", event => {
     if (!camera.isPlayMode) {
-      camera.setFocus((0, _Math.lerp)(0.5, 1.0, event.target.getValue()));
+      camera.setFocus((0, _Math.lerp)(0.5, 0.0, event.target.getValue()));
     }
   });
   gamepad.on("CROSS_DOWN", event => {
     if (!camera.isPlayMode) {
-      camera.setFocus((0, _Math.lerp)(0.5, 0.0, event.target.getValue()));
+      camera.setFocus((0, _Math.lerp)(0.5, 1.0, event.target.getValue()));
     }
   });
   gamepad.on("BUTTON_HOME", event => {

@@ -150,7 +150,8 @@ const ui = new UI(window, gamepad, robots, camera, timeline, obs);
                                 zero : {
                                     pan : 0.5, 
                                     tilt : 0.5, 
-                                    zoom : 0
+                                    zoom : 0, 
+                                    focus : 0
                                 }
                             },
                             {
