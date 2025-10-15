@@ -14,6 +14,7 @@ function _interopRequireDefault(e) { return e && e.__esModule ? e : { default: e
 class Recorder extends _Tools.EventManager {
   constructor(...param) {
     super(...param);
+    this._defaultChannels = [];
     this._channels = [];
     this.workingOn = [];
     this.hasNewRecord = false;
@@ -34,6 +35,14 @@ class Recorder extends _Tools.EventManager {
         isNoneMode
       }
     }) => isNoneMode).every(t => t);
+  }
+  clear(id = -1) {
+    if (id >= 0 && id < this.channels.length) {
+      this._channels[id] = this._defaultChannels[id];
+      this.channels = this._channels;
+    } else {
+      this.channels = this._defaultChannels;
+    }
   }
   set channels(channels) {
     this._channels = channels.map(({
@@ -69,6 +78,9 @@ class Recorder extends _Tools.EventManager {
         data
       };
     });
+  }
+  set defaultChannels(channels) {
+    this._defaultChannels = channels;
   }
   async start() {
     this.hasNewRecord = false;

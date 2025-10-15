@@ -257,6 +257,15 @@ export default class UI extends UI_HELPER{
 							// });
 					break;
 				}
+
+				this.checkBox(280, 625, "CLEAR" , true)
+				.ifMouseRelease(()=>{
+					this.handlers.map(handler=>handler({
+						eventName : "CLEAR",
+						target : "timeline",
+						id : 0
+					}));
+				});
 			}
 			
 			let offset = 100;
@@ -266,10 +275,19 @@ export default class UI extends UI_HELPER{
 
 			timeline.channels
 				.map(({name, target}, n)=>{
-					this.checkBox(x, y + n * 20, name , target.isNoneMode, target.isRecordMode ? "red" : "lime" )
+					this.checkBox(x , y + n * 20, name , target.isNoneMode, target.isRecordMode ? "red" : "lime" )
 					.ifMouseRelease(()=>{
 						this.handlers.map(handler=>handler({
 							eventName : name,
+							target : "timeline",
+							id : 0
+						}));
+					});
+
+					this.checkBox(x+100, y + n * 20, "X" , target.isNoneMode, target.isRecordMode ? "red" : "lime" )
+					.ifMouseRelease(()=>{
+						this.handlers.map(handler=>handler({
+							eventName : `clear ${name}`,
 							target : "timeline",
 							id : 0
 						}));
@@ -278,7 +296,7 @@ export default class UI extends UI_HELPER{
 
 			this.ctx.save();
 			{
-				this.ctx.translate(x, y);
+				this.ctx.translate(x+70, y);
 
 				timeline.channels
 					.map(({canvas}, n)=>{

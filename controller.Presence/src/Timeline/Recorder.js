@@ -10,6 +10,7 @@ import fs from 'node:fs';
 export class Recorder extends EventManager{
 	constructor(...param){
 		super(...param);
+		this._defaultChannels = [];
 		this._channels = [];
 		this.workingOn = [];
 		this.hasNewRecord = false
@@ -25,6 +26,15 @@ export class Recorder extends EventManager{
 
 	get isNoneMode(){
 		return this.channels.map(({target:{isNoneMode}})=>isNoneMode).every((t)=>t);
+	}
+
+	clear(id = -1){
+		if(id >=0 && id < this.channels.length){
+			this._channels[id] = this._defaultChannels[id]
+			this.channels = this._channels;
+		}else{
+			this.channels = this._defaultChannels;	
+		}
 	}
 
 	set channels(channels){
@@ -52,6 +62,10 @@ export class Recorder extends EventManager{
 				data
 			}
 		});
+	}
+
+	set defaultChannels(channels){
+		this._defaultChannels = channels;
 	}
 
 	async start(){

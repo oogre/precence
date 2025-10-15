@@ -81,6 +81,14 @@ const ui = new _UI.default(window, gamepad, robots, camera, timeline, obs);
       } else if (event.eventName == "STOP") {
         timeline.stop();
         await obs.stopRecord();
+      } else if (event.eventName == "CLEAR") {
+        timeline.clear();
+      } else if (event.eventName.startsWith("clear")) {
+        const _name = event.eventName.replace("clear ", "");
+        const id = timeline.channels.findIndex(({
+          name
+        }) => name == _name);
+        timeline.clear(id);
       } else if (event.eventName == "load") {
         (0, _nodeFileDialog.default)({
           type: 'open-file'
@@ -113,7 +121,7 @@ const ui = new _UI.default(window, gamepad, robots, camera, timeline, obs);
 
 /* timeline CONTROL */
 {
-  timeline.channels = [{
+  timeline.channels = timeline.defaultChannels = [{
     name: "ROBOT X",
     target: robots[0],
     zero: 0
