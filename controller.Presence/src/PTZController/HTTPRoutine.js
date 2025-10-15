@@ -30,7 +30,7 @@ export default class HTTPRoutine extends EventManager{
 			this.log("<-", await call(`${this.host}:${this.port}`, "OAW:0", 0)); // set WB to ATW
 			this.log("<-", await call(`${this.host}:${this.port}`, "OFT:0", 0)); // disable ND filter
 			this.log("<-", await call(`${this.host}:${this.port}`, "#D30")); // set IrisMode to manual
-			this.log("<-", await call(`${this.host}:${this.port}`, "#D10")); // set FocusMode to manual
+			this.log("<-", await call(`${this.host}:${this.port}`, "#D11")); // set FocusMode to auto
 			this.log("<-", await call(`${this.host}:${this.port}`, "#AXIFFF")); // set FocusMode to manual
 
 			this.startPolling();

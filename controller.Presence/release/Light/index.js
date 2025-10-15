@@ -22,6 +22,42 @@ const knobs = [{
 }, {
   name: "max",
   value: 127
+}, {
+  name: "1",
+  value: 0
+}, {
+  name: "2",
+  value: 0
+}, {
+  name: "3",
+  value: 0
+}, {
+  name: "4",
+  value: 0
+}, {
+  name: "5",
+  value: 0
+}, {
+  name: "6",
+  value: 0
+}, {
+  name: "7",
+  value: 0
+}, {
+  name: "8",
+  value: 0
+}, {
+  name: "9",
+  value: 0
+}, {
+  name: "10",
+  value: 0
+}, {
+  name: "11",
+  value: 0
+}, {
+  name: "12",
+  value: 0
 }];
 class LightController extends _Tools.EventManager {
   static LightStatus = new _enum.default(['NOT_CONNECTED', "CONNECTING", "CONNECTED", 'ERROR']);

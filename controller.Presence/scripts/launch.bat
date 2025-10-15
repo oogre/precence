@@ -12,7 +12,7 @@ IF NOT "%ERRORLEVEL%" == "0"  (
 tasklist /FI "IMAGENAME eq player.exe" 2>NUL | find /I /N "player.exe">NUL
 
 IF NOT "%ERRORLEVEL%" == "0"  (
-	start "" player.exe.lnk
+REM	start "" player.exe.lnk
 	timeout /t 10 /nobreak
 )
 
