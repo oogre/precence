@@ -70,6 +70,7 @@ class Recorder extends _Tools.EventManager {
       data.map(draw);
       target.zero = zero;
       return {
+        zero,
         id,
         target,
         name,
@@ -81,6 +82,7 @@ class Recorder extends _Tools.EventManager {
   }
   set defaultChannels(channels) {
     this._defaultChannels = channels;
+    return channels;
   }
   async start() {
     this.hasNewRecord = false;

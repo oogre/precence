@@ -54,6 +54,7 @@ export class Recorder extends EventManager{
 			data.map(draw);
 			target.zero = zero;
 			return {
+				zero,
 				id,
 				target,
 				name,
@@ -66,6 +67,7 @@ export class Recorder extends EventManager{
 
 	set defaultChannels(channels){
 		this._defaultChannels = channels;
+		return channels;
 	}
 
 	async start(){

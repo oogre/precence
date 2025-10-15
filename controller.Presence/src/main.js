@@ -93,6 +93,7 @@ const ui = new UI(window, gamepad, robots, camera, timeline, obs);
         } 
         else if(event.target == "timeline"){
             if(event.eventName == "REC"){
+                camera.autoFocus();
                 await obs.startRecord();
             }
             else if(event.eventName == "STOP"){
@@ -241,6 +242,10 @@ const ui = new UI(window, gamepad, robots, camera, timeline, obs);
 {
     obs.on("OBS_WEBSOCKET_OUTPUT_STARTED", ()=>{
         timeline.start();
+        if(timeline.isLooping())
+            camera.manualFocus()
+        else
+            camera.autoFocus()
     });
 
     obs.on("OBS_WEBSOCKET_OUTPUT_STOPPED", ()=>{
@@ -310,7 +315,7 @@ const ui = new UI(window, gamepad, robots, camera, timeline, obs);
         }
     });
 
-    gamepad.on("CROSS_LEFT", event => {
+    gamepad.on("BUTTON_X", event => {
         if(event.target.getValue() == 1){
             if(!camera.isPlayMode){
                 camera.prevSpeed();
@@ -318,7 +323,7 @@ const ui = new UI(window, gamepad, robots, camera, timeline, obs);
         }
     });
     
-    gamepad.on("CROSS_RIGHT", event => {
+    gamepad.on("BUTTON_Y", event => {
         if(event.target.getValue() == 1){
             if(!camera.isPlayMode){
                 camera.nextSpeed();

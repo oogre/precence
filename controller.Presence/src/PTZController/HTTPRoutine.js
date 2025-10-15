@@ -39,6 +39,14 @@ export default class HTTPRoutine extends EventManager{
 		}
 	}
 
+	autoFocus(){
+		this.log("<-", await call(`${this.host}:${this.port}`, "#D11")); // set FocusMode to auto
+	}
+
+	manualFocus(){
+		this.log("<-", await call(`${this.host}:${this.port}`, "#D10")); // set FocusMode to auto
+	}
+
 	startPolling(){
 		this.log("startPolling")
 		this.isPolling = true;
