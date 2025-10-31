@@ -22,7 +22,7 @@ class PTZController extends _HTTPRoutine.default {
     'ALPHAJET': 3,
     "LIGHT": 4
   });
-  static SpeedValue = [0.1, 0.3, 0.5, 0.7, 1.0];
+  static SpeedValue = [0.15, 0.3, 0.4, 0.6, 1.0];
   constructor(conf) {
     super(conf);
     this.conf = conf;
@@ -115,6 +115,7 @@ class PTZController extends _HTTPRoutine.default {
     return this._zero;
   }
   set zero(value) {
+    //console.log(value)
     this._zero = value;
   }
   nextMode() {
@@ -147,12 +148,9 @@ class PTZController extends _HTTPRoutine.default {
         value: focus
       }
     } = this.in.get("GET_PAN_TILT_ZOOM_FOCUS_IRIS").data.params;
-    console.log({
-      pan,
-      tilt,
-      zoom,
-      focus
-    });
+
+    //console.log({pan,tilt,zoom,focus})
+
     this.zero = {
       pan,
       tilt,
@@ -207,8 +205,17 @@ class PTZController extends _HTTPRoutine.default {
             value: focus
           }
         } = this.in.get("GET_PAN_TILT_ZOOM_FOCUS_IRIS").data.params;
-        if (Math.abs(this._zero.pan - pan) < 0.1 && Math.abs(this._zero.tilt - tilt) < 0.1 && Math.abs(this._zero.zoom - zoom) < 0.1 && Math.abs(this._zero.focus - focus) < 0.1) {
+        if (Math.abs(this._zero.pan - pan) < 0.1 && Math.abs(this._zero.tilt - tilt) < 0.1 && Math.abs(this._zero.zoom - zoom) < 0.1 //  &&
+        //Math.abs(this._zero.focus - focus)<0.2
+        ) {
           break;
+        } else {
+          /*console.log(
+          	Math.abs(this._zero.pan - pan),
+          	Math.abs(this._zero.tilt - tilt),
+          	Math.abs(this._zero.zoom - zoom),
+          	Math.abs(this._zero.focus - focus)
+          )*/
         }
         await (0, _Tools.wait)(50);
       }

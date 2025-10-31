@@ -13,7 +13,7 @@ export default class PTZController extends HTTPRoutine {
 	static ChannelStatus = Channel_Status; 
 
 	static CameraSpeed = new Enum({'MOUNTAIN':0, 'SNAIL':1, 'WIND':2, 'ALPHAJET':3, "LIGHT":4});
-	static SpeedValue = [0.1, 0.3, 0.5, 0.7, 1.0];
+	static SpeedValue = [0.15, 0.3, 0.4, 0.6, 1.0];
 
 
 	constructor(conf){
@@ -110,6 +110,7 @@ export default class PTZController extends HTTPRoutine {
 		return this._zero;
 	}
 	set zero (value){
+		//console.log(value)
 		this._zero = value;
 	}
 
@@ -137,7 +138,7 @@ export default class PTZController extends HTTPRoutine {
 			focus : {value : focus}
 		} = this.in.get("GET_PAN_TILT_ZOOM_FOCUS_IRIS").data.params;
 
-		console.log({pan,tilt,zoom,focus})
+		//console.log({pan,tilt,zoom,focus})
 
 		this.zero = {pan,tilt,zoom,focus};
 	}
@@ -190,11 +191,18 @@ export default class PTZController extends HTTPRoutine {
 				if(
 					Math.abs(this._zero.pan - pan)<0.1 &&
 					Math.abs(this._zero.tilt - tilt)<0.1 &&
-					Math.abs(this._zero.zoom - zoom)<0.1  &&
-					Math.abs(this._zero.focus - focus)<0.1
+					Math.abs(this._zero.zoom - zoom)<0.1//  &&
+					//Math.abs(this._zero.focus - focus)<0.2
 				){
 					break;
-				}
+				}else{
+					/*console.log(
+						Math.abs(this._zero.pan - pan),
+						Math.abs(this._zero.tilt - tilt),
+						Math.abs(this._zero.zoom - zoom),
+						Math.abs(this._zero.focus - focus)
+					)*/
+				}	
 			 	await wait(50);
 			}
 			resolve();

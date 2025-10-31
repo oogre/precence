@@ -4,7 +4,7 @@ nircmd.exe win hide title "TeamViewer"
 
 tasklist /FI "IMAGENAME eq obs64.exe" 2>NUL | find /I /N "obs64.exe">NUL
 IF NOT "%ERRORLEVEL%" == "0"  (
-	start "" obs64.exe.lnk
+	start "" obs64.exe.lnk --disable-shutdown-check
 	timeout /t 10 /nobreak
 )
 
@@ -12,7 +12,7 @@ IF NOT "%ERRORLEVEL%" == "0"  (
 tasklist /FI "IMAGENAME eq player.exe" 2>NUL | find /I /N "player.exe">NUL
 
 IF NOT "%ERRORLEVEL%" == "0"  (
-REM	start "" player.exe.lnk
+	start "" player.exe.lnk
 	timeout /t 10 /nobreak
 )
 

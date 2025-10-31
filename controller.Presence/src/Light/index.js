@@ -69,18 +69,20 @@ export default class LightController extends EventManager {
 		this.conf.status = LightController.LightStatus.CONNECTED;
 		this._mode = LightController.ChannelStatus.NONE;
 
+		this._zero = 0;
 		try{
 			this.displayInterface = MidiOutConnect(conf.name);
 			this.midiInterface = MidiInConnect(conf.name);
-			this.midiInterface.onCC((channel, number, value, deltaTime)=>{
+			this.midiInterface.onCC(async (channel, number, value, deltaTime)=>{
 				if(!knobs[number]){
 					return;
 				}
 				knobs[number].value += value - 64
 				knobs[number].value = Math.min(128, Math.max(0, knobs[number].value));
 				MidiSendCC(this.displayInterface, 0, number, knobs[number].value);
-				this.oscClient.send(`/${knobs[number].name}`, knobs[number].value, (err) => {
-					if (err) console.error(err);
+				await this.inject({
+					name:`/${knobs[number].name}`, 
+					value:knobs[number].value
 				});
 
 				this.isRecordMode && this.trigger("request", {
@@ -92,10 +94,29 @@ export default class LightController extends EventManager {
 			this.log(error);
 		}
 	}
+	get zero (){
+		return this._zero;
+	}
+	set zero (value){
+		this._zero = value;
+	}
+
+	async reset(){
+		if(!this.isConnected)
+			return;
+		await this.inject({name:"/pos", value:this._zero.pos});
+		await this.inject({name:"/amp", value:this._zero.amp});
+		await this.inject({name:"/min", value:this._zero.min});
+		await this.inject({name:"/max", value:this._zero.max});
+		await this.inject({name:"/1", value:this._zero["1"]});
+	}
 
 	inject({name, value}){
-		this.oscClient.send(name, value, (err) => {
-			if (err) console.error(err);
+		return new Promise((resolve)=>{
+			this.oscClient.send(name, value, (err) => {
+				if (err) console.error(err);
+				resolve();
+			});
 		});
 	}
 

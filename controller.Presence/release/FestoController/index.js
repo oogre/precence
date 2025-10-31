@@ -21,7 +21,7 @@ class FestoController extends _ModBus.default {
     'ALPHAJET': 3,
     "LIGHT": 4
   });
-  static SpeedValue = [0.1, 0.3, 0.5, 0.7, 1.0];
+  static SpeedValue = [0.025, 0.2, 0.5, 0.7, 1.0];
   constructor(conf) {
     super(conf);
     this.conf = conf;

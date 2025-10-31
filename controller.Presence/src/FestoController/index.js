@@ -10,7 +10,7 @@ export default class FestoController extends ModBus{
 	static ChannelStatus = Channel_Status; 
 
 	static RobotSpeed = new Enum({'MOUNTAIN':0, 'SNAIL':1, 'WIND':2, 'ALPHAJET':3, "LIGHT":4});
-	static SpeedValue = [0.1, 0.3, 0.5, 0.7, 1.0];
+	static SpeedValue = [0.025, 0.2, 0.5, 0.7, 1.0];
 
 	constructor(conf){
 		super(conf);

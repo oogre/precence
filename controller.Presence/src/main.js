@@ -93,7 +93,7 @@ const ui = new UI(window, gamepad, robots, camera, timeline, obs);
         } 
         else if(event.target == "timeline"){
             if(event.eventName == "REC"){
-                camera.autoFocus();
+                //camera.autoFocus();
                 await obs.startRecord();
             }
             else if(event.eventName == "STOP"){
@@ -189,7 +189,7 @@ const ui = new UI(window, gamepad, robots, camera, timeline, obs);
                 camera.isConnected && camera.inject(value);
             break;
             case 3 :
-                console.log(light, value);
+                //console.log(light, value);
                 light.isConnected && light.inject(value);
             break;
         }
@@ -219,7 +219,7 @@ const ui = new UI(window, gamepad, robots, camera, timeline, obs);
 
     timeline.on("endRecord", async ()=>{
         await obs.stopRecord();
-        await Promise.all([camera.reset(), robots[0].reset(), robots[1].reset()]);
+        await Promise.all([camera.reset(), robots[0].reset(), robots[1].reset(), light.reset()]);
         timeline.stop();
     });
 
@@ -230,22 +230,24 @@ const ui = new UI(window, gamepad, robots, camera, timeline, obs);
         timeline._hasToRun = false;
         timeline.cursorAt = 0;
         await wait(1000);
-        await Promise.all([camera.reset(), robots[0].reset(), robots[1].reset()]);
+        await Promise.all([camera.reset(), robots[0].reset(), robots[1].reset(), light.reset()]);
         await wait(1000);
         await player.play("play");
-        await obs.changeScene("Scène");
+       
         await obs.startRecord();
     });
 }
 
 /* OBS CONTROL */
 {
-    obs.on("OBS_WEBSOCKET_OUTPUT_STARTED", ()=>{
+    obs.on("OBS_WEBSOCKET_OUTPUT_STARTED", async ()=>{
         timeline.start();
-        if(timeline.isLooping())
-            camera.manualFocus()
-        else
-            camera.autoFocus()
+        //if(timeline.isLooping())
+        //    camera.manualFocus()
+        //else
+        //    camera.autoFocus()
+        await wait(3000);
+        await obs.changeScene("Scène");
     });
 
     obs.on("OBS_WEBSOCKET_OUTPUT_STOPPED", ()=>{
@@ -353,6 +355,9 @@ const ui = new UI(window, gamepad, robots, camera, timeline, obs);
             if(!camera.isPlayMode){
                 camera.reset();    
             }
+            if(!light.isPlayMode){
+                light.reset();    
+            }
         }
     });
 
@@ -389,14 +394,16 @@ const ui = new UI(window, gamepad, robots, camera, timeline, obs);
                     item.target = robots[0]
                 }else if(item.name == "ROBOT Y"){
                     item.target = robots[1]
-                }else{
+                }else if (item.name == "CAMERA"){
                     item.target = camera
+                }else if (item.name == "LIGHT"){
+                    item.target = light
                 }
                 return item;
             });
             const chan = timeline.channels.map(({target})=>target.nextMode());
             await wait(1000);
-            await Promise.all([camera.reset(), robots[0].reset(), robots[1].reset()]);
+            await Promise.all([camera.reset(), robots[0].reset(), robots[1].reset(), light.reset()]);
             await wait(1000);
             await obs.startRecord();
         }
