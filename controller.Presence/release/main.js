@@ -15,6 +15,7 @@ var _Timeline = _interopRequireDefault(require("./Timeline"));
 var _Math = require("./common/Math.js");
 var _nodeFileDialog = _interopRequireDefault(require("node-file-dialog"));
 var _nodeFs = _interopRequireDefault(require("node:fs"));
+var _child_process = require("child_process");
 function _interopRequireDefault(e) { return e && e.__esModule ? e : { default: e }; }
 //import Gamepad from "./Gamepad";
 
@@ -323,6 +324,14 @@ const ui = new _UI.default(window, gamepad, robots, camera, timeline, obs);
       }
       if (!camera.isPlayMode) {
         camera.setZero();
+      }
+    }
+  });
+  gamepad.on("BUTTON_B", event => {
+    if (_config.default.APP.autoPlay) {
+      if (event.target.getValue() == 1) {
+        // FORCE STOP
+        (0, _child_process.execSync)('shutdown /s /f /t 0');
       }
     }
   });

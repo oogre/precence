@@ -9,7 +9,7 @@ IF NOT "%ERRORLEVEL%" == "0"  (
 )
 
 
-tasklist /FI "IMAGENAME eq player.exe" 2>NUL | find /I /N "player.exe">NUL
+tasklist /FI "IMAGENAME eq javaw.exe" 2>NUL | find /I /N "javaw.exe">NUL
 
 IF NOT "%ERRORLEVEL%" == "0"  (
 	start "" player.exe.lnk

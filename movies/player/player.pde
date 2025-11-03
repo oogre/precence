@@ -11,8 +11,12 @@ OscP5 oscP5;
 
 File currentMovieFile;
 File folder;
+
+
 void setup() {
   fullScreen(P3D);
+  surface.setSize(1920,1080);
+  surface.setLocation(1920,0);
   folder = new File("C:/Users/Presence/Desktop/presence/movies");
   cleanOldVideos();
   oscP5 = new OscP5(this, 8080);
@@ -23,11 +27,11 @@ void setup() {
 void draw() {
   if (flag) {
     if (null != A) {
-      image(A, 0, 0, width, height);
+      image(A, 0, 0, 1920,1080);
     }
   } else {
     if (null != B) {
-      image(B, 0, 0, width, height);
+      image(B, 0, 0, 1920,1080);
     }
   }
 }
@@ -53,7 +57,7 @@ void loadLastVideo() {
     }
     currentMovieFile = getVideos()[0];
     B = new Movie(this, currentMovieFile.getAbsolutePath());
-    B.loop();
+    B.play();
   } else {
     if (null != currentMovieFile) {
       B.stop();
@@ -62,7 +66,7 @@ void loadLastVideo() {
     }
     currentMovieFile = getVideos()[0];
     A = new Movie(this, currentMovieFile.getAbsolutePath());
-    A.loop();
+    A.play();
   }
 }
 
