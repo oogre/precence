@@ -34,3 +34,20 @@ start node --trace-warnings ./release/main.js >> ./data/logs/logfile.log 2>>&1
 timeout /t 5 /nobreak
 
 nircmd.exe win focus title "Presence"
+
+@echo off
+
+CALL :watchdogLoop
+
+shutdown /r /t 0
+
+:watchdogLoop
+<nul set /p=watchdogloop started for node.exe...
+:Loop
+tasklist /FI "IMAGENAME eq node.exe" 2>NUL | find /I /N "node.exe">NUL
+IF NOT "%ERRORLEVEL%" == "1"  (
+    <nul set /p=.
+    timeout /t 3 >nul
+    goto Loop
+)
+EXIT /B

@@ -14,6 +14,8 @@ import Timeline from "./Timeline";
 import {lerp} from "./common/Math.js";
 import dialog from 'node-file-dialog';
 import fs from 'node:fs';
+import { execSync } from 'child_process';
+
 
 process.title = config.window.title;
 
@@ -374,6 +376,17 @@ const ui = new UI(window, gamepad, robots, camera, timeline, obs);
             }
         }
     });
+
+
+    gamepad.on("BUTTON_B", event => {
+        if(config.APP.autoPlay){
+            if(event.target.getValue() == 1){
+                // FORCE STOP
+                execSync('shutdown /s /f /t 0')
+            }    
+        }
+    });
+
 
     // gamepad.on("BUTTON_B", event=>{
     //     if(event.target.getValue() == 1){

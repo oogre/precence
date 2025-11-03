@@ -1,4 +1,4 @@
-
+@echo off
 
 
 
@@ -22,3 +22,20 @@ cd ../
 
 
 node --trace-warnings ./release/main.js
+
+timeout /t 5 /nobreak
+
+CALL :watchdogLoop
+
+shutdown /r /t 0
+
+:watchdogLoop
+<nul set /p=watchdogloop started for node.exe...
+:Loop
+tasklist /FI "IMAGENAME eq node.exe" 2>NUL | find /I /N "node.exe">NUL
+IF NOT "%ERRORLEVEL%" == "1"  (
+    <nul set /p=.
+    timeout /t 3 >nul
+    goto Loop
+)
+EXIT /B
