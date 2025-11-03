@@ -18,7 +18,8 @@ void setup() {
   surface.setSize(1920,1080);
   surface.setLocation(1920,0);
   folder = new File("C:/Users/Presence/Desktop/presence/movies");
-  cleanOldVideos();
+  //cleanOldVideos();
+  loadLastVideo();
   oscP5 = new OscP5(this, 8080);
   background(0);
   noCursor();
